@@ -1,38 +1,65 @@
-.App {
-  text-align: center;
+
+body {
+    background-image: url('/src/components/assets/img/default.jpg'); /* Adjust the path as needed */
+    background-size: cover; /* Adjust as needed */
+    background-color: rgba(255, 255, 255, 0.2);
+}
+.table-container {
+    font-family: "IRANSans", sans-serif;
+    font-size: 0.8rem; /* Smaller font size */
+    margin: 20px;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.recipient-table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.recipient-table th, .recipient-table td {
+    padding: 8px;
+    border: 1px solid #d1d0d0;
+    text-align: right;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.recipient-table th {
+    background-color: #f2f2f2;
+    cursor: pointer;
 }
 
-.App-link {
-  color: #61dafb;
+.recipient-table tr {
+    background-color: rgba(250, 251, 254, 0.57);
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+
+.recipient-table tr:hover {
+    background-color: #f1f1f1;
+}
+
+.table-header-row {
+    background-color: #f2f2f2; /* Header background color */
+}
+
+.table-header-row th {
+    padding: 8px; /* Padding inside header cells */
+}
+
+.table-search-input {
+    width: 100%; /* Full width of the cell */
+    padding: 6px 12px; /* Padding inside input */
+    border: 1px solid #ddd; /* Border around the input */
+    border-radius: 4px; /* Rounded corners */
+    font-size: 0.8rem; /* Smaller font size for input text */
+}
+
+/* For the date input specifically */
+.table-search-input[type="date"] {
+    direction: ltr; /* Keep the direction left-to-right for date inputs */
+}
+
+/* Adjustments for the search input placeholders */
+.table-search-input::placeholder {
+    font-family: "IRANSans", sans-serif; /* Font family for placeholders */
+    text-align: right; /* Align placeholder text to the right */
+    opacity: 0.7; /* Slightly transparent placeholder */
 }
