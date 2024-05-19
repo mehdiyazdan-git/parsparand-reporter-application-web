@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -74,6 +74,7 @@ const WarehouseReceipts = () => {
         }
     };
 
+
     const handleDeleteWarehouseReceipt = async (id) => {
         await removeWarehouseReceipt(id);
         setRefreshTrigger(!refreshTrigger);
@@ -84,8 +85,8 @@ const WarehouseReceipts = () => {
         { key: 'warehouseReceiptDate', title: 'تاریخ رسید', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.warehouseReceiptDate) },
         { key: 'warehouseReceiptDescription', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
         { key: 'warehouseReceiptNumber', title: 'شماره رسید', width: '15%', sortable: true, searchable: true },
-        { key: 'customerId', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'yearId', title: 'سال', width: '10%', sortable: true, searchable: true },
+        { key: 'customerName', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {

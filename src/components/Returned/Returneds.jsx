@@ -2,17 +2,22 @@ import React, { useEffect, useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import moment from "jalali-moment";
+import EditReturnedForm from "./EditReturnedForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreateReturnedForm from "./CreateReturnedForm";
 import { saveAs } from 'file-saver';
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const toShamsi = (date) => {
+    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
+};
+
+const Returneds = () => {
+    const [editingReturned, setEditingReturned] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +25,25 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllReturneds = async (queryParams) => {
+        return await http.get(`/returneds?${queryParams.toString()}`).then(r => r.data);
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createReturned = async (data) => {
+        return await http.post("/returneds", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updateReturned = async (id, data) => {
+        return await http.put(`/returneds/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removeReturned = async (id) => {
+        return await http.delete(`/returneds/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddReturned = async (newReturned) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createReturned(newReturned);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +57,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdateReturned = async (updatedReturned) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updateReturned(updatedReturned.id, updatedReturned);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingReturned(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +74,19 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeleteReturned = async (id) => {
+        await removeReturned(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
+        { key: 'returnedNumber', title: 'شماره مرجوعی', width: '15%', sortable: true, searchable: true },
+        { key: 'returnedDate', title: 'تاریخ مرجوعی', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.returnedDate) },
+        { key: 'returnedDescription', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
+        { key: 'quantity', title: 'مقدار', width: '10%', sortable: true, searchable: true },
+        { key: 'unitPrice', title: 'قیمت واحد', width: '10%', sortable: true, searchable: true },
+        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +105,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/returneds/download-all-returneds.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "returneds.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +117,7 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={<FileUpload uploadUrl={`/returneds/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +131,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreateReturnedForm
+                    onCreateReturned={handleAddReturned}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +140,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllReturneds}
+                onEdit={(returned) => {
+                    setEditingReturned(returned);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeleteReturned}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingReturned && (
+                <EditReturnedForm
+                    returned={editingReturned}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdateReturned={handleUpdateReturned}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingReturned(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +170,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default Returneds;

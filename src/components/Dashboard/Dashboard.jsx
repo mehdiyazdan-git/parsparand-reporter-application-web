@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
 import Content from './Content';
+import WarehouseReceipts from "../WarehouseReceipt/WarehouseReceipts";
 import {Outlet} from "react-router-dom";
 
 const DashboardContainer = styled.div`
@@ -16,6 +17,15 @@ const MainContent = styled.div`
   flex-direction: column;
   flex-grow: 1;
 `;
+const ContentContainer = styled.div`
+  padding: 70px 20px 20px 20px;
+  padding-right: 250px;
+  background-color: #f8f9fa;
+  flex-grow: 1;
+  height: 100vh; 
+  width: calc(100% - 270px);
+  overflow-y: auto; 
+`;
 
 
 const Dashboard = () => {
@@ -24,7 +34,9 @@ const Dashboard = () => {
             <Sidebar />
             <MainContent>
                 <Navbar />
-                <Content/>
+                <ContentContainer>
+                    <Outlet/>
+                </ContentContainer>
             </MainContent>
         </DashboardContainer>
     );

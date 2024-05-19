@@ -20,7 +20,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
 
     const [data, setData] = useState([]);
     const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(10);
+    const [pageSize, setPageSize] = useState(5);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [sortBy, setSortBy] = useState('');

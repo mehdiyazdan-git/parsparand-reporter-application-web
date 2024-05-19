@@ -2,17 +2,22 @@ import React, { useEffect, useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import moment from "jalali-moment";
+import EditReportForm from "./EditReportForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreateReportForm from "./CreateReportForm";
 import { saveAs } from 'file-saver';
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const toShamsi = (date) => {
+    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
+};
+
+const Reports = () => {
+    const [editingReport, setEditingReport] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +25,25 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllReports = async (queryParams) => {
+        return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createReport = async (data) => {
+        return await http.post("/reports", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updateReport = async (id, data) => {
+        return await http.put(`/reports/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removeReport = async (id) => {
+        return await http.delete(`/reports/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddReport = async (newReport) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createReport(newReport);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +57,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdateReport = async (updatedReport) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updateReport(updatedReport.id, updatedReport);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingReport(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +74,16 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeleteReport = async (id) => {
+        await removeReport(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
+        { key: 'date', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.date) },
+        { key: 'explanation', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
+        { key: 'yearName', title: 'سال', width: '15%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +102,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/reports/download-all-reports.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "reports.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +114,7 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={<FileUpload uploadUrl={`/reports/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +128,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreateReportForm
+                    onCreateReport={handleAddReport}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +137,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllReports}
+                onEdit={(report) => {
+                    setEditingReport(report);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeleteReport}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingReport && (
+                <EditReportForm
+                    report={editingReport}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdateReport={handleUpdateReport}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingReport(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +167,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default Reports;

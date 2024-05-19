@@ -1,18 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import EditInvoiceStatusForm from "./EditInvoiceStatusForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreateInvoiceStatusForm from "./CreateInvoiceStatusForm";
 import { saveAs } from 'file-saver';
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const InvoiceStatuses = () => {
+    const [editingInvoiceStatus, setEditingInvoiceStatus] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +20,25 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllInvoiceStatuses = async (queryParams) => {
+        return await http.get(`/invoice-statuses?${queryParams.toString()}`).then(r => r.data);
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createInvoiceStatus = async (data) => {
+        return await http.post("/invoice-statuses", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updateInvoiceStatus = async (id, data) => {
+        return await http.put(`/invoice-statuses/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removeInvoiceStatus = async (id) => {
+        return await http.delete(`/invoice-statuses/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddInvoiceStatus = async (newInvoiceStatus) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createInvoiceStatus(newInvoiceStatus);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +52,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdateInvoiceStatus = async (updatedInvoiceStatus) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updateInvoiceStatus(updatedInvoiceStatus.id, updatedInvoiceStatus);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingInvoiceStatus(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +69,14 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeleteInvoiceStatus = async (id) => {
+        await removeInvoiceStatus(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
         { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'name', title: 'نام وضعیت', width: '90%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +95,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/invoice-statuses/download-all-invoice-statuses.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "invoice-statuses.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +107,7 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={<FileUpload uploadUrl={`/invoice-statuses/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +121,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreateInvoiceStatusForm
+                    onCreateInvoiceStatus={handleAddInvoiceStatus}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +130,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllInvoiceStatuses}
+                onEdit={(invoiceStatus) => {
+                    setEditingInvoiceStatus(invoiceStatus);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeleteInvoiceStatus}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingInvoiceStatus && (
+                <EditInvoiceStatusForm
+                    invoiceStatus={editingInvoiceStatus}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdateInvoiceStatus={handleUpdateInvoiceStatus}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingInvoiceStatus(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +160,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default InvoiceStatuses;

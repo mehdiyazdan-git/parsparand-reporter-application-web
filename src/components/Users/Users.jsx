@@ -2,17 +2,17 @@ import React, { useEffect, useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import EditUserForm from "./EditUserForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreateUserForm from "./CreateUserForm";
 import { saveAs } from 'file-saver';
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const Users = () => {
+    const [editingUser, setEditingUser] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +20,25 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllUsers = async (queryParams) => {
+        return await http.get(`/users?${queryParams.toString()}`).then(r => r.data);
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createUser = async (data) => {
+        return await http.post("/users", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updateUser = async (id, data) => {
+        return await http.put(`/users/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removeUser = async (id) => {
+        return await http.delete(`/users/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddUser = async (newUser) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createUser(newUser);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +52,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdateUser = async (updatedUser) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updateUser(updatedUser.id, updatedUser);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingUser(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +69,19 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeleteUser = async (id) => {
+        await removeUser(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
+        { key: 'username', title: 'نام کاربری', width: '15%', sortable: true, searchable: true },
+        { key: 'email', title: 'ایمیل', width: '20%', sortable: true, searchable: true },
+        { key: 'enabled', title: 'فعال', width: '10%', sortable: true, searchable: true, render: (item) => item.enabled ? 'بله' : 'خیر' },
+        { key: 'firstname', title: 'نام', width: '15%', sortable: true, searchable: true },
+        { key: 'lastname', title: 'نام خانوادگی', width: '15%', sortable: true, searchable: true },
+        { key: 'role', title: 'نقش', width: '10%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +100,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/users/download-all-users.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "users.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +112,7 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={<FileUpload uploadUrl={`/users/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +126,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreateUserForm
+                    onCreateUser={handleAddUser}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +135,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllUsers}
+                onEdit={(user) => {
+                    setEditingUser(user);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeleteUser}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingUser && (
+                <EditUserForm
+                    user={editingUser}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdateUser={handleUpdateUser}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingUser(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +165,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default Users;

@@ -7,25 +7,28 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 
-const WarehouseReceiptItems = () => {
+const ReportItems = () => {
     const [subtotal, setSubtotal] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const { control } = useFormContext();
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'warehouseReceiptItems',
+        name: 'reportItems',
     });
 
     const http = useHttp();
-    const productSelect = async (searchQuery = '') => {
-        return await http.get(`/products/select?searchQuery=${searchQuery}`);
+    const customerSelect = async (searchQuery = '') => {
+        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+    }
+
+    const warehouseReceiptSelect = async (searchQuery = '') => {
+        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}`);
     }
 
     const watchedFields = useWatch({
-        name: 'warehouseReceiptItems',
+        name: 'reportItems',
         control
     });
-
 
     useEffect(() => {
         const newSubtotal = watchedFields.reduce((acc, item) => {
@@ -43,10 +46,10 @@ const WarehouseReceiptItems = () => {
 
     const addItem = () => {
         append({
-            productId: '',
             quantity: '',
             unitPrice: '',
-            amount: '',
+            customerId: '',
+            warehouseReceiptId: '',
         });
     };
 
@@ -56,11 +59,12 @@ const WarehouseReceiptItems = () => {
 
     return (
         <div className="form-container">
-            <IconAddCircleLine type="button" fontSize={25}  onClick={addItem}/>
+            <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
             <table className="table table-striped table-bordered form-table">
                 <thead>
                 <tr>
-                    <th>شناسه محصول</th>
+                    <th>شناسه مشتری</th>
+                    <th>شناسه رسید انبار</th>
                     <th>قیمت واحد</th>
                     <th>مقدار</th>
                     <th>مجموع</th>
@@ -70,23 +74,26 @@ const WarehouseReceiptItems = () => {
                 <tbody>
                 {fields.map((field, index) => (
                     <tr key={field.id}>
-                        <td className="m-0 p-0" style={{ width: '50%' }}>
-                            <AsyncSelectInput name={`warehouseReceiptItems[${index}].productId`} apiFetchFunction={productSelect}/>
+                        <td className="m-0 p-0" style={{ width: '25%' }}>
+                            <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
+                        </td>
+                        <td className="m-0 p-0" style={{ width: '25%' }}>
+                            <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].unitPrice`} />
+                            <NumberInput name={`reportItems[${index}].unitPrice`} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].quantity`} />
+                            <NumberInput name={`reportItems[${index}].quantity`} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '20%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%' }}>
                             <AmountNumber
                                 value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
                                 disabled
                                 className={"amount-number"}
                             />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '10%' }}>
+                        <td className="m-0 p-0" style={{ width: '5%' }}>
                             <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
                         </td>
                     </tr>
@@ -94,7 +101,7 @@ const WarehouseReceiptItems = () => {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td className="m-0 p-0" colSpan="2">جمع کل:</td>
+                    <td className="m-0 p-0" colSpan="3">جمع کل:</td>
                     <td className="m-0 p-0">
                         <AmountNumber value={totalQuantity} disabled />
                     </td>
@@ -109,4 +116,4 @@ const WarehouseReceiptItems = () => {
     );
 };
 
-export default WarehouseReceiptItems;
+export default ReportItems;

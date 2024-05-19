@@ -12,9 +12,9 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
-import WarehouseReceiptItems from "./WarehouseReceiptItems";
+import ContractItems from "./ContractItems";
 
-const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, show, onHide }) => {
+const EditContractForm = ({ contract, onUpdateContract, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -25,15 +25,17 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }
 
-
-
     const validationSchema = Yup.object().shape({
-        warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),
-        warehouseReceiptDescription: Yup.string().required('توضیحات الزامیست.'),
-        warehouseReceiptNumber: Yup.number().required('شماره رسید الزامیست.'),
+        contractNumber: Yup.string().required('شماره قرارداد الزامیست.'),
+        contractDescription: Yup.string().required('توضیحات قرارداد الزامیست.'),
+        startDate: Yup.string().required('تاریخ شروع الزامیست.'),
+        endDate: Yup.string().required('تاریخ پایان الزامیست.'),
         customerId: Yup.number().required('شناسه مشتری الزامیست.'),
         yearId: Yup.number().required('سال الزامیست.'),
-        warehouseReceiptItems: Yup.array().of(
+        advancePayment: Yup.number().required('پیش پرداخت الزامیست.'),
+        insuranceDeposit: Yup.number().required('ودیعه بیمه الزامیست.'),
+        performanceBond: Yup.number().required('ضمانت اجرا الزامیست.'),
+        contractItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number().required('شناسه محصول الزامیست.'),
                 quantity: Yup.number().required('مقدار الزامیست.'),
@@ -45,32 +47,38 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        if (data.warehouseReceiptDate) {
-            data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
+        if (data.startDate) {
+            data.startDate = moment(new Date(data.startDate)).format('YYYY-MM-DD');
         }
-        await onUpdateWarehouseReceipt(data);
+        if (data.endDate) {
+            data.endDate = moment(new Date(data.endDate)).format('YYYY-MM-DD');
+        }
+        await onUpdateContract(data);
         onHide();
-
     };
 
     return (
         <Modal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="bg-dark text-white">
                 <Modal.Title style={titleStyle}>
-                    {"ایجاد رسید انبار جدید"}
+                    {"ویرایش قرارداد"}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id : warehouseReceipt.id,
-                            warehouseReceiptDate: warehouseReceipt.warehouseReceiptDate,
-                            warehouseReceiptDescription: warehouseReceipt.warehouseReceiptDescription,
-                            warehouseReceiptNumber: warehouseReceipt.warehouseReceiptNumber,
-                            customerId: warehouseReceipt.customerId,
-                            yearId: warehouseReceipt.yearId,
-                            warehouseReceiptItems: warehouseReceipt.warehouseReceiptItems,
+                            id: contract.id,
+                            contractNumber: contract.contractNumber,
+                            contractDescription: contract.contractDescription,
+                            startDate: contract.startDate,
+                            endDate: contract.endDate,
+                            customerId: contract.customerId,
+                            yearId: contract.yearId,
+                            advancePayment: contract.advancePayment,
+                            insuranceDeposit: contract.insuranceDeposit,
+                            performanceBond: contract.performanceBond,
+                            contractItems: contract.contractItems,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}
@@ -79,10 +87,26 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                             <Col>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="warehouseReceiptNumber" label={"شماره رسید"} />
+                                        <TextInput name="contractNumber" label={"شماره قرارداد"} />
                                     </Col>
                                     <Col>
-                                        <DateInput name="warehouseReceiptDate" label={"تاریخ رسید"} />
+                                        <DateInput name="startDate" label={"تاریخ شروع"} />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <DateInput name="endDate" label={"تاریخ پایان"} />
+                                    </Col>
+                                    <Col>
+                                        <NumberInput name="advancePayment" label={"پیش پرداخت"} />
+                                    </Col>
+                                </Row>
+                                <Row>
+                                    <Col>
+                                        <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                    </Col>
+                                    <Col>
+                                        <NumberInput name="performanceBond" label={"ضمانت اجرا"} />
                                     </Col>
                                 </Row>
                                 <Row>
@@ -93,10 +117,10 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                                         <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>
-                                <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />
+                                <TextInput name="contractDescription" label={"توضیحات قرارداد"} />
                             </Col>
                         </Row>
-                        <WarehouseReceiptItems />
+                        <ContractItems />
                         <Button variant="success" type={"submit"}>
                             ویرایش
                         </Button>
@@ -110,4 +134,4 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
     );
 };
 
-export default EditWarehouseReceiptForm;
+export default EditContractForm;

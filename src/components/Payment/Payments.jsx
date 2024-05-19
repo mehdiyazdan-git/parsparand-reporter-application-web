@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import moment from "jalali-moment";
+import EditPaymentForm from "./EditPaymentForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreatePaymentForm from "./CreatePaymentForm";
 import { saveAs } from 'file-saver';
+import {formatNumber} from "../../utils/functions/formatNumber";
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const toShamsi = (date) => {
+    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
+};
+
+const Payments = () => {
+    const [editingPayment, setEditingPayment] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +26,28 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllPayments = async (queryParams) => {
+        return await http.get(`/payments?${queryParams.toString()}`).then(r => {
+            console.log(r.data)
+           return  r.data
+        });
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createPayment = async (data) => {
+        return await http.post("/payments", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updatePayment = async (id, data) => {
+        return await http.put(`/payments/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removePayment = async (id) => {
+        return await http.delete(`/payments/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddPayment = async (newPayment) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createPayment(newPayment);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +61,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdatePayment = async (updatedPayment) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updatePayment(updatedPayment.id, updatedPayment);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingPayment(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +78,19 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeletePayment = async (id) => {
+        await removePayment(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
+        { key: 'paymentDescryption', title: 'توضیحات', width: '20%', sortable: true, searchable: true },
+        { key: 'paymentDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.paymentDate) },
+        { key: 'paymentAmount', title: 'مبلغ', width: '15%', sortable: true, searchable: true, render: item => formatNumber(item.paymentAmount) },
+        { key: 'paymentSubject', title: 'موضوع', width: '15%', sortable: true, searchable: true },
+        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +109,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/payments/download-all-payments.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "payments.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +121,15 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer
+                lastChild={
+                    <FileUpload
+                        uploadUrl={`/payments/import`}
+                        refreshTrigger={refreshTrigger}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                }
+            >
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +143,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreatePaymentForm
+                    onCreatePayment={handleAddPayment}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +152,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllPayments}
+                onEdit={(payment) => {
+                    setEditingPayment(payment);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeletePayment}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingPayment && (
+                <EditPaymentForm
+                    payment={editingPayment}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdatePayment={handleUpdatePayment}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingPayment(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +182,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default Payments;

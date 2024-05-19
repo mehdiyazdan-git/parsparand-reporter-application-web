@@ -2,17 +2,22 @@ import React, { useEffect, useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import EditYearForm from "./EditYearForm";
+import moment from "jalali-moment";
+import EditInvoiceForm from "./EditInvoiceForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-import CreateYearForm from "./CreateYearForm";
+import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
 
-const Years = () => {
-    const [editingYear, setEditingYear] = useState(null);
+const toShamsi = (date) => {
+    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
+};
+
+const Invoices = () => {
+    const [editingInvoice, setEditingInvoice] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
     const [refreshTrigger, setRefreshTrigger] = useState(false);
@@ -20,25 +25,25 @@ const Years = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
 
-    const getAllYears = async (queryParams) => {
-        return await http.get(`/years?${queryParams.toString()}`).then(r => r.data);
+    const getAllInvoices = async (queryParams) => {
+        return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
     };
 
-    const createYear = async (data) => {
-        return await http.post("/years", data);
+    const createInvoice = async (data) => {
+        return await http.post("/invoices", data);
     };
 
-    const updateYear = async (id, data) => {
-        return await http.put(`/years/${id}`, data);
+    const updateInvoice = async (id, data) => {
+        return await http.put(`/invoices/${id}`, data);
     };
 
-    const removeYear = async (id) => {
-        return await http.delete(`/years/${id}`);
+    const removeInvoice = async (id) => {
+        return await http.delete(`/invoices/${id}`);
     };
 
-    const handleAddYear = async (newYear) => {
+    const handleAddInvoice = async (newInvoice) => {
         try {
-            const response = await createYear(newYear);
+            const response = await createInvoice(newInvoice);
             if (response.status === 201) {
                 setRefreshTrigger(!refreshTrigger);
                 setShowModal(false);
@@ -52,12 +57,12 @@ const Years = () => {
         }
     };
 
-    const handleUpdateYear = async (updatedYear) => {
+    const handleUpdateInvoice = async (updatedInvoice) => {
         try {
-            const response = await updateYear(updatedYear.id, updatedYear);
+            const response = await updateInvoice(updatedInvoice.id, updatedInvoice);
             if (response.status === 200) {
                 setRefreshTrigger(!refreshTrigger);
-                setEditingYear(null);
+                setEditingInvoice(null);
                 setEditShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -69,14 +74,20 @@ const Years = () => {
         }
     };
 
-    const handleDeleteYear = async (id) => {
-        await removeYear(id);
+    const handleDeleteInvoice = async (id) => {
+        await removeInvoice(id);
         setRefreshTrigger(!refreshTrigger);
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام سال', width: '90%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
+        { key: 'invoiceNumber', title: 'شماره فاکتور', width: '15%', sortable: true, searchable: true },
+        { key: 'issuedDate', title: 'تاریخ صدور', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
+        { key: 'contractContractNumber', title: 'شماره قرارداد', width: '15%', sortable: true, searchable: true },
+        { key: 'salesType', title: 'نوع فروش', width: '10%', sortable: true, searchable: true },
+        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'invoiceStatusName', title: 'وضعیت فاکتور', width: '10%', sortable: true, searchable: true },
+        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -95,10 +106,10 @@ const Years = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/years/download-all-years.xlsx', { responseType: 'blob' })
+        await http.get('/invoices/download-all-invoices.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "years.xlsx");
+                saveAs(blobData, "invoices.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -107,7 +118,7 @@ const Years = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/years/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={<FileUpload uploadUrl={`/invoices/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
                     variant="primary"
                     onClick={() => setShowModal(true)}
@@ -121,8 +132,8 @@ const Years = () => {
                     color={"#41941a"}
                     type="button"
                 />
-                <CreateYearForm
-                    onCreateYear={handleAddYear}
+                <CreateInvoiceForm
+                    onCreateInvoice={handleAddInvoice}
                     show={showModal}
                     onHide={() => setShowModal(false)}
                 />
@@ -130,22 +141,22 @@ const Years = () => {
 
             <Table
                 columns={columns}
-                fetchData={getAllYears}
-                onEdit={(year) => {
-                    setEditingYear(year);
+                fetchData={getAllInvoices}
+                onEdit={(invoice) => {
+                    setEditingInvoice(invoice);
                     setEditShowModal(true);
                 }}
-                onDelete={handleDeleteYear}
+                onDelete={handleDeleteInvoice}
                 refreshTrigger={refreshTrigger}
             />
 
-            {editingYear && (
-                <EditYearForm
-                    year={editingYear}
+            {editingInvoice && (
+                <EditInvoiceForm
+                    invoice={editingInvoice}
                     show={showEditModal}
-                    onUpdateYear={handleUpdateYear}
+                    onUpdateInvoice={handleUpdateInvoice}
                     onHide={() => {
-                        setEditingYear(null);
+                        setEditingInvoice(null);
                         setEditShowModal(false);
                     }}
                 />
@@ -160,4 +171,4 @@ const Years = () => {
     );
 };
 
-export default Years;
+export default Invoices;

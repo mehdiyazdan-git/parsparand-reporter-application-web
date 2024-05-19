@@ -9,12 +9,11 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
-import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
-import WarehouseReceiptItems from "./WarehouseReceiptItems";
+import NumberInput from "../../utils/NumberInput";
+import useHttp from "../../hooks/useHttp";
 
-const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, show, onHide }) => {
+const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -25,52 +24,42 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }
 
-
-
     const validationSchema = Yup.object().shape({
-        warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),
-        warehouseReceiptDescription: Yup.string().required('توضیحات الزامیست.'),
-        warehouseReceiptNumber: Yup.number().required('شماره رسید الزامیست.'),
+        paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
+        paymentDescryption: Yup.string().required('توضیحات پرداخت الزامیست.'),
         customerId: Yup.number().required('شناسه مشتری الزامیست.'),
         yearId: Yup.number().required('سال الزامیست.'),
-        warehouseReceiptItems: Yup.array().of(
-            Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-            })
-        )
+        paymentAmount: Yup.number().required('مبلغ پرداخت الزامیست.'),
+        paymentSubject: Yup.string().required('موضوع پرداخت الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        if (data.warehouseReceiptDate) {
-            data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
+        if (data.paymentDate) {
+            data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
         }
-        await onUpdateWarehouseReceipt(data);
+        await onCreatePayment(data);
         onHide();
-
     };
 
     return (
-        <Modal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white">
+        <Modal size={"xl"} show={show} onHide={onHide}>
+            <Modal.Header style={headerStyle} closeButton>
                 <Modal.Title style={titleStyle}>
-                    {"ایجاد رسید انبار جدید"}
+                    {"ایجاد پرداخت جدید"}
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id : warehouseReceipt.id,
-                            warehouseReceiptDate: warehouseReceipt.warehouseReceiptDate,
-                            warehouseReceiptDescription: warehouseReceipt.warehouseReceiptDescription,
-                            warehouseReceiptNumber: warehouseReceipt.warehouseReceiptNumber,
-                            customerId: warehouseReceipt.customerId,
-                            yearId: warehouseReceipt.yearId,
-                            warehouseReceiptItems: warehouseReceipt.warehouseReceiptItems,
+                            paymentDate: '',
+                            paymentDescryption: '',
+                            customerId: '',
+                            yearId: '',
+                            paymentAmount: '',
+                            paymentSubject: '',
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}
@@ -79,10 +68,10 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                             <Col>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="warehouseReceiptNumber" label={"شماره رسید"} />
+                                        <DateInput name="paymentDate" label={"تاریخ پرداخت"} />
                                     </Col>
                                     <Col>
-                                        <DateInput name="warehouseReceiptDate" label={"تاریخ رسید"} />
+                                        <TextInput name="paymentDescryption" label={"توضیحات پرداخت"} />
                                     </Col>
                                 </Row>
                                 <Row>
@@ -93,12 +82,18 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                                         <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>
-                                <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />
+                                <Row>
+                                    <Col>
+                                        <NumberInput name="paymentAmount" label={"مبلغ پرداخت"} />
+                                    </Col>
+                                    <Col>
+                                        <TextInput name="paymentSubject" label={"موضوع پرداخت"} />
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
-                        <WarehouseReceiptItems />
                         <Button variant="success" type={"submit"}>
-                            ویرایش
+                            ایجاد
                         </Button>
                         <Button onClick={onHide} variant="warning" type="button">
                             انصراف
@@ -110,4 +105,4 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
     );
 };
 
-export default EditWarehouseReceiptForm;
+export default CreatePaymentForm;

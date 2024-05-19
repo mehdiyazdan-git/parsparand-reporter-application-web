@@ -30,9 +30,18 @@ const SidebarItem = styled(Link)`
 const Sidebar = () => {
     return (
         <SidebarContainer>
-            <SidebarItem to="/">داشبورد</SidebarItem>
-            <SidebarItem to="/page1">نمودارها</SidebarItem>
-            <SidebarItem to="/page2">جداول</SidebarItem>
+            <SidebarItem to="/warehouseReceipts">حواله های انبار</SidebarItem>
+            <SidebarItem to="/products">محصولات</SidebarItem>
+            <SidebarItem to="/reports">گزارش ها</SidebarItem>
+            <SidebarItem to="/customers">مشتریان</SidebarItem>
+            <SidebarItem to="/invoices">فاکتورها</SidebarItem>
+            <SidebarItem to="/invoiceStatuses">وضعیت های فاکتور</SidebarItem>
+            <SidebarItem to="/payments">پرداخت ها</SidebarItem>
+            <SidebarItem to="/adjustments">تعدیلات</SidebarItem>
+            <SidebarItem to="/contracts">قراردادها</SidebarItem>
+            <SidebarItem to="/users">کاربران</SidebarItem>
+            <SidebarItem to="/returneds">مرجوعی ها</SidebarItem>
+            <SidebarItem to="/years">سال ها</SidebarItem>
         </SidebarContainer>
     );
 };

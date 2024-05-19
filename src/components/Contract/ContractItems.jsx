@@ -7,13 +7,13 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 
-const WarehouseReceiptItems = () => {
+const ContractItems = () => {
     const [subtotal, setSubtotal] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const { control } = useFormContext();
     const { fields, append, remove } = useFieldArray({
         control,
-        name: 'warehouseReceiptItems',
+        name: 'contractItems',
     });
 
     const http = useHttp();
@@ -22,10 +22,9 @@ const WarehouseReceiptItems = () => {
     }
 
     const watchedFields = useWatch({
-        name: 'warehouseReceiptItems',
+        name: 'contractItems',
         control
     });
-
 
     useEffect(() => {
         const newSubtotal = watchedFields.reduce((acc, item) => {
@@ -46,7 +45,6 @@ const WarehouseReceiptItems = () => {
             productId: '',
             quantity: '',
             unitPrice: '',
-            amount: '',
         });
     };
 
@@ -56,7 +54,7 @@ const WarehouseReceiptItems = () => {
 
     return (
         <div className="form-container">
-            <IconAddCircleLine type="button" fontSize={25}  onClick={addItem}/>
+            <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
             <table className="table table-striped table-bordered form-table">
                 <thead>
                 <tr>
@@ -71,13 +69,13 @@ const WarehouseReceiptItems = () => {
                 {fields.map((field, index) => (
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '50%' }}>
-                            <AsyncSelectInput name={`warehouseReceiptItems[${index}].productId`} apiFetchFunction={productSelect}/>
+                            <AsyncSelectInput name={`contractItems[${index}].productId`} apiFetchFunction={productSelect} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].unitPrice`} />
+                            <NumberInput name={`contractItems[${index}].unitPrice`} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].quantity`} />
+                            <NumberInput name={`contractItems[${index}].quantity`} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '20%' }}>
                             <AmountNumber
@@ -109,4 +107,4 @@ const WarehouseReceiptItems = () => {
     );
 };
 
-export default WarehouseReceiptItems;
+export default ContractItems;
