@@ -1,4 +1,3 @@
-// Button.js
 import styled from 'styled-components';
 
 const Button = styled.button.attrs(props => ({
@@ -16,7 +15,7 @@ const Button = styled.button.attrs(props => ({
 
   /* Color props for different variants */
   background-color: ${props => {
-    switch (props.variant) {
+    switch (props.$variant) {
       case 'primary':
         return '#007bff';
       case 'secondary':
@@ -34,7 +33,7 @@ const Button = styled.button.attrs(props => ({
 
   &:hover {
     background-color: ${props => {
-      switch (props.variant) {
+      switch (props.$variant) {
         case 'primary':
           return '#0056b3';
         case 'secondary':
@@ -55,7 +54,7 @@ const Button = styled.button.attrs(props => ({
   &:focus {
     outline: none;
     box-shadow: ${props => {
-      switch (props.variant) {
+      switch (props.$variant) {
         case 'primary':
           return '0 0 0 0.2rem rgba(0, 123, 255, 0.25)';
         case 'secondary':
@@ -71,9 +70,6 @@ const Button = styled.button.attrs(props => ({
       }
     }};
   }
-
-  /* Additional styles can be added based on props */
-  ${props => props.className && `class: ${props.className}`};
 `;
 
 export default Button;

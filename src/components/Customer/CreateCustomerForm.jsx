@@ -11,7 +11,7 @@ import CheckboxInput from "../../utils/CheckboxInput";
 
 const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
     const validationSchema = Yup.object().shape({
-        monthlyReport: Yup.bool().required('گزارش ماهانه الزامیست.'),
+        bigCustomer: Yup.boolean().required('نوع مشتری الزامیست.'),
         customerCode: Yup.string().required('کد مشتری الزامیست.'),
         economicCode: Yup.string().required('کد اقتصادی الزامیست.'),
         name: Yup.string().required('نام الزامیست.'),
@@ -27,8 +27,8 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show} >
+            <Modal.Header style={headerStyle}>
                 <Modal.Title style={titleStyle}>
                     {"ایجاد مشتری جدید"}
                 </Modal.Title>
@@ -37,7 +37,7 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            monthlyReport: false,
+                            bigCustomer: false,
                             customerCode: '',
                             economicCode: '',
                             name: '',
@@ -51,10 +51,10 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <CheckboxInput name="monthlyReport" label={"گزارش ماهانه"} />
+                                        <TextInput name="customerCode" label={"کد مشتری"} />
                                     </Col>
                                     <Col>
-                                        <TextInput name="customerCode" label={"کد مشتری"} />
+                                        <CheckboxInput name="bigCustomer" label={"نوع مشتری"} />
                                     </Col>
                                 </Row>
                                 <Row>
@@ -75,10 +75,10 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
                                 </Row>
                             </Col>
                         </Row>
-                        <Button variant="success" type={"submit"}>
+                        <Button $variant="success" type={"submit"}>
                             ایجاد
                         </Button>
-                        <Button onClick={onHide} variant="warning" type="button">
+                        <Button onClick={onHide} $variant="warning" type="button">
                             انصراف
                         </Button>
                     </Form>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import useHttp from '../../hooks/useHttp';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
@@ -17,13 +17,13 @@ const ReportItems = () => {
     });
 
     const http = useHttp();
-    const customerSelect = async (searchQuery = '') => {
+    const customerSelect = useCallback(async (searchQuery = '') => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
-    }
+    }, [http]);
 
-    const warehouseReceiptSelect = async (searchQuery = '') => {
-        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}`);
-    }
+    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '2') => {
+        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}&yearId=${yearId}`);
+    }, [http]);
 
     const watchedFields = useWatch({
         name: 'reportItems',
@@ -31,31 +31,59 @@ const ReportItems = () => {
     });
 
     useEffect(() => {
-        const newSubtotal = watchedFields.reduce((acc, item) => {
-            return acc + (parseInt(item.unitPrice, 10) || 0) * (parseInt(item.quantity, 10) || 0);
-        }, 0);
-        setSubtotal(newSubtotal);
+        const calculateTotals = () => {
+            const newSubtotal = watchedFields.reduce((acc, item) => {
+                return acc + (parseInt(item.unitPrice, 10) || 0) * (parseInt(item.quantity, 10) || 0);
+            }, 0);
+            setSubtotal(newSubtotal);
+
+            const newTotalQuantity = watchedFields.reduce((acc, item) => {
+                return acc + (parseInt(item.quantity, 10) || 0);
+            }, 0);
+            setTotalQuantity(newTotalQuantity);
+        };
+        calculateTotals();
     }, [watchedFields]);
 
-    useEffect(() => {
-        const newTotalQuantity = watchedFields.reduce((acc, item) => {
-            return acc + (parseInt(item.quantity, 10) || 0);
-        }, 0);
-        setTotalQuantity(newTotalQuantity);
-    }, [watchedFields]);
-
-    const addItem = () => {
+    const addItem = useCallback(() => {
         append({
             quantity: '',
             unitPrice: '',
             customerId: '',
             warehouseReceiptId: '',
         });
-    };
+    }, [append]);
 
-    const removeItem = (index) => {
+    const removeItem = useCallback((index) => {
         remove(index);
-    };
+    }, [remove]);
+
+    const renderedFields = useMemo(() => fields.map((field, index) => (
+        <tr key={field.id}>
+            <td className="m-0 p-0" style={{ width: '25%' }}>
+                <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
+            </td>
+            <td className="m-0 p-0" style={{ width: '25%' }}>
+                <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
+            </td>
+            <td className="m-0 p-0" style={{ width: '15%' }}>
+                <NumberInput name={`reportItems[${index}].unitPrice`} />
+            </td>
+            <td className="m-0 p-0" style={{ width: '15%' }}>
+                <NumberInput name={`reportItems[${index}].quantity`} />
+            </td>
+            <td className="m-0 p-0" style={{ width: '15%' }}>
+                <AmountNumber
+                    value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
+                    disabled
+                    className={"amount-number"}
+                />
+            </td>
+            <td className="m-0 p-0" style={{ width: '5%' }}>
+                <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
+            </td>
+        </tr>
+    )), [fields, watchedFields, customerSelect, warehouseReceiptSelect, removeItem]);
 
     return (
         <div className="form-container">
@@ -72,32 +100,7 @@ const ReportItems = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {fields.map((field, index) => (
-                    <tr key={field.id}>
-                        <td className="m-0 p-0" style={{ width: '25%' }}>
-                            <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
-                        </td>
-                        <td className="m-0 p-0" style={{ width: '25%' }}>
-                            <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
-                        </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`reportItems[${index}].unitPrice`} />
-                        </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`reportItems[${index}].quantity`} />
-                        </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <AmountNumber
-                                value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
-                                disabled
-                                className={"amount-number"}
-                            />
-                        </td>
-                        <td className="m-0 p-0" style={{ width: '5%' }}>
-                            <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
-                        </td>
-                    </tr>
-                ))}
+                {renderedFields}
                 </tbody>
                 <tfoot>
                 <tr>

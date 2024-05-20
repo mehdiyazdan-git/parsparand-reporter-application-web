@@ -131,7 +131,7 @@ const Payments = () => {
                 }
             >
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

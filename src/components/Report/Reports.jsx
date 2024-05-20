@@ -81,9 +81,9 @@ const Reports = () => {
 
     const columns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'date', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.date) },
-        { key: 'explanation', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
-        { key: 'yearName', title: 'سال', width: '15%', sortable: true, searchable: true },
+        { key: 'reportDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
+        { key: 'reportExplanation', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
+        { key: 'yearId', title: 'سال', width: '15%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -116,7 +116,7 @@ const Reports = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/reports/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

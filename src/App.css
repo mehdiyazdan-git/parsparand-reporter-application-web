@@ -14,6 +14,9 @@ body {
     width: 100%;
     border-collapse: collapse;
     text-align: left;
+    cursor: pointer;
+    font-family: "IRANSans", sans-serif;
+    font-size: 0.8rem; /* Smaller font size */
 }
 
 .recipient-table th, .recipient-table td {

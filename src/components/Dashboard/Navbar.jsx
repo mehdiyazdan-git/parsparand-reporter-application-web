@@ -11,12 +11,13 @@ const NavbarContainer = styled.div`
   padding: 10px 20px;
   position: fixed;
   top: 0;
-  right: 230px; /* Adjusted for RTL */
-  width: calc(100% - 270px); /* Adjusted for sidebar width */
+  right: 200px; /* Adjusted for RTL */
+  width: calc(100% - 200px); /* Adjusted for sidebar width */
   z-index: 1000;
 `;
 
 const NavbarBrand = styled.div`
+  font-family: "Amine", sans-serif;
   font-size: 1.5rem;
 `;
 

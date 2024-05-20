@@ -81,7 +81,7 @@ const Customers = () => {
         { key: 'customerCode', title: 'کد مشتری', width: '15%', sortable: true, searchable: true },
         { key: 'economicCode', title: 'کد اقتصادی', width: '15%', sortable: true, searchable: true },
         { key: 'nationalCode', title: 'کد ملی', width: '15%', sortable: true, searchable: true },
-        { key: 'bigCustomer', title: 'مشتری بزرگ', width: '10%', sortable: true, searchable: true, render: (item) => item.bigCustomer ? 'بله' : 'خیر' },
+        { key: 'bigCustomer', title: 'مشتری بزرگ', width: '10%', sortable: true, searchable: true, type: 'checkbox', render: (item) => item.bigCustomer ? 'بله' : 'خیر' },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -114,7 +114,7 @@ const Customers = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/customers/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

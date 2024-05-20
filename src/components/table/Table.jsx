@@ -15,6 +15,7 @@ import IconKey from "../assets/icons/IconKey";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import "../../App.css"
+import SearchCheckboxInput from "./SearchCheckboxInput";
 
 const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPassword }) => {
 
@@ -150,7 +151,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     key={column.key}
                                     width={column.width}
                                     value={search[column.key] ? (column.render ? column.render(search[column.key]) : search[column.key]) : ''}
-                                    onChange={(date) => setSearch({...search, [column.key]: date})}
+                                    onChange={(date) => setSearch({ ...search, [column.key]: date })}
                                 />
                             ) : column.type === 'select' ? (
                                 <SelectSearchInput
@@ -159,7 +160,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     name={column.key}
                                     options={column.options}
                                     value={search[column.key]}
-                                    onChange={(value) => setSearch({...search, [column.key]: value})}
+                                    onChange={(value) => setSearch({ ...search, [column.key]: value })}
                                 />
                             ) : column.type === 'async-select' ? (
                                 <AsyncSelectInput
@@ -168,7 +169,17 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     name={column.key}
                                     apiFetchFunction={column.apiFetchFunction}
                                     defaultValue={search[column.key]}
-                                    onChange={(value) => setSearch({...search, [column.key]: value})}
+                                    onChange={(value) => setSearch({ ...search, [column.key]: value })}
+                                />
+                            ) : column.type === 'checkbox' ? (
+                                <SearchCheckboxInput
+                                    key={column.key}
+                                    width={column.width}
+                                    id={column.key}
+                                    name={column.key}
+                                    checked={search[column.key]}
+                                    onChange={(event) => setSearch({ ...search, [column.key]: event.target.checked })}
+                                    label={column.title}
                                 />
                             ) : (
                                 <SearchInput
@@ -177,7 +188,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     id={column.key}
                                     name={column.key}
                                     value={search[column.key]}
-                                    onChange={(event) => setSearch({...search, [column.key]: event.target.value})}
+                                    onChange={(event) => setSearch({ ...search, [column.key]: event.target.value })}
                                 />
                             )
                         ) : (
@@ -186,6 +197,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                     )}
                     <th width="5%"></th>
                 </tr>
+
                 </thead>
                 <tbody>
                 {data.map((item) => (

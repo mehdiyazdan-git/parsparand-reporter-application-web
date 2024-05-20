@@ -73,13 +73,35 @@ const Products = () => {
         await removeProduct(id);
         setRefreshTrigger(!refreshTrigger);
     };
+    const convertToPersianCaption = (caption) => {
+        const persianCaptions = {
+            'MAIN': 'اصلی',
+            'SCRAPT': 'ضایعات',
+            'RAWMATERIAL': 'مواد اولیه',
+        };
+        return persianCaptions[caption] || caption;
+    };
+    const  options = [
+        { value: 2, label: 'اصلی' },
+        { value: 6, label:  'ضایعات' },
+        { value: 1, label: 'مواد اولیه' },
+    ]
 
     const columns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'productCode', title: 'کد محصول', width: '15%', sortable: true, searchable: true },
         { key: 'productName', title: 'نام محصول', width: '20%', sortable: true, searchable: true },
         { key: 'measurementIndex', title: 'شاخص اندازه‌گیری', width: '20%', sortable: true, searchable: true },
-        { key: 'productTypeCaption', title: 'نوع محصول', width: '20%', sortable: true, searchable: true },
+        {
+            key: 'productType',
+            title: 'نوع محصول',
+            width: '20%',
+            sortable: true,
+            searchable: true,
+            render: (item) => convertToPersianCaption(item.productType),
+            type : 'select',
+            options : options
+        },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -110,9 +132,17 @@ const Products = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/products/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer
+                lastChild={
+                        <FileUpload
+                            uploadUrl={`/products/import`}
+                            refreshTrigger={refreshTrigger}
+                            setRefreshTrigger={setRefreshTrigger}
+                        />
+                }
+            >
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

@@ -120,7 +120,7 @@ const Invoices = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/invoices/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

@@ -114,7 +114,7 @@ const Users = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/users/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -81,12 +81,12 @@ const WarehouseReceipts = () => {
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'warehouseReceiptDate', title: 'تاریخ رسید', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.warehouseReceiptDate) },
-        { key: 'warehouseReceiptDescription', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
-        { key: 'warehouseReceiptNumber', title: 'شماره رسید', width: '15%', sortable: true, searchable: true },
-        { key: 'customerName', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '3%', sortable: true },
+        { key: 'warehouseReceiptNumber', title: 'شماره حواله', width: '5%', sortable: true, searchable: true },
+        { key: 'warehouseReceiptDate', title: 'تاریخ رسید', width: '7%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.warehouseReceiptDate) },
+        { key: 'warehouseReceiptDescription', title: 'توضیحات', width: '40%', sortable: true, searchable: true },
+        { key: 'customerName', title: 'مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'yearName', title: 'سال', width: '5%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -118,9 +118,17 @@ const WarehouseReceipts = () => {
     return (
         <div className="table-container">
             <div className="table-container">
-                <ButtonContainer lastChild={<FileUpload uploadUrl={`/persons/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger}/>}>
+                <ButtonContainer
+                    lastChild={
+                    <FileUpload
+                            uploadUrl={`/warehouse-receipts/import`}
+                            refreshTrigger={refreshTrigger}
+                            setRefreshTrigger={setRefreshTrigger}
+                        />
+                    }
+                >
                     <Button
-                        variant="primary"
+                        $variant="primary"
                         onClick={() => setShowModal(true)}
                     >
                         جدید

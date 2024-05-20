@@ -121,7 +121,7 @@ const Contracts = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/contracts/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

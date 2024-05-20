@@ -1,25 +1,27 @@
 @font-face {
   font-family: "IRANSans";
-  src: local("IRANSans");
-  src: url("/src/components/assets/fonts/IRANSansWeb(FaNum)_Light.woff2");
+  src: local("IRANSans"), url("/src/components/assets/fonts/IRANSansWeb(FaNum)_Light.woff2") format("woff2");
+  font-display: swap; /* Ensures fallback font is swapped with custom font when it loads */
 }
 
 @font-face {
   font-family: "IRANSansBold";
-  src: local("IRANSans");
-  src: url("/src/components/assets/fonts/IRANSansMonoSpacedNum_Bold.ttf");
+  src: local("IRANSans"), url("/src/components/assets/fonts/IRANSansMonoSpacedNum_Bold.ttf") format("truetype");
+  font-display: swap;
 }
 
 @font-face {
   font-family: "IRANSansMedium";
-  src: local("IRANSans");
-  src: url("/src/components/assets/fonts/IRANSansMonoSpacedNum_Medium.ttf");
+  src: local("IRANSans"), url("/src/components/assets/fonts/IRANSansMonoSpacedNum_Medium.ttf") format("truetype");
+  font-display: swap;
 }
+
 @font-face {
   font-family: "Amine";
-  src: local("Amine");
-  src: url("/src/components/assets/fonts/Amine{@fontbartar}.ttf");
+  src: local("Amine"), url("/src/components/assets/fonts/Amine{@fontbartar}.ttf") format("truetype");
+  font-display: swap;
 }
+
 html, body, #root {
   height: 100vh;
   margin: 0;

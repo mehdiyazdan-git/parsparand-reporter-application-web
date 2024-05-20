@@ -16,14 +16,15 @@ const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  background-color: transparent;
 `;
 const ContentContainer = styled.div`
   padding: 70px 20px 20px 20px;
   padding-right: 250px;
-  background-color: #f8f9fa;
+  background-color: rgba(255,255,255,0.2);
   flex-grow: 1;
   height: 100vh; 
-  width: calc(100% - 270px);
+  width: 100%
   overflow-y: auto; 
 `;
 

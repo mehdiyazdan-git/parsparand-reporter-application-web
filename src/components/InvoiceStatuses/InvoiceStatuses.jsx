@@ -76,7 +76,7 @@ const InvoiceStatuses = () => {
 
     const columns = [
         { key: 'id', title: 'شناسه', width: '10%', sortable: true },
-        { key: 'name', title: 'نام وضعیت', width: '90%', sortable: true, searchable: true },
+        { key: 'name', title: 'نام وضعیت', width: '80%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -109,7 +109,7 @@ const InvoiceStatuses = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/invoice-statuses/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

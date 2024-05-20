@@ -119,7 +119,7 @@ const Returneds = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/returneds/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

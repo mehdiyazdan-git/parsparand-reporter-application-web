@@ -120,7 +120,7 @@ const Adjustments = () => {
         <div className="table-container">
             <ButtonContainer lastChild={<FileUpload uploadUrl={`/adjustments/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
                 <Button
-                    variant="primary"
+                    $variant="primary"
                     onClick={() => setShowModal(true)}
                 >
                     جدید

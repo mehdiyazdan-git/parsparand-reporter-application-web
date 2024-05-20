@@ -11,7 +11,7 @@ import CheckboxInput from "../../utils/CheckboxInput";
 
 const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
     const validationSchema = Yup.object().shape({
-        monthlyReport: Yup.bool().required('گزارش ماهانه الزامیست.'),
+        bigCustomer: Yup.bool().required('گزارش ماهانه الزامیست.'),
         customerCode: Yup.string().required('کد مشتری الزامیست.'),
         economicCode: Yup.string().required('کد اقتصادی الزامیست.'),
         name: Yup.string().required('نام الزامیست.'),
@@ -38,7 +38,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                     <Form
                         defaultValues={{
                             id: customer.id,
-                            monthlyReport: customer.monthlyReport,
+                            bigCustomer: customer.bigCustomer,
                             customerCode: customer.customerCode,
                             economicCode: customer.economicCode,
                             name: customer.name,
@@ -52,7 +52,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <CheckboxInput name="monthlyReport" label={"گزارش ماهانه"} />
+                                        <CheckboxInput name="bigCustomer" label={"نوع مشتری"} />
                                     </Col>
                                     <Col>
                                         <TextInput name="customerCode" label={"کد مشتری"} />
@@ -76,10 +76,10 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                                 </Row>
                             </Col>
                         </Row>
-                        <Button variant="success" type={"submit"}>
+                        <Button $variant="success" type={"submit"}>
                             ویرایش
                         </Button>
-                        <Button onClick={onHide} variant="warning" type="button">
+                        <Button onClick={onHide} $variant="warning" type="button">
                             انصراف
                         </Button>
                     </Form>

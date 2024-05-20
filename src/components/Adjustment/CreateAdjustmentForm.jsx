@@ -91,10 +91,10 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
                                 <TextInput name="description" label={"توضیحات"} />
                             </Col>
                         </Row>
-                        <Button variant="success" type={"submit"}>
+                        <Button $variant="success" type={"submit"}>
                             ایجاد
                         </Button>
-                        <Button onClick={onHide} variant="warning" type="button">
+                        <Button onClick={onHide} $variant="warning" type="button">
                             انصراف
                         </Button>
                     </Form>
