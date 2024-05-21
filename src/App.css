@@ -66,3 +66,21 @@ body {
     text-align: right; /* Align placeholder text to the right */
     opacity: 0.7; /* Slightly transparent placeholder */
 }
+.modal-header {
+    background-color: rgba(2, 74, 137, 0.9); /* Header background color */
+    padding: 10px; /* Padding inside header cells */
+    font-size: 1rem; /* Font size for header text */
+    font-weight: bold; /* Bold header text */
+    text-align: right; /* Align header text to the right */
+    text-indent: 10px;
+    font-family: "IRANSans", sans-serif; /* Font family for header text */
+}
+.modal-table-header {
+    background: rgba(28, 94, 161, 0.8); /* Header background color */
+    padding: 10px; /* Padding inside header cells */
+    font-size: 0.75rem; /* Font size for header text */
+    font-weight: bold; /* Bold header text */
+    text-align: right; /* Align header text to the right */
+    font-family: "IRANSans", sans-serif; /* Font family for header text */
+    text-indent: 10px;
+}

@@ -1,9 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
-import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
@@ -13,9 +12,11 @@ import useHttp from "../../hooks/useHttp";
 import InvoiceItems from "./InvoiceItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import SelectInput from "../../utils/SelectInput";
 
 const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
     const http = useHttp();
+    const [isContractualSales, setIsContractualSales] = useState(false);
 
     const yearSelect = async () => {
         return await http.get(`/years/select`);
@@ -29,8 +30,8 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
         return await http.get(`/contracts/select?searchQuery=${searchQuery}`);
     }
 
-    const invoiceStatusSelect = async () => {
-        return await http.get(`/invoice-status/select`);
+    const invoiceStatusSelect = async (searchParam='') => {
+        return await http.get(`/invoice-statuses/select?searchParam=${searchParam}`);
     }
 
     const validationSchema = Yup.object().shape({
@@ -38,12 +39,12 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
         invoiceNumber: Yup.number().required('شماره فاکتور الزامیست.'),
         issuedDate: Yup.string().required('تاریخ صدور الزامیست.'),
         salesType: Yup.string().required('نوع فروش الزامیست.'),
-        contractId: Yup.number().required('شناسه قرارداد الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
         invoiceStatusId: Yup.number().required('وضعیت فاکتور الزامیست.'),
-        advancedPayment: Yup.number().required('پیش پرداخت الزامیست.'),
-        insuranceDeposit: Yup.number().required('ودیعه بیمه الزامیست.'),
-        performanceBound: Yup.number().required('ضمانت اجرا الزامیست.'),
+        contractId: isContractualSales ? Yup.number().required('شناسه قرارداد الزامیست.') : Yup.number(),
+        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
+        advancedPayment: isContractualSales ? Yup.number().required('پیش پرداخت الزامیست.') : Yup.number(),
+        insuranceDeposit: isContractualSales ? Yup.number().required('ودیعه بیمه الزامیست.') : Yup.number(),
+        performanceBound: isContractualSales ? Yup.number().required('ضمانت اجرا الزامیست.') : Yup.number(),
         yearId: Yup.number().required('سال الزامیست.'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
@@ -68,6 +69,11 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
         onHide();
     };
 
+    const handleInvoiceStatusChange = (selectedOption) => {
+        const isContractual = selectedOption && selectedOption.value === 'CONTRACTUAL_SALES';
+        setIsContractualSales(isContractual);
+    };
+
     return (
         <Modal size={"xl"} show={show} onHide={onHide}>
             <Modal.Header style={headerStyle} closeButton>
@@ -82,7 +88,7 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
                             dueDate: '',
                             invoiceNumber: '',
                             issuedDate: '',
-                            salesType: '',
+                            salesType: 'CASH_SALES',
                             contractId: '',
                             customerId: '',
                             invoiceStatusId: '',
@@ -117,38 +123,56 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
                                         <DateInput name="issuedDate" label={"تاریخ صدور"} />
                                     </Col>
                                     <Col>
-                                        <TextInput name="salesType" label={"نوع فروش"} />
+                                        <SelectInput
+                                            name="salesType"
+                                            label={"نوع فروش"}
+                                            options={[
+                                                { label: "فروش نقدی", value: "CASH_SALES" },
+                                                { label: "فروش قراردادی", value: "CONTRACTUAL_SALES" },
+                                            ]}
+                                        />
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col>
-                                        <AsyncSelectInput name="contractId" label={"شناسه قرارداد"} apiFetchFunction={contractSelect} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <AsyncSelectInput name="invoiceStatusId" label={"وضعیت فاکتور"} apiFetchFunction={invoiceStatusSelect} />
-                                    </Col>
                                     <Col>
                                         <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
+                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
                                     </Col>
                                     <Col>
-                                        <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                        <AsyncSelectInput
+                                            name="invoiceStatusId"
+                                            label={"وضعیت فاکتور"}
+                                            apiFetchFunction={invoiceStatusSelect}
+                                            onChange={handleInvoiceStatusChange}
+                                        />
                                     </Col>
                                 </Row>
-                                <Row>
-                                    <Col>
-                                        <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
-                                    </Col>
-                                </Row>
+                                {isContractualSales && (
+                                    <>
+                                        <Row>
+                                            <Col>
+                                                <AsyncSelectInput name="contractId" label={" قرارداد"} apiFetchFunction={contractSelect} />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
+                                            </Col>
+                                            <Col>
+                                                <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                            </Col>
+                                        </Row>
+                                        <Row>
+                                            <Col>
+                                                <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
+                                            </Col>
+                                        </Row>
+                                    </>
+                                )}
                             </Col>
                         </Row>
                         <InvoiceItems />

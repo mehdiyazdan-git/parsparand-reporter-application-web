@@ -80,14 +80,11 @@ const Contracts = () => {
     };
 
     const columns = [
-        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'contractNumber', title: 'شماره قرارداد', width: '15%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '3%', sortable: true },
+        { key: 'contractNumber', title: 'شماره قرارداد', width: '7%', sortable: true, searchable: true },
         { key: 'contractDescription', title: 'توضیحات قرارداد', width: '25%', sortable: true, searchable: true },
-        { key: 'startDate', title: 'تاریخ شروع', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.startDate) },
-        { key: 'endDate', title: 'تاریخ پایان', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.endDate) },
-        { key: 'advancePayment', title: 'پیش پرداخت', width: '10%', sortable: true, searchable: true },
-        { key: 'performanceBond', title: 'ضمانت اجرا', width: '10%', sortable: true, searchable: true },
-        { key: 'insuranceDeposit', title: 'ودیعه بیمه', width: '10%', sortable: true, searchable: true },
+        { key: 'startDate', title: 'تاریخ شروع', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.startDate) },
+        { key: 'endDate', title: 'تاریخ پایان', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.endDate) },
         { key: 'customerName', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
     ];
 

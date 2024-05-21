@@ -8,7 +8,7 @@ import { ConnectForm } from "./ConnectForm";
 const DateInput = ({ name, label, ...rest }) => {
     return (
         <div>
-            <label className="label">{label}</label>
+            <label className="label" style={{fontFamily:"IRANSansBold",fontSize:"0.75rem"}}>{label}</label>
             <ConnectForm>
                 {({ control, setValue }) => (
                     <Controller

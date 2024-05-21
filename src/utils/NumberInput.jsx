@@ -26,6 +26,7 @@ const NumberInput = ({ name, label,style, ...rest }) => {
                                         boxSizing: 'border-box',
                                         minHeight: '40px',
                                         backgroundColor: 'rgba(255, 255, 255, 0.5)',
+                                        textIndent:"0.5rem",
                                         ...style
                                     }}
                                     {...rest}

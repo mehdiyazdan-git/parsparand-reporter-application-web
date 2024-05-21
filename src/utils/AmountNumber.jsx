@@ -31,7 +31,9 @@ function AmountNumber({value, name, onChange, id,error,isDisable=false}) {
                     width: "100%",
                     boxSizing: "border-box",
                     minHeight: "40px",
-                    fontSize:"0.8rem",
+                    fontFamily:"IRANSans",
+                    fontSize:"0.75rem",
+                    textIndent:"0.5rem",
                     backgroundColor: 'rgba(255, 255, 255, 0.5)'
                 }}
                 disabled={isDisable}

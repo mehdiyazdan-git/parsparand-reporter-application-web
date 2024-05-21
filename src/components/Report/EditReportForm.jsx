@@ -12,6 +12,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ReportItems from "./ReportItems";
+import "../../App.css";
 
 const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
     const http = useHttp();
@@ -45,8 +46,8 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white" closeButton>
+        <Modal size={"xl"} show={show}>
+            <Modal.Header  className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ویرایش گزارش"}
                 </Modal.Title>
@@ -70,7 +71,7 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
                                     <Col>
                                         <DateInput name="reportDate" label={"تاریخ گزارش"} />
                                     </Col>
-                                    <Col>
+                                    <Col className={"mb-1"}>
                                         <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>

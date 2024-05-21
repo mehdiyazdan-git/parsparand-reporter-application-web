@@ -114,7 +114,15 @@ const Reports = () => {
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/reports/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer
+                lastChild={
+                    <FileUpload
+                        uploadUrl={`/reports/import`}
+                        refreshTrigger={refreshTrigger}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                }
+            >
                 <Button
                     $variant="primary"
                     onClick={() => setShowModal(true)}

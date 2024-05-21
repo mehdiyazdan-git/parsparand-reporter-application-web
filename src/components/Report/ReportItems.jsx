@@ -21,7 +21,7 @@ const ReportItems = () => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }, [http]);
 
-    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '2') => {
+    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '3') => {
         return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}&yearId=${yearId}`);
     }, [http]);
 
@@ -58,28 +58,78 @@ const ReportItems = () => {
         remove(index);
     }, [remove]);
 
+    const thStyle = {
+        padding: '0.25rem 0.75rem',
+        borderBottom: '1px solid #dee2e6',
+        backgroundColor: 'rgba(218,222,225,0.9)',
+        borderTop: '1px solid #cccccc',
+        borderRight: '1px solid #cccccc',
+        borderLeft: '1px solid #cccccc',
+        borderTopLeftRadius: '5px',
+        borderTopRightRadius: '5px',
+        boxSizing: 'border-box',
+        maxWidth: '100%',
+        overflow: 'hidden',
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        fontSize: '0.775rem',
+        lineHeight: 2,
+        color: '#212529',
+    };
+
+    const tdStyle = {
+        padding: '0.25rem 0.75rem',
+        borderBottom: '1px solid #dee2e6',
+        verticalAlign: 'top',
+        textAlign: 'left',
+        whiteSpace: 'pre-wrap',
+        wordWrap: 'break-word',
+        backgroundColor: '#fff',
+    };
+
+    const tableStyle = {
+        width: '100%',
+        borderCollapse: 'collapse',
+        tableLayout: 'fixed',
+        borderSpacing: 0,
+        border: '1px solid #ccc',
+        backgroundColor: '#fff',
+        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
+        borderRadius: '5px',
+        overflow: 'hidden',
+        marginBottom: '1rem',
+        fontSize: '0.875rem',
+        lineHeight: 1.5,
+        color: '#212529',
+        boxSizing: 'border-box',
+        display: 'block',
+        maxWidth: '100%',
+        overflowX: 'auto',
+        whiteSpace: 'nowrap',
+    }
+
     const renderedFields = useMemo(() => fields.map((field, index) => (
         <tr key={field.id}>
-            <td className="m-0 p-0" style={{ width: '25%' }}>
+            <td className="m-0 p-0" style={{ width: '25%'}}>
                 <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
             </td>
-            <td className="m-0 p-0" style={{ width: '25%' }}>
+            <td className="m-0 p-0" style={{ width: '25%'}}>
                 <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
             </td>
-            <td className="m-0 p-0" style={{ width: '15%' }}>
+            <td className="m-0 p-0" style={{ width: '10%'}}>
                 <NumberInput name={`reportItems[${index}].unitPrice`} />
             </td>
-            <td className="m-0 p-0" style={{ width: '15%' }}>
+            <td className="m-0 p-0" style={{ width: '5%'}}>
                 <NumberInput name={`reportItems[${index}].quantity`} />
             </td>
-            <td className="m-0 p-0" style={{ width: '15%' }}>
+            <td className="m-0 p-0" style={{ width: '10%'}}>
                 <AmountNumber
                     value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
                     disabled
                     className={"amount-number"}
                 />
             </td>
-            <td className="m-0 p-0" style={{ width: '5%' }}>
+            <td className="m-0" style={{ width: '5%' , padding:"0.25rem 0.75rem"}}>
                 <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
             </td>
         </tr>
@@ -87,16 +137,16 @@ const ReportItems = () => {
 
     return (
         <div className="form-container">
-            <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
-            <table className="table table-striped table-bordered form-table">
+            <IconAddCircleLine type="button" fontSize={25} onClick={addItem}/>
+            <table className="table mt-1" style={tableStyle}>
                 <thead>
                 <tr>
-                    <th>شناسه مشتری</th>
-                    <th>شناسه رسید انبار</th>
-                    <th>قیمت واحد</th>
-                    <th>مقدار</th>
-                    <th>مجموع</th>
-                    <th>عملیات</th>
+                    <th style={thStyle}>شناسه مشتری</th>
+                    <th style={thStyle}>شناسه رسید انبار</th>
+                    <th style={thStyle}>قیمت واحد</th>
+                    <th style={thStyle}>مقدار</th>
+                    <th style={thStyle}>مجموع</th>
+                    <th style={thStyle}>عملیات</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -104,14 +154,14 @@ const ReportItems = () => {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td className="m-0 p-0" colSpan="3">جمع کل:</td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0" colSpan="3">جمع کل:</td>
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={totalQuantity} disabled />
                     </td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={subtotal} disabled />
                     </td>
-                    <td className="m-0 p-0"></td>
+                    <td style={thStyle} className="m-0 p-0"></td>
                 </tr>
                 </tfoot>
             </table>

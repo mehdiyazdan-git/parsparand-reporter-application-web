@@ -63,7 +63,7 @@ const AsyncSelectInput = ({name,apiFetchFunction,defaultValue,isDisabled,label})
                     control={control}
                     render={({ field }) => (
                         <>
-                            {label && <label htmlFor={name}>{label}</label>}
+                            {label && <label style={{fontFamily:"IRANSansBold",fontSize:"0.75rem"}} htmlFor={name}>{label}</label>}
                             <AsyncSelect
                                 {...field}
                                 value={field.value ? options.find((o)=> o?.value === field.value) : null}
