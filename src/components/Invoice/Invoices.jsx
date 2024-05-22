@@ -11,10 +11,9 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
+import {toShamsi} from "../../utils/functions/toShamsi";
 
-const toShamsi = (date) => {
-    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
-};
+
 
 const Invoices = () => {
     const [editingInvoice, setEditingInvoice] = useState(null);

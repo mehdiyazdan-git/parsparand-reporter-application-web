@@ -2,7 +2,6 @@ import React, {useState} from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditWarehouseReceiptForm from "./EditWarehouseReceiptForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,10 +10,9 @@ import {SiMicrosoftexcel} from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateWarehouseReceiptForm from "./CreateWarehouseReceiptForm";
 import { saveAs } from 'file-saver';
+import {toShamsi} from "../../utils/functions/toShamsi";
 
-const toShamsi = (date) => {
-    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
-};
+
 const WarehouseReceipts = () => {
     const [editingWarehouseReceipt, setEditingWarehouseReceipt] = useState(null);
     const [showModal, setShowModal] = useState(false);

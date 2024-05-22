@@ -11,10 +11,9 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateReportForm from "./CreateReportForm";
 import { saveAs } from 'file-saver';
+import {toShamsi} from "../../utils/functions/toShamsi";
 
-const toShamsi = (date) => {
-    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
-};
+
 
 const Reports = () => {
     const [editingReport, setEditingReport] = useState(null);

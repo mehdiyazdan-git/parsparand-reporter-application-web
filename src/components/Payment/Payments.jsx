@@ -12,10 +12,9 @@ import FileUpload from "../../utils/FileUpload";
 import CreatePaymentForm from "./CreatePaymentForm";
 import { saveAs } from 'file-saver';
 import {formatNumber} from "../../utils/functions/formatNumber";
+import {toShamsi} from "../../utils/functions/toShamsi";
 
-const toShamsi = (date) => {
-    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
-};
+
 
 const Payments = () => {
     const [editingPayment, setEditingPayment] = useState(null);

@@ -13,6 +13,7 @@ import InvoiceItems from "./InvoiceItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
+import ContractFields from "./ContractFields";
 
 const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
     const http = useHttp();
@@ -151,28 +152,30 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
                                         />
                                     </Col>
                                 </Row>
-                                {isContractualSales && (
-                                    <>
-                                        <Row>
-                                            <Col>
-                                                <AsyncSelectInput name="contractId" label={" قرارداد"} apiFetchFunction={contractSelect} />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
-                                            </Col>
-                                            <Col>
-                                                <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
-                                            </Col>
-                                        </Row>
-                                        <Row>
-                                            <Col>
-                                                <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
-                                            </Col>
-                                        </Row>
-                                    </>
-                                )}
+                                <ContractFields>
+                                    <Row>
+                                        <Col>
+                                            <AsyncSelectInput
+                                                name="contractId"
+                                                label={" قرارداد"}
+                                                apiFetchFunction={contractSelect}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
+                                        </Col>
+                                        <Col>
+                                            <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
+                                        </Col>
+                                    </Row>
+                                </ContractFields>
                             </Col>
                         </Row>
                         <InvoiceItems />

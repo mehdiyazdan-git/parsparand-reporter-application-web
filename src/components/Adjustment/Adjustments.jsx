@@ -11,10 +11,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateAdjustmentForm from "./CreateAdjustmentForm";
 import { saveAs } from 'file-saver';
+import {toShamsi} from "../../utils/functions/toShamsi";
 
-const toShamsi = (date) => {
-    return date ? moment(date, 'YYYY-MM-DD').format('jYYYY/jMM/jDD') : '';
-};
 
 const Adjustments = () => {
     const [editingAdjustment, setEditingAdjustment] = useState(null);
@@ -82,7 +80,14 @@ const Adjustments = () => {
     const columns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'adjustmentNumber', title: 'شماره تعدیل', width: '15%', sortable: true, searchable: true },
-        { key: 'adjustmentDate', title: 'تاریخ تعدیل', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.adjustmentDate) },
+        {
+            key: 'adjustmentDate',
+            title: 'تاریخ تعدیل',
+            width: '15%',
+            sortable: true,
+            searchable: true,
+            type: 'date',
+            render: (item) => toShamsi(item.adjustmentDate) },
         { key: 'description', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
         { key: 'unitPrice', title: 'قیمت واحد', width: '10%', sortable: true, searchable: true },
         { key: 'quantity', title: 'مقدار', width: '10%', sortable: true, searchable: true },
