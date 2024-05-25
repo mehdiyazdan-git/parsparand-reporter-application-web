@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditInvoiceForm from "./EditInvoiceForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,9 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
-import {toShamsi} from "../../utils/functions/toShamsi";
-
-
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Invoices = () => {
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -23,28 +21,37 @@ const Invoices = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'invoices';
 
-    const getAllInvoices = async (queryParams) => {
+    const getAllInvoices = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters, http]);
 
-    const createInvoice = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createInvoice = useCallback(async (data) => {
         return await http.post("/invoices", data);
-    };
+    }, [http]);
 
-    const updateInvoice = async (id, data) => {
+    const updateInvoice = useCallback(async (id, data) => {
         return await http.put(`/invoices/${id}`, data);
-    };
+    }, [http]);
 
-    const removeInvoice = async (id) => {
+    const removeInvoice = useCallback(async (id) => {
         return await http.delete(`/invoices/${id}`);
-    };
+    }, [http]);
 
-    const handleAddInvoice = async (newInvoice) => {
+    const handleAddInvoice = useCallback(async (newInvoice) => {
         try {
             const response = await createInvoice(newInvoice);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -54,13 +61,13 @@ const Invoices = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createInvoice]);
 
-    const handleUpdateInvoice = async (updatedInvoice) => {
+    const handleUpdateInvoice = useCallback(async (updatedInvoice) => {
         try {
             const response = await updateInvoice(updatedInvoice.id, updatedInvoice);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingInvoice(null);
                 setEditShowModal(false);
             } else {
@@ -71,25 +78,25 @@ const Invoices = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateInvoice]);
 
-    const handleDeleteInvoice = async (id) => {
+    const handleDeleteInvoice = useCallback(async (id) => {
         await removeInvoice(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeInvoice]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'invoiceNumber', title: 'شماره فاکتور', width: '15%', sortable: true, searchable: true },
         { key: 'issuedDate', title: 'تاریخ صدور', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
-        { key: 'contractContractNumber', title: 'شماره قرارداد', width: '15%', sortable: true, searchable: true },
+        { key: 'contractNumber', title: 'شماره قرارداد', width: '15%', sortable: true, searchable: true },
         { key: 'salesType', title: 'نوع فروش', width: '10%', sortable: true, searchable: true },
         { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
         { key: 'invoiceStatusName', title: 'وضعیت فاکتور', width: '10%', sortable: true, searchable: true },
         { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -102,9 +109,9 @@ const Invoices = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/invoices/download-all-invoices.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -113,7 +120,7 @@ const Invoices = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -147,6 +154,7 @@ const Invoices = () => {
                 }}
                 onDelete={handleDeleteInvoice}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingInvoice && (
@@ -170,4 +178,4 @@ const Invoices = () => {
     );
 };
 
-export default Invoices;
+export default React.memo(Invoices);

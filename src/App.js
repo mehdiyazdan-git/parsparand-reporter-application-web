@@ -15,34 +15,33 @@ import Returneds from "./components/Returned/Returneds";
 import InvoiceStatuses from "./components/InvoiceStatuses/InvoiceStatuses";
 import Years from "./components/Year/Years";
 import Payments from "./components/Payment/Payments";
-
-
-
+import {FilterProvider} from "./components/contexts/FilterContext";
 
 const queryClient = new QueryClient();
 
 const App = () => {
-
     return (
         <QueryClientProvider client={queryClient}>
             <Router>
                 <AuthProvider>
-                    <Routes>
-                        <Route path="/" element={<Dashboard />}>
-                            <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
-                            <Route path="/products" element={<Products />} />
-                            <Route path="/reports" element={<Reports />} />
-                            <Route path="/customers" element={<Customers />} />
-                            <Route path="/invoices" element={<Invoices />} />
-                            <Route path="/invoiceStatuses" element={<InvoiceStatuses />} />
-                            <Route path="/payments" element={<Payments />} />
-                            <Route path="/adjustments" element={<Adjustments />} />
-                            <Route path="/contracts" element={<Contracts />} />
-                            <Route path="/users" element={<Users />} />
-                            <Route path="/returneds" element={<Returneds />} />
-                            <Route path="/years" element={<Years />} />
-                        </Route>
-                    </Routes>
+                    <FilterProvider>
+                        <Routes>
+                            <Route path="/" element={<Dashboard />}>
+                                <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
+                                <Route path="/products" element={<Products />} />
+                                <Route path="/reports" element={<Reports />} />
+                                <Route path="/customers" element={<Customers />} />
+                                <Route path="/invoices" element={<Invoices />} />
+                                <Route path="/invoiceStatuses" element={<InvoiceStatuses />} />
+                                <Route path="/payments" element={<Payments />} />
+                                <Route path="/adjustments" element={<Adjustments />} />
+                                <Route path="/contracts" element={<Contracts />} />
+                                <Route path="/users" element={<Users />} />
+                                <Route path="/returneds" element={<Returneds />} />
+                                <Route path="/years" element={<Years />} />
+                            </Route>
+                        </Routes>
+                    </FilterProvider>
                 </AuthProvider>
             </Router>
         </QueryClientProvider>

@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditPaymentForm from "./EditPaymentForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,10 +10,9 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreatePaymentForm from "./CreatePaymentForm";
 import { saveAs } from 'file-saver';
-import {formatNumber} from "../../utils/functions/formatNumber";
-import {toShamsi} from "../../utils/functions/toShamsi";
-
-
+import { formatNumber } from "../../utils/functions/formatNumber";
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Payments = () => {
     const [editingPayment, setEditingPayment] = useState(null);
@@ -24,31 +22,37 @@ const Payments = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'payments';
 
-    const getAllPayments = async (queryParams) => {
-        return await http.get(`/payments?${queryParams.toString()}`).then(r => {
-            console.log(r.data)
-           return  r.data
-        });
-    };
+    const getAllPayments = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
+        return await http.get(`/payments?${queryParams.toString()}`).then(r => r.data);
+    }, [filters, http]);
 
-    const createPayment = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createPayment = useCallback(async (data) => {
         return await http.post("/payments", data);
-    };
+    }, [http]);
 
-    const updatePayment = async (id, data) => {
+    const updatePayment = useCallback(async (id, data) => {
         return await http.put(`/payments/${id}`, data);
-    };
+    }, [http]);
 
-    const removePayment = async (id) => {
+    const removePayment = useCallback(async (id) => {
         return await http.delete(`/payments/${id}`);
-    };
+    }, [http]);
 
-    const handleAddPayment = async (newPayment) => {
+    const handleAddPayment = useCallback(async (newPayment) => {
         try {
             const response = await createPayment(newPayment);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -58,13 +62,13 @@ const Payments = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createPayment]);
 
-    const handleUpdatePayment = async (updatedPayment) => {
+    const handleUpdatePayment = useCallback(async (updatedPayment) => {
         try {
             const response = await updatePayment(updatedPayment.id, updatedPayment);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingPayment(null);
                 setEditShowModal(false);
             } else {
@@ -75,24 +79,23 @@ const Payments = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updatePayment]);
 
-    const handleDeletePayment = async (id) => {
+    const handleDeletePayment = useCallback(async (id) => {
         await removePayment(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removePayment]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'paymentDescryption', title: 'توضیحات', width: '20%', sortable: true, searchable: true },
         { key: 'paymentDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.paymentDate) },
         { key: 'paymentAmount', title: 'مبلغ', width: '15%', sortable: true, searchable: true, render: item => formatNumber(item.paymentAmount) },
         { key: 'paymentSubject', title: 'موضوع', width: '15%', sortable: true, searchable: true },
         { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -105,9 +108,9 @@ const Payments = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/payments/download-all-payments.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -116,7 +119,7 @@ const Payments = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -158,6 +161,7 @@ const Payments = () => {
                 }}
                 onDelete={handleDeletePayment}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingPayment && (
@@ -181,4 +185,4 @@ const Payments = () => {
     );
 };
 
-export default Payments;
+export default React.memo(Payments);

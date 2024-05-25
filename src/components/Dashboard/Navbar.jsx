@@ -1,6 +1,8 @@
 // src/components/Navbar.jsx
 import React from 'react';
 import styled from 'styled-components';
+import YearSelect from "../Year/YearSelect";
+import {Row} from "react-bootstrap";
 
 const NavbarContainer = styled.div`
   background-color: #305c89;
@@ -21,17 +23,24 @@ const NavbarBrand = styled.div`
   font-size: 1.5rem;
 `;
 
-const NavbarSearch = styled.input`
-  padding: 5px;
-  border: none;
-  border-radius: 5px;
+const YearWrapper = styled.div`
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-right: 10px;
+    min-width: 250px;
 `;
 
 const Navbar = () => {
     return (
         <NavbarContainer>
             <NavbarBrand>پارس پرند حیان</NavbarBrand>
-            <NavbarSearch type="text" placeholder="جستجو..." />
+            <YearWrapper>
+                <Row>
+                    <YearSelect />
+                </Row>
+            </YearWrapper>
         </NavbarContainer>
     );
 };

@@ -36,10 +36,23 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
     });
 
     const resolver = useYupValidationResolver(validationSchema);
+    const getYearId = async () => {
+        try {
+            const data = await yearSelect().then((res) => res.data);
+            const year = data.find((item) => item.name === Number(moment(new Date()).format('jYYYY')));
+            return year.id;
+        } catch (error) {
+            console.error(error);
+            return null;
+        }
+    }
 
     const onSubmit = async (data) => {
+        data.yearId = await getYearId();
         if (data.reportDate) {
             data.reportDate = moment(new Date(data.reportDate)).format('YYYY-MM-DD');
+            const data = await yearSelect().then((res) => res.data);
+            data.yearId = data.find((item) => item.name === Number(moment(new Date(data.reportDate)).format('jYYYY'))).id;
         }
         await onCreateReport(data);
         onHide();
@@ -76,9 +89,6 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
                                 <Row>
                                     <Col>
                                         <DateInput name="reportDate" label={"تاریخ گزارش"} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>
                                 <TextInput name="reportExplanation" label={"توضیحات گزارش"} />

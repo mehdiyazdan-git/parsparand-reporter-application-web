@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -10,6 +10,7 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateProductForm from "./CreateProductForm";
 import { saveAs } from 'file-saver';
+import { useFilters } from "../contexts/FilterContext";
 
 const Products = () => {
     const [editingProduct, setEditingProduct] = useState(null);
@@ -19,28 +20,34 @@ const Products = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'products';
 
-    const getAllProducts = async (queryParams) => {
+    const getAllProducts = useCallback(async (queryParams) => {
         return await http.get(`/products?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [http, filters]);
 
-    const createProduct = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createProduct = useCallback(async (data) => {
         return await http.post("/products", data);
-    };
+    }, [http]);
 
-    const updateProduct = async (id, data) => {
+    const updateProduct = useCallback(async (id, data) => {
         return await http.put(`/products/${id}`, data);
-    };
+    }, [http]);
 
-    const removeProduct = async (id) => {
+    const removeProduct = useCallback(async (id) => {
         return await http.delete(`/products/${id}`);
-    };
+    }, [http]);
 
-    const handleAddProduct = async (newProduct) => {
+    const handleAddProduct = useCallback(async (newProduct) => {
         try {
             const response = await createProduct(newProduct);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -50,13 +57,13 @@ const Products = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createProduct]);
 
-    const handleUpdateProduct = async (updatedProduct) => {
+    const handleUpdateProduct = useCallback(async (updatedProduct) => {
         try {
             const response = await updateProduct(updatedProduct.id, updatedProduct);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingProduct(null);
                 setEditShowModal(false);
             } else {
@@ -67,12 +74,13 @@ const Products = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateProduct]);
 
-    const handleDeleteProduct = async (id) => {
+    const handleDeleteProduct = useCallback(async (id) => {
         await removeProduct(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeProduct]);
+
     const convertToPersianCaption = (caption) => {
         const persianCaptions = {
             'MAIN': 'اصلی',
@@ -81,13 +89,14 @@ const Products = () => {
         };
         return persianCaptions[caption] || caption;
     };
-    const  options = [
-        { value: 2, label: 'اصلی' },
-        { value: 6, label:  'ضایعات' },
-        { value: 1, label: 'مواد اولیه' },
-    ]
 
-    const columns = [
+    const options = useMemo(() => [
+        { value: 2, label: 'اصلی' },
+        { value: 6, label: 'ضایعات' },
+        { value: 1, label: 'مواد اولیه' },
+    ], []);
+
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'productCode', title: 'کد محصول', width: '15%', sortable: true, searchable: true },
         { key: 'productName', title: 'نام محصول', width: '20%', sortable: true, searchable: true },
@@ -99,12 +108,12 @@ const Products = () => {
             sortable: true,
             searchable: true,
             render: (item) => convertToPersianCaption(item.productType),
-            type : 'select',
-            options : options
+            type: 'select',
+            options: options
         },
-    ];
+    ], [options]);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -117,9 +126,9 @@ const Products = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/products/download-all-products.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -128,17 +137,17 @@ const Products = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
             <ButtonContainer
                 lastChild={
-                        <FileUpload
-                            uploadUrl={`/products/import`}
-                            refreshTrigger={refreshTrigger}
-                            setRefreshTrigger={setRefreshTrigger}
-                        />
+                    <FileUpload
+                        uploadUrl={`/products/import`}
+                        refreshTrigger={refreshTrigger}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
                 }
             >
                 <Button
@@ -170,6 +179,7 @@ const Products = () => {
                 }}
                 onDelete={handleDeleteProduct}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingProduct && (
@@ -193,4 +203,4 @@ const Products = () => {
     );
 };
 
-export default Products;
+export default React.memo(Products);

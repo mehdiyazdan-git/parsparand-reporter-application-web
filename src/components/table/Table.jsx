@@ -1,36 +1,36 @@
-
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import Pagination from '../pagination/Pagination';
 import ConfirmationModal from './ConfirmationModal';
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import {useMemo, useState} from "react";
+import { useMemo, useState, useEffect } from "react";
 import Th from "./Th";
 import SearchDateInput from "./SearchDateInput";
 import SearchInput from "./SearchInput";
 import SelectSearchInput from "../../utils/SelectSearchInput";
 import Modal from "react-bootstrap/Modal";
-import {useNavigate} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import IconKey from "../assets/icons/IconKey";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
-import "../../App.css"
+import "../../App.css";
 import SearchCheckboxInput from "./SearchCheckboxInput";
+import { useFilters } from "../contexts/FilterContext";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPassword }) => {
-
+const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPassword, listName }) => {
     const [data, setData] = useState([]);
-    const [currentPage, setCurrentPage] = useState(0);
-    const [pageSize, setPageSize] = useState(5);
+    const [page, setPage] = useState(0);
+    const [size, setSize] = useState(10);
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     const [sortBy, setSortBy] = useState('');
-    const [sortOrder, setSortOrder] = useState('');
+    const [order, setOrder] = useState('');
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const navigate = useNavigate();
+    const { filters, setFilter } = useFilters();
 
     const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
         if (column.searchable) {
@@ -40,24 +40,45 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
     }, {}), [columns]);
     const [search, setSearch] = useState(initialSearchState);
 
+    useEffect(() => {
+        if (filters[listName]) {
+            setSearch(filters[listName].search || initialSearchState);
+            setPage(filters[listName]?.page || 0);
+            setSize(filters[listName]?.size || 10);
+            setSortBy(filters[listName]?.sortBy || '');
+            setOrder(filters[listName]?.order || '');
+        }
+    }, [filters, listName, initialSearchState]);
+
     const handlePageChange = (newPage) => {
-        setCurrentPage(newPage);
-        sessionStorage.setItem('currentPage', newPage);
+        setPage(newPage);
+        setFilter(listName, 'page', newPage);
     };
 
     const handlePageSizeChange = (newPageSize) => {
-        setPageSize(newPageSize);
-        sessionStorage.setItem('pageSize', newPageSize);
+        setSize(newPageSize);
+        setFilter(listName, 'size', newPageSize);
     };
 
+    const handleSortChange = (sortKey, sortOrder) => {
+        setSortBy(sortKey);
+        setOrder(sortOrder);
+        setFilter(listName, 'sortBy', sortKey);
+        setFilter(listName, 'order', sortOrder);
+    };
 
+    const handleSearchChange = (key, value) => {
+        const newSearch = { ...search, [key]: value };
+        setSearch(newSearch);
+        setFilter(listName, 'search', newSearch);
+    };
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
                     className="text-center"
-                    style={{ fontFamily: "IRANSans",fontSize: "0.8rem", padding: "20px",fontWeight: "bold"}}>
+                    style={{ fontFamily: "IRANSans", fontSize: "0.8rem", padding: "20px", fontWeight: "bold" }}>
                     <div className="text-danger">{errorMessage}</div>
                     <button className="btn btn-primary btn-sm mt-4" onClick={handleClose}>
                         بستن
@@ -80,7 +101,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                     setErrorMessage('');
                 }
             } catch (error) {
-                if (error.response){
+                if (error.response) {
                     setErrorMessage(error.response.data);
                     setShowErrorModal(true);
                 }
@@ -92,14 +113,15 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
         const load = async () => {
             try {
                 const queryParams = new URLSearchParams({
-                    page: currentPage.toString(),
-                    size: pageSize.toString(),
+                    page: page.toString(),
+                    size: size.toString(),
                     sortBy: sortBy,
-                    order: sortOrder,
+                    order: order,
                     ...search,
+                    ...filters[listName]?.extraParams,
                 });
                 const response = await fetchData(queryParams);
-                if (response.content){
+                if (response.content) {
                     setData(response.content);
                     setTotalPages(response.totalPages);
                     setTotalElements(response.totalElements);
@@ -108,19 +130,19 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                 }
             } catch (error) {
                 console.log("table is reporting an error:", error);
-                if (error.response){
-                   if (error.response.status > 400){
-                       navigate('server-error');
-                   }
+                if (error.response) {
+                    if (error.response.status > 400) {
+                        navigate('server-error');
+                    }
                     navigate('server-error');
                 }
             }
         };
         load();
-    }, [currentPage, pageSize, search, sortBy, sortOrder, refreshTrigger]);
+    }, [page, size, search, sortBy, order, refreshTrigger]);
 
-    if (!data){
-        return <LoadingDataErrorPage/>
+    if (!data) {
+        return <LoadingDataErrorPage />;
     }
 
     return (
@@ -133,10 +155,12 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                             key={column.key}
                             width={column.width}
                             sortBy={sortBy}
-                            sortOrder={sortOrder}
-                            setSortBy={setSortBy}
-                            setSortOrder={setSortOrder}
+                            sortOrder={order}
+                            setSortBy={(sortKey) => handleSortChange(sortKey, order)}
+                            setSortOrder={(sortOrder) => handleSortChange(sortBy, sortOrder)}
                             sortKey={column.key}
+                            listName={listName}
+                            setFilter={setFilter}
                         >
                             {column.title}
                         </Th>
@@ -151,7 +175,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     key={column.key}
                                     width={column.width}
                                     value={search[column.key] ? (column.render ? column.render(search[column.key]) : search[column.key]) : ''}
-                                    onChange={(date) => setSearch({ ...search, [column.key]: date })}
+                                    onChange={(date) => handleSearchChange(column.key, date)}
                                 />
                             ) : column.type === 'select' ? (
                                 <SelectSearchInput
@@ -160,7 +184,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     name={column.key}
                                     options={column.options}
                                     value={search[column.key]}
-                                    onChange={(value) => setSearch({ ...search, [column.key]: value })}
+                                    onChange={(value) => handleSearchChange(column.key, value)}
                                 />
                             ) : column.type === 'async-select' ? (
                                 <AsyncSelectInput
@@ -169,7 +193,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     name={column.key}
                                     apiFetchFunction={column.apiFetchFunction}
                                     defaultValue={search[column.key]}
-                                    onChange={(value) => setSearch({ ...search, [column.key]: value })}
+                                    onChange={(value) => handleSearchChange(column.key, value)}
                                 />
                             ) : column.type === 'checkbox' ? (
                                 <SearchCheckboxInput
@@ -178,7 +202,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     id={column.key}
                                     name={column.key}
                                     checked={search[column.key]}
-                                    onChange={(event) => setSearch({ ...search, [column.key]: event.target.checked })}
+                                    onChange={(event) => handleSearchChange(column.key, event.target.checked)}
                                     label={column.title}
                                 />
                             ) : (
@@ -188,7 +212,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                                     id={column.key}
                                     name={column.key}
                                     value={search[column.key]}
-                                    onChange={(event) => setSearch({ ...search, [column.key]: event.target.value })}
+                                    onChange={(event) => handleSearchChange(column.key, event.target.value)}
                                 />
                             )
                         ) : (
@@ -197,7 +221,6 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                     )}
                     <th width="5%"></th>
                 </tr>
-
                 </thead>
                 <tbody>
                 {data.map((item) => (
@@ -205,13 +228,23 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                         {columns.map((column) => (
                             <td key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
-                        <td style={{padding: '0px'}}>
-                            {onResetPassword && <IconKey style={{margin: '0px 10px', cursor: 'pointer'}} fontSize={'1rem'} color="orange"
-                                       onClick={() => onResetPassword(item)}/>}
-                            <IconEdit style={{margin: '0px 10px', cursor: 'pointer'}} fontSize={'1rem'} color="green"
-                                      onClick={() => onEdit(item)}/>
+                        <td style={{ padding: '0px' }}>
+                            {onResetPassword && (
+                                <IconKey
+                                    style={{ margin: '0px 10px', cursor: 'pointer' }}
+                                    fontSize={'1rem'}
+                                    color="orange"
+                                    onClick={() => onResetPassword(item)}
+                                />
+                            )}
+                            <IconEdit
+                                style={{ margin: '0px 10px', cursor: 'pointer' }}
+                                fontSize={'1rem'}
+                                color="green"
+                                onClick={() => onEdit(item)}
+                            />
                             <IconDeleteOutline
-                                style={{cursor: 'pointer'}}
+                                style={{ cursor: 'pointer' }}
                                 size={'1.5rem'}
                                 onClick={() => {
                                     setSelectedItem(item.id);
@@ -224,9 +257,9 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger,onResetPas
                 </tbody>
             </table>
             <Pagination
-                currentPage={currentPage}
+                currentPage={page}
                 totalPages={totalPages}
-                pageSize={pageSize}
+                pageSize={size}
                 totalItems={totalElements}
                 onPageChange={handlePageChange}
                 onPageSizeChange={handlePageSizeChange}

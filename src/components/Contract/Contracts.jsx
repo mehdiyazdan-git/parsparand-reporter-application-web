@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditContractForm from "./EditContractForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,8 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateContractForm from "./CreateContractForm";
 import { saveAs } from 'file-saver';
-import {toShamsi} from "../../utils/functions/toShamsi";
-
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Contracts = () => {
     const [editingContract, setEditingContract] = useState(null);
@@ -22,28 +21,37 @@ const Contracts = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'contracts';
 
-    const getAllContracts = async (queryParams) => {
+    const getAllContracts = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/contracts?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters, http]);
 
-    const createContract = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createContract = useCallback(async (data) => {
         return await http.post("/contracts", data);
-    };
+    }, [http]);
 
-    const updateContract = async (id, data) => {
+    const updateContract = useCallback(async (id, data) => {
         return await http.put(`/contracts/${id}`, data);
-    };
+    }, [http]);
 
-    const removeContract = async (id) => {
+    const removeContract = useCallback(async (id) => {
         return await http.delete(`/contracts/${id}`);
-    };
+    }, [http]);
 
-    const handleAddContract = async (newContract) => {
+    const handleAddContract = useCallback(async (newContract) => {
         try {
             const response = await createContract(newContract);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -53,13 +61,13 @@ const Contracts = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createContract]);
 
-    const handleUpdateContract = async (updatedContract) => {
+    const handleUpdateContract = useCallback(async (updatedContract) => {
         try {
             const response = await updateContract(updatedContract.id, updatedContract);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingContract(null);
                 setEditShowModal(false);
             } else {
@@ -70,23 +78,23 @@ const Contracts = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateContract]);
 
-    const handleDeleteContract = async (id) => {
+    const handleDeleteContract = useCallback(async (id) => {
         await removeContract(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeContract]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '3%', sortable: true },
         { key: 'contractNumber', title: 'شماره قرارداد', width: '7%', sortable: true, searchable: true },
         { key: 'contractDescription', title: 'توضیحات قرارداد', width: '25%', sortable: true, searchable: true },
         { key: 'startDate', title: 'تاریخ شروع', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.startDate) },
         { key: 'endDate', title: 'تاریخ پایان', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.endDate) },
         { key: 'customerName', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -99,9 +107,9 @@ const Contracts = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/contracts/download-all-contracts.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -110,7 +118,7 @@ const Contracts = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -144,6 +152,7 @@ const Contracts = () => {
                 }}
                 onDelete={handleDeleteContract}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingContract && (
@@ -167,4 +176,4 @@ const Contracts = () => {
     );
 };
 
-export default Contracts;
+export default React.memo(Contracts);

@@ -90,7 +90,9 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                             advancedPayment: invoice.advancedPayment,
                             insuranceDeposit: invoice.insuranceDeposit,
                             performanceBound: invoice.performanceBound,
-                            yearId: invoice.yearId,
+                            yearId: async() => await yearSelect().then(r => {
+                                return r.find(y => y.name === moment.jYear());
+                            }) ,
                             invoiceItems: invoice.invoiceItems,
                         }}
                         onSubmit={onSubmit}
@@ -126,16 +128,13 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                                     <Col>
                                         <AsyncSelectInput name="invoiceStatusId" label={"وضعیت فاکتور"} apiFetchFunction={invoiceStatusSelect} />
                                     </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
-                                    </Col>
                                 </Row>
                                 <Row>
                                     <Col>
                                         <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
                                     </Col>
                                     <Col>
-                                        <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                        <NumberInput name="insuranceDeposit" label={"سپرده بیمه"} />
                                     </Col>
                                 </Row>
                                 <Row>

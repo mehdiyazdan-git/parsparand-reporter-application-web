@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditAdjustmentForm from "./EditAdjustmentForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,8 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateAdjustmentForm from "./CreateAdjustmentForm";
 import { saveAs } from 'file-saver';
-import {toShamsi} from "../../utils/functions/toShamsi";
-
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Adjustments = () => {
     const [editingAdjustment, setEditingAdjustment] = useState(null);
@@ -22,28 +21,37 @@ const Adjustments = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'adjustments';
 
-    const getAllAdjustments = async (queryParams) => {
+    const getAllAdjustments = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/adjustments?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters, http]);
 
-    const createAdjustment = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createAdjustment = useCallback(async (data) => {
         return await http.post("/adjustments", data);
-    };
+    }, [http]);
 
-    const updateAdjustment = async (id, data) => {
+    const updateAdjustment = useCallback(async (id, data) => {
         return await http.put(`/adjustments/${id}`, data);
-    };
+    }, [http]);
 
-    const removeAdjustment = async (id) => {
+    const removeAdjustment = useCallback(async (id) => {
         return await http.delete(`/adjustments/${id}`);
-    };
+    }, [http]);
 
-    const handleAddAdjustment = async (newAdjustment) => {
+    const handleAddAdjustment = useCallback(async (newAdjustment) => {
         try {
             const response = await createAdjustment(newAdjustment);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -53,13 +61,13 @@ const Adjustments = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createAdjustment]);
 
-    const handleUpdateAdjustment = async (updatedAdjustment) => {
+    const handleUpdateAdjustment = useCallback(async (updatedAdjustment) => {
         try {
             const response = await updateAdjustment(updatedAdjustment.id, updatedAdjustment);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingAdjustment(null);
                 setEditShowModal(false);
             } else {
@@ -70,14 +78,14 @@ const Adjustments = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateAdjustment]);
 
-    const handleDeleteAdjustment = async (id) => {
+    const handleDeleteAdjustment = useCallback(async (id) => {
         await removeAdjustment(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeAdjustment]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'adjustmentNumber', title: 'شماره تعدیل', width: '15%', sortable: true, searchable: true },
         {
@@ -87,15 +95,16 @@ const Adjustments = () => {
             sortable: true,
             searchable: true,
             type: 'date',
-            render: (item) => toShamsi(item.adjustmentDate) },
+            render: (item) => toShamsi(item.adjustmentDate)
+        },
         { key: 'description', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
         { key: 'unitPrice', title: 'قیمت واحد', width: '10%', sortable: true, searchable: true },
         { key: 'quantity', title: 'مقدار', width: '10%', sortable: true, searchable: true },
         { key: 'adjustmentType', title: 'نوع تعدیل', width: '10%', sortable: true, searchable: true },
         { key: 'invoiceNumber', title: 'شماره فاکتور', width: '10%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -108,9 +117,9 @@ const Adjustments = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/adjustments/download-all-adjustments.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -119,7 +128,7 @@ const Adjustments = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -153,6 +162,7 @@ const Adjustments = () => {
                 }}
                 onDelete={handleDeleteAdjustment}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingAdjustment && (
@@ -176,5 +186,4 @@ const Adjustments = () => {
     );
 };
 
-export default Adjustments;
-
+export default React.memo(Adjustments);

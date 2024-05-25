@@ -21,8 +21,8 @@ const ReportItems = () => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }, [http]);
 
-    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '3') => {
-        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}&yearId=${yearId}`);
+    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '') => {
+        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}&yearId=${yearId.toString()}`);
     }, [http]);
 
     const watchedFields = useWatch({

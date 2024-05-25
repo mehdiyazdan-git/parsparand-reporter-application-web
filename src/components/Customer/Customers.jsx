@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -8,8 +8,9 @@ import Button from "../../utils/Button";
 import ButtonContainer from "../../utils/ButtonContainer";
 import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
-    import CreateCustomerForm from "./CreateCustomerForm";
+import CreateCustomerForm from "./CreateCustomerForm";
 import { saveAs } from 'file-saver';
+import { useFilters } from "../contexts/FilterContext";
 
 const Customers = () => {
     const [editingCustomer, setEditingCustomer] = useState(null);
@@ -19,28 +20,37 @@ const Customers = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'customers';
 
-    const getAllCustomers = async (queryParams) => {
+    const getAllCustomers = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/customers?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters, http]);
 
-    const createCustomer = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createCustomer = useCallback(async (data) => {
         return await http.post("/customers", data);
-    };
+    }, [http]);
 
-    const updateCustomer = async (id, data) => {
+    const updateCustomer = useCallback(async (id, data) => {
         return await http.put(`/customers/${id}`, data);
-    };
+    }, [http]);
 
-    const removeCustomer = async (id) => {
+    const removeCustomer = useCallback(async (id) => {
         return await http.delete(`/customers/${id}`);
-    };
+    }, [http]);
 
-    const handleAddCustomer = async (newCustomer) => {
+    const handleAddCustomer = useCallback(async (newCustomer) => {
         try {
             const response = await createCustomer(newCustomer);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -50,13 +60,13 @@ const Customers = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createCustomer]);
 
-    const handleUpdateCustomer = async (updatedCustomer) => {
+    const handleUpdateCustomer = useCallback(async (updatedCustomer) => {
         try {
             const response = await updateCustomer(updatedCustomer.id, updatedCustomer);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingCustomer(null);
                 setEditShowModal(false);
             } else {
@@ -67,14 +77,14 @@ const Customers = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateCustomer]);
 
-    const handleDeleteCustomer = async (id) => {
+    const handleDeleteCustomer = useCallback(async (id) => {
         await removeCustomer(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeCustomer]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'name', title: 'نام', width: '15%', sortable: true, searchable: true },
         { key: 'phone', title: 'تلفن', width: '15%', sortable: true, searchable: true },
@@ -82,9 +92,9 @@ const Customers = () => {
         { key: 'economicCode', title: 'کد اقتصادی', width: '15%', sortable: true, searchable: true },
         { key: 'nationalCode', title: 'کد ملی', width: '15%', sortable: true, searchable: true },
         { key: 'bigCustomer', title: 'مشتری بزرگ', width: '10%', sortable: true, searchable: true, type: 'checkbox', render: (item) => item.bigCustomer ? 'بله' : 'خیر' },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -97,9 +107,9 @@ const Customers = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/customers/download-all-customers.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -108,7 +118,7 @@ const Customers = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -142,6 +152,7 @@ const Customers = () => {
                 }}
                 onDelete={handleDeleteCustomer}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingCustomer && (
@@ -165,4 +176,4 @@ const Customers = () => {
     );
 };
 
-export default Customers;
+export default React.memo(Customers);

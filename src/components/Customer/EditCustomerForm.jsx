@@ -52,7 +52,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <CheckboxInput name="bigCustomer" label={"نوع مشتری"} />
+                                        <CheckboxInput name="bigCustomer" label={"مشتری عمده"} />
                                     </Col>
                                     <Col>
                                         <TextInput name="customerCode" label={"کد مشتری"} />

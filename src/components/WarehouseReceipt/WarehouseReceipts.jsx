@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -9,8 +9,9 @@ import ButtonContainer from "../../utils/ButtonContainer";
 import {SiMicrosoftexcel} from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateWarehouseReceiptForm from "./CreateWarehouseReceiptForm";
-import { saveAs } from 'file-saver';
+import {saveAs} from 'file-saver';
 import {toShamsi} from "../../utils/functions/toShamsi";
+import {useFilters} from "../contexts/FilterContext";
 
 
 const WarehouseReceipts = () => {
@@ -21,10 +22,18 @@ const WarehouseReceipts = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-
+    const { filters } = useFilters();
+    const listName = 'warehouseReceipts';
     const getAllWarehouseReceipts = async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear',`${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/warehouse-receipts?${queryParams.toString()}`).then(r => r.data);
     };
+
+    useEffect(() => {
+        setRefreshTrigger(!refreshTrigger);
+    }, [filters]);
 
     const createWarehouseReceipt = async (data) => {
         return await http.post("/warehouse-receipts", data);
@@ -39,7 +48,6 @@ const WarehouseReceipts = () => {
     };
 
     const handleAddWarehouseReceipt = async (newWarehouseReceipt) => {
-        console.log(newWarehouseReceipt)
         try {
             const response = await createWarehouseReceipt(newWarehouseReceipt);
             if (response.status === 201) {
@@ -72,7 +80,6 @@ const WarehouseReceipts = () => {
         }
     };
 
-
     const handleDeleteWarehouseReceipt = async (id) => {
         await removeWarehouseReceipt(id);
         setRefreshTrigger(!refreshTrigger);
@@ -84,7 +91,6 @@ const WarehouseReceipts = () => {
         { key: 'warehouseReceiptDate', title: 'تاریخ رسید', width: '7%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.warehouseReceiptDate) },
         { key: 'warehouseReceiptDescription', title: 'توضیحات', width: '40%', sortable: true, searchable: true },
         { key: 'customerName', title: 'مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'yearName', title: 'سال', width: '5%', sortable: true, searchable: true },
     ];
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
@@ -103,10 +109,10 @@ const WarehouseReceipts = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/warehouse-receipts/download-all-warehouse-receipts.xlsx',{ responseType: 'blob' })
+        await http.get('/warehouse-receipts/download-all-warehouse-receipts.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
-                saveAs(blobData, "persons.xlsx");
+                saveAs(blobData, "warehouse_receipts.xlsx");
             })
             .catch((error) => {
                 console.error('Error downloading file:', error);
@@ -115,35 +121,34 @@ const WarehouseReceipts = () => {
 
     return (
         <div className="table-container">
-            <div className="table-container">
-                <ButtonContainer
-                    lastChild={
+            <ButtonContainer
+                lastChild={
                     <FileUpload
-                            uploadUrl={`/warehouse-receipts/import`}
-                            refreshTrigger={refreshTrigger}
-                            setRefreshTrigger={setRefreshTrigger}
-                        />
-                    }
+                        uploadUrl={`/warehouse-receipts/import`}
+                        refreshTrigger={refreshTrigger}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                }
+            >
+                <Button
+                    $variant="primary"
+                    onClick={() => setShowModal(true)}
                 >
-                    <Button
-                        $variant="primary"
-                        onClick={() => setShowModal(true)}
-                    >
-                        جدید
-                    </Button>
-                    <SiMicrosoftexcel
-                        onClick={downloadExcelFile}
-                        size={"2.2rem"}
-                        className={"m-1"}
-                        color={"#41941a"}
-                        type="button"
-                    />
-                    <CreateWarehouseReceiptForm
-                        onCreateWarehouseReceipt={handleAddWarehouseReceipt}
-                        show={showModal}
-                        onHide={() => setShowModal(false)}
-                    />
-                </ButtonContainer>
+                    جدید
+                </Button>
+                <SiMicrosoftexcel
+                    onClick={downloadExcelFile}
+                    size={"2.2rem"}
+                    className={"m-1"}
+                    color={"#41941a"}
+                    type="button"
+                />
+                <CreateWarehouseReceiptForm
+                    onCreateWarehouseReceipt={handleAddWarehouseReceipt}
+                    show={showModal}
+                    onHide={() => setShowModal(false)}
+                />
+            </ButtonContainer>
 
             <Table
                 columns={columns}
@@ -154,6 +159,7 @@ const WarehouseReceipts = () => {
                 }}
                 onDelete={handleDeleteWarehouseReceipt}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingWarehouseReceipt && (
@@ -173,7 +179,6 @@ const WarehouseReceipts = () => {
                 handleClose={() => setShowErrorModal(false)}
                 errorMessage={errorMessage}
             />
-        </div>
         </div>
     );
 };

@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditReturnedForm from "./EditReturnedForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,8 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateReturnedForm from "./CreateReturnedForm";
 import { saveAs } from 'file-saver';
-import {toShamsi} from "../../utils/functions/toShamsi";
-
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Returneds = () => {
     const [editingReturned, setEditingReturned] = useState(null);
@@ -22,28 +21,37 @@ const Returneds = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'returneds';
 
-    const getAllReturneds = async (queryParams) => {
+    const getAllReturneds = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/returneds?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters, http]);
 
-    const createReturned = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createReturned = useCallback(async (data) => {
         return await http.post("/returneds", data);
-    };
+    }, [http]);
 
-    const updateReturned = async (id, data) => {
+    const updateReturned = useCallback(async (id, data) => {
         return await http.put(`/returneds/${id}`, data);
-    };
+    }, [http]);
 
-    const removeReturned = async (id) => {
+    const removeReturned = useCallback(async (id) => {
         return await http.delete(`/returneds/${id}`);
-    };
+    }, [http]);
 
-    const handleAddReturned = async (newReturned) => {
+    const handleAddReturned = useCallback(async (newReturned) => {
         try {
             const response = await createReturned(newReturned);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -53,13 +61,13 @@ const Returneds = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createReturned]);
 
-    const handleUpdateReturned = async (updatedReturned) => {
+    const handleUpdateReturned = useCallback(async (updatedReturned) => {
         try {
             const response = await updateReturned(updatedReturned.id, updatedReturned);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingReturned(null);
                 setEditShowModal(false);
             } else {
@@ -70,14 +78,14 @@ const Returneds = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateReturned]);
 
-    const handleDeleteReturned = async (id) => {
+    const handleDeleteReturned = useCallback(async (id) => {
         await removeReturned(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeReturned]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'returnedNumber', title: 'شماره مرجوعی', width: '15%', sortable: true, searchable: true },
         { key: 'returnedDate', title: 'تاریخ مرجوعی', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.returnedDate) },
@@ -85,9 +93,9 @@ const Returneds = () => {
         { key: 'quantity', title: 'مقدار', width: '10%', sortable: true, searchable: true },
         { key: 'unitPrice', title: 'قیمت واحد', width: '10%', sortable: true, searchable: true },
         { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -100,9 +108,9 @@ const Returneds = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/returneds/download-all-returneds.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -111,7 +119,7 @@ const Returneds = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -145,6 +153,7 @@ const Returneds = () => {
                 }}
                 onDelete={handleDeleteReturned}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingReturned && (
@@ -168,4 +177,4 @@ const Returneds = () => {
     );
 };
 
-export default Returneds;
+export default React.memo(Returneds);

@@ -8,7 +8,7 @@ const Pagination = ({ currentPage, totalPages, pageSize, totalItems, onPageChang
     };
 
     const goToPage = (pageNumber) => {
-        onPageChange(pageNumber - 1); // Subtract 1 for the zero-index based server before sending the page number
+        onPageChange(pageNumber - 1); // Subtract 1 for the zero-index-based server before sending the page number
     };
 
     const pageSizeOptions = useMemo(() => [5, 10, 20], []); // Memoize page size options to avoid re-creation on each render

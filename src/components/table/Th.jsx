@@ -1,14 +1,15 @@
 import React from 'react';
 
-const Th = ({ width, sortBy, sortOrder, setSortBy, setSortOrder, children, sortKey }) => {
+const Th = ({ width, sortBy, sortOrder, setSortBy, setSortOrder, children, sortKey, listName, setFilter }) => {
     const handleClick = () => {
+        let newSortOrder = 'ASC';
         if (sortBy === sortKey) {
-            setSortOrder(sortOrder === 'ASC' ? 'DESC' : 'ASC');
-        } else {
-            setSortBy(sortKey);
-            setSortOrder('ASC');
+            newSortOrder = sortOrder === 'ASC' ? 'DESC' : 'ASC';
         }
-
+        setSortBy(sortKey);
+        setSortOrder(newSortOrder);
+        setFilter(listName, 'sortBy', sortKey);
+        setFilter(listName, 'order', newSortOrder);
     };
 
     return (

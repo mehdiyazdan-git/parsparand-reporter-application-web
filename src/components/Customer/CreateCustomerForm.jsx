@@ -54,7 +54,7 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
                                         <TextInput name="customerCode" label={"کد مشتری"} />
                                     </Col>
                                     <Col>
-                                        <CheckboxInput name="bigCustomer" label={"نوع مشتری"} />
+                                        <CheckboxInput name="bigCustomer" label={"مشتری عمده"} />
                                     </Col>
                                 </Row>
                                 <Row>

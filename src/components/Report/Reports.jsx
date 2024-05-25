@@ -1,8 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
-import moment from "jalali-moment";
 import EditReportForm from "./EditReportForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from "../../utils/Button";
@@ -11,9 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateReportForm from "./CreateReportForm";
 import { saveAs } from 'file-saver';
-import {toShamsi} from "../../utils/functions/toShamsi";
-
-
+import { toShamsi } from "../../utils/functions/toShamsi";
+import { useFilters } from "../contexts/FilterContext";
 
 const Reports = () => {
     const [editingReport, setEditingReport] = useState(null);
@@ -23,28 +21,37 @@ const Reports = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const { filters } = useFilters();
+    const listName = 'reports';
 
-    const getAllReports = async (queryParams) => {
+    const getAllReports = useCallback(async (queryParams) => {
+        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
+            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+        }
         return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
-    };
+    }, [filters]);
 
-    const createReport = async (data) => {
+    useEffect(() => {
+        setRefreshTrigger(prev => !prev);
+    }, [filters]);
+
+    const createReport = useCallback(async (data) => {
         return await http.post("/reports", data);
-    };
+    }, [http]);
 
-    const updateReport = async (id, data) => {
+    const updateReport = useCallback(async (id, data) => {
         return await http.put(`/reports/${id}`, data);
-    };
+    }, [http]);
 
-    const removeReport = async (id) => {
+    const removeReport = useCallback(async (id) => {
         return await http.delete(`/reports/${id}`);
-    };
+    }, [http]);
 
-    const handleAddReport = async (newReport) => {
+    const handleAddReport = useCallback(async (newReport) => {
         try {
             const response = await createReport(newReport);
             if (response.status === 201) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setShowModal(false);
             } else {
                 setErrorMessage(response.data);
@@ -54,13 +61,13 @@ const Reports = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [createReport]);
 
-    const handleUpdateReport = async (updatedReport) => {
+    const handleUpdateReport = useCallback(async (updatedReport) => {
         try {
             const response = await updateReport(updatedReport.id, updatedReport);
             if (response.status === 200) {
-                setRefreshTrigger(!refreshTrigger);
+                setRefreshTrigger(prev => !prev);
                 setEditingReport(null);
                 setEditShowModal(false);
             } else {
@@ -71,21 +78,20 @@ const Reports = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    };
+    }, [updateReport]);
 
-    const handleDeleteReport = async (id) => {
+    const handleDeleteReport = useCallback(async (id) => {
         await removeReport(id);
-        setRefreshTrigger(!refreshTrigger);
-    };
+        setRefreshTrigger(prev => !prev);
+    }, [removeReport]);
 
-    const columns = [
+    const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'reportDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
         { key: 'reportExplanation', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
-        { key: 'yearId', title: 'سال', width: '15%', sortable: true, searchable: true },
-    ];
+    ], []);
 
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
+    const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
                 <Modal.Body
@@ -98,9 +104,9 @@ const Reports = () => {
                 </Modal.Body>
             </Modal>
         );
-    };
+    }, []);
 
-    async function downloadExcelFile() {
+    const downloadExcelFile = useCallback(async () => {
         await http.get('/reports/download-all-reports.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
@@ -109,7 +115,7 @@ const Reports = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }
+    }, [http]);
 
     return (
         <div className="table-container">
@@ -151,6 +157,7 @@ const Reports = () => {
                 }}
                 onDelete={handleDeleteReport}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
             />
 
             {editingReport && (
@@ -174,4 +181,4 @@ const Reports = () => {
     );
 };
 
-export default Reports;
+export default React.memo(Reports);
