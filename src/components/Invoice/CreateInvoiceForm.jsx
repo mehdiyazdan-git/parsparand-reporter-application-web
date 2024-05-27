@@ -90,8 +90,8 @@ const CreateInvoiceForm = ({ onCreateInvoice,show, onHide }) => {
 
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show} centered>
+            <Modal.Header style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد فاکتور جدید"}
                 </Modal.Title>

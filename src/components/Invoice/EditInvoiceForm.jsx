@@ -3,7 +3,6 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
-import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
@@ -13,6 +12,8 @@ import useHttp from "../../hooks/useHttp";
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import InvoiceItems from "./InvoiceItems";
+import SelectInput from "../../utils/SelectInput";
+import ContractFields from "./ContractFields";
 
 const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
     const http = useHttp();
@@ -29,22 +30,12 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
         return await http.get(`/contracts/select?searchQuery=${searchQuery}`);
     }
 
-    const invoiceStatusSelect = async () => {
-        return await http.get(`/invoice-status/select`);
-    }
-
     const validationSchema = Yup.object().shape({
         dueDate: Yup.string().required('تاریخ سررسید الزامیست.'),
         invoiceNumber: Yup.number().required('شماره فاکتور الزامیست.'),
         issuedDate: Yup.string().required('تاریخ صدور الزامیست.'),
         salesType: Yup.string().required('نوع فروش الزامیست.'),
-        contractId: Yup.number().required('شناسه قرارداد الزامیست.'),
         customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-        invoiceStatusId: Yup.number().required('وضعیت فاکتور الزامیست.'),
-        advancedPayment: Yup.number().required('پیش پرداخت الزامیست.'),
-        insuranceDeposit: Yup.number().required('ودیعه بیمه الزامیست.'),
-        performanceBound: Yup.number().required('ضمانت اجرا الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number().required('شناسه محصول الزامیست.'),
@@ -113,37 +104,48 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                                         <DateInput name="issuedDate" label={"تاریخ صدور"} />
                                     </Col>
                                     <Col>
-                                        <TextInput name="salesType" label={"نوع فروش"} />
+                                        <SelectInput
+                                            name="salesType"
+                                            label={"نوع فروش"}
+                                            options={[
+                                                { label: "فروش نقدی", value: "CASH_SALES" },
+                                                { label: "فروش قراردادی", value: "CONTRACTUAL_SALES" },
+                                            ]}
+                                        />
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="contractId" label={"شناسه قرارداد"} apiFetchFunction={contractSelect} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
                                     </Col>
                                 </Row>
-                                <Row>
-                                    <Col>
-                                        <AsyncSelectInput name="invoiceStatusId" label={"وضعیت فاکتور"} apiFetchFunction={invoiceStatusSelect} />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
-                                    </Col>
-                                    <Col>
-                                        <NumberInput name="insuranceDeposit" label={"سپرده بیمه"} />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
-                                    </Col>
-                                </Row>
+                                <ContractFields>
+                                    <Row>
+                                        <Col>
+                                            <AsyncSelectInput
+                                                name="contractId"
+                                                label={" قرارداد"}
+                                                apiFetchFunction={contractSelect}
+                                            />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col>
+                                            <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
+                                        </Col>
+                                        <Col>
+                                            <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                        </Col>
+                                    </Row>
+                                    <Row>
+                                        <Col className={"col-6"}>
+                                            <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
+                                        </Col>
+                                    </Row>
+                                </ContractFields>
                             </Col>
                         </Row>
+                        <hr/>
                         <InvoiceItems />
                         <Button $variant="success" type={"submit"}>
                             ویرایش

@@ -60,7 +60,7 @@ const InvoiceItems = () => {
     return (
         <div className="form-container">
             <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
-            <table className="table table-striped table-bordered form-table">
+            <table className="table table-striped table-bordered form-table mt-1">
                 <thead>
                 <tr>
                     <th>شناسه محصول</th>

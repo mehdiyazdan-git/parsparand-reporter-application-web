@@ -21,7 +21,7 @@ const Invoices = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters , getParams } = useFilters();
     const listName = 'invoices';
 
     const getAllInvoices = useCallback(async (queryParams) => {
@@ -70,9 +70,6 @@ const Invoices = () => {
                 setRefreshTrigger(prev => !prev);
                 setEditingInvoice(null);
                 setEditShowModal(false);
-            } else {
-                setErrorMessage(response.data);
-                setShowErrorModal(true);
             }
         } catch (error) {
             setErrorMessage(error.response.data);
@@ -85,16 +82,73 @@ const Invoices = () => {
         setRefreshTrigger(prev => !prev);
     }, [removeInvoice]);
 
+    const convertInvoiceStatusIdToCaption = (invoiceStatusId) => {
+        const statuses = {
+            1: 'سند حسابداری',
+            2: 'تایید شده',
+            3: 'رد شده',
+            4: 'تایید شده توسط مدیر',
+            5: 'تایید شده توسط مدیر عامل',
+        }
+        return statuses[invoiceStatusId] || 'نامشخص';
+    }
+    const convertSalesTypeToPersianCaption = (salesType) => {
+        const types = {
+            'CASH_SALES': 'فروش نقدی',
+            'CONTRACTUAL_SALES': 'فروش قراردادی',
+        }
+        return types[salesType] || 'نامشخص';
+    }
+
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'invoiceNumber', title: 'شماره فاکتور', width: '15%', sortable: true, searchable: true },
-        { key: 'issuedDate', title: 'تاریخ صدور', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
-        { key: 'contractNumber', title: 'شماره قرارداد', width: '15%', sortable: true, searchable: true },
-        { key: 'salesType', title: 'نوع فروش', width: '10%', sortable: true, searchable: true },
-        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'invoiceStatusName', title: 'وضعیت فاکتور', width: '10%', sortable: true, searchable: true },
-        { key: 'yearName', title: 'سال', width: '10%', sortable: true, searchable: true },
-    ], []);
+        { key: 'invoiceNumber', title: 'شماره فاکتور', width: '5%', sortable: true, searchable: true },
+        { key: 'issuedDate', title: 'تاریخ صدور', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
+        {
+            key: 'salesType',
+            title: 'نوع فروش',
+            width: '7%',
+            sortable: true,
+            searchable: true,
+            render : (item) => convertSalesTypeToPersianCaption(item.salesType),
+            type: 'select',
+            options: [{
+                value: 'CASH_SALES',
+                label: 'فروش نقدی',
+            }, {
+                value: 'CONTRACTUAL_SALES',
+                label: 'فروش قراردادی',
+            }]
+        },
+        { key: 'customerName', title: 'نام مشتری', width: '20%', sortable: true, searchable: true },
+        {
+            key: 'invoiceStatusId',
+            title: 'وضعیت فاکتور',
+            width: '5%',
+            sortable: true,
+            searchable: true,
+            render: (item) => convertInvoiceStatusIdToCaption(item.invoiceStatusId),
+            type: 'select',
+            options: [{
+                value: 1,
+                label: 'سند حسابداری',
+            }, {
+                value: 2,
+                label: 'تایید شده',
+            }, {
+                value: 3,
+                label: 'رد شده',
+            }, {
+                value: 4,
+                label: 'تایید شده توسط مدیر',
+            }, {
+                value: 5,
+                label: 'تایید شده توسط مدیر عامل',
+            },
+            ]
+        }
+        ], []);
+
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
@@ -112,7 +166,8 @@ const Invoices = () => {
     }, []);
 
     const downloadExcelFile = useCallback(async () => {
-        await http.get('/invoices/download-all-invoices.xlsx', { responseType: 'blob' })
+
+        await http.get(`/invoices/download-all-invoices.xlsx?${getParams(listName)}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "invoices.xlsx");
@@ -120,11 +175,18 @@ const Invoices = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }, [http]);
+    }, [filters, http]);
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/invoices/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer lastChild={
+                    <FileUpload
+                        uploadUrl={`/invoices/import`}
+                        refreshTrigger={refreshTrigger}
+                        setRefreshTrigger={setRefreshTrigger}
+                    />
+                }
+            >
                 <Button
                     $variant="primary"
                     onClick={() => setShowModal(true)}

@@ -22,7 +22,7 @@ const WarehouseReceipts = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters,getParams } = useFilters();
     const listName = 'warehouseReceipts';
     const getAllWarehouseReceipts = async (queryParams) => {
         if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
@@ -109,7 +109,7 @@ const WarehouseReceipts = () => {
     };
 
     async function downloadExcelFile() {
-        await http.get('/warehouse-receipts/download-all-warehouse-receipts.xlsx', { responseType: 'blob' })
+        await http.get(`/warehouse-receipts/download-all-warehouse-receipts.xlsx?${getParams(listName)}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "warehouse_receipts.xlsx");

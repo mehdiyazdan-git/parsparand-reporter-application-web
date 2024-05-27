@@ -3,13 +3,12 @@ import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import Pagination from '../pagination/Pagination';
 import ConfirmationModal from './ConfirmationModal';
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import { useMemo, useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Th from "./Th";
 import SearchDateInput from "./SearchDateInput";
 import SearchInput from "./SearchInput";
 import SelectSearchInput from "../../utils/SelectSearchInput";
 import Modal from "react-bootstrap/Modal";
-import { useNavigate } from "react-router-dom";
 import IconKey from "../assets/icons/IconKey";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
@@ -29,7 +28,6 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const navigate = useNavigate();
     const { filters, setFilter } = useFilters();
 
     const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
@@ -39,16 +37,6 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         return acc;
     }, {}), [columns]);
     const [search, setSearch] = useState(initialSearchState);
-
-    useEffect(() => {
-        if (filters[listName]) {
-            setSearch(filters[listName].search || initialSearchState);
-            setPage(filters[listName]?.page || 0);
-            setSize(filters[listName]?.size || 10);
-            setSortBy(filters[listName]?.sortBy || '');
-            setOrder(filters[listName]?.order || '');
-        }
-    }, [filters, listName, initialSearchState]);
 
     const handlePageChange = (newPage) => {
         setPage(newPage);
@@ -109,16 +97,27 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         }
     };
 
+    useEffect(() => {
+        if (filters[listName]) {
+            setSearch(filters[listName].search || initialSearchState);
+            setPage(filters[listName]?.page || 0);
+            setSize(filters[listName]?.size || 10);
+            setSortBy(filters[listName]?.sortBy || '');
+            setOrder(filters[listName]?.order || '');
+            setTotalPages(filters[listName]?.totalPages || 0);
+            setTotalElements(filters[listName]?.totalElements || 0);
+        }
+    }, [filters, initialSearchState, listName]);
+
     useDeepCompareEffect(() => {
         const load = async () => {
             try {
                 const queryParams = new URLSearchParams({
-                    page: page.toString(),
-                    size: size.toString(),
-                    sortBy: sortBy,
-                    order: order,
-                    ...search,
-                    ...filters[listName]?.extraParams,
+                    page: filters[listName]?.page || 0,
+                    size: filters[listName]?.size || 10,
+                    sortBy: filters[listName]?.sortBy || '',
+                    order: filters[listName]?.order || '',
+                    ...filters[listName]?.search,
                 });
                 const response = await fetchData(queryParams);
                 if (response.content) {
@@ -130,16 +129,10 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                 }
             } catch (error) {
                 console.log("table is reporting an error:", error);
-                if (error.response) {
-                    if (error.response.status > 400) {
-                        navigate('server-error');
-                    }
-                    navigate('server-error');
-                }
             }
         };
         load();
-    }, [page, size, search, sortBy, order, refreshTrigger]);
+    }, [page, size, search, sortBy, order, refreshTrigger, filters, listName]);
 
     if (!data) {
         return <LoadingDataErrorPage />;
