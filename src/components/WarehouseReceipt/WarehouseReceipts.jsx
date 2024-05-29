@@ -25,6 +25,7 @@ const WarehouseReceipts = () => {
     const { filters,getParams } = useFilters();
     const listName = 'warehouseReceipts';
     const getAllWarehouseReceipts = async (queryParams) => {
+
         if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
             queryParams.append('jalaliYear',`${filters.years.jalaliYear.label}`);
         }

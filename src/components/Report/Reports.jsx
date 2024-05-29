@@ -12,6 +12,7 @@ import CreateReportForm from "./CreateReportForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
+import {formatNumber} from "../../utils/functions/formatNumber";
 
 const Reports = () => {
     const [editingReport, setEditingReport] = useState(null);
@@ -28,6 +29,7 @@ const Reports = () => {
         if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
             queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
         }
+        console.log(queryParams.toString())
         return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
     }, [filters]);
 
@@ -86,9 +88,12 @@ const Reports = () => {
     }, [removeReport]);
 
     const columns = useMemo(() => [
-        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'reportDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
-        { key: 'reportExplanation', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '5%', sortable: true, searchable: true },
+        { key: 'reportDate', title: 'تاریخ', width: '10%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
+        { key: 'reportExplanation', title: 'توضیحات', width: '40%', sortable: true, searchable: true },
+        { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', render: (item) => formatNumber(item.totalQuantity) },
+        { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number', render: (item) => formatNumber(item.totalPrice) },
+
     ], []);
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {

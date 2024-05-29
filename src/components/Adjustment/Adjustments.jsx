@@ -12,6 +12,7 @@ import CreateAdjustmentForm from "./CreateAdjustmentForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
+import {formatNumber} from "../../utils/functions/formatNumber";
 
 const Adjustments = () => {
     const [editingAdjustment, setEditingAdjustment] = useState(null);
@@ -86,22 +87,30 @@ const Adjustments = () => {
     }, [removeAdjustment]);
 
     const columns = useMemo(() => [
-        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'adjustmentNumber', title: 'شماره تعدیل', width: '15%', sortable: true, searchable: true },
+        { key: 'id', title: 'شناسه', width: '2%', sortable: true },
+        { key: 'adjustmentNumber', title: 'شماره تعدیل', width: '5%', sortable: true, searchable: true },
         {
             key: 'adjustmentDate',
             title: 'تاریخ تعدیل',
-            width: '15%',
+            width: '5%',
             sortable: true,
             searchable: true,
             type: 'date',
             render: (item) => toShamsi(item.adjustmentDate)
         },
         { key: 'description', title: 'توضیحات', width: '25%', sortable: true, searchable: true },
-        { key: 'unitPrice', title: 'قیمت واحد', width: '10%', sortable: true, searchable: true },
-        { key: 'quantity', title: 'مقدار', width: '10%', sortable: true, searchable: true },
-        { key: 'adjustmentType', title: 'نوع تعدیل', width: '10%', sortable: true, searchable: true },
-        { key: 'invoiceNumber', title: 'شماره فاکتور', width: '10%', sortable: true, searchable: true },
+        { key: 'unitPrice', title: 'قیمت واحد', width: '7%', sortable: true, searchable: true },
+        { key: 'quantity', title: 'مقدار', width: '5%', sortable: true, searchable: true },
+        {
+            key: 'totalPrice',
+            title: 'مبلغ کل',
+            width: '7%',
+            sortable: true,
+            searchable: true ,
+            render : item => formatNumber(item.unitPrice * item.quantity),
+        },
+        { key: 'adjustmentType', title: 'نوع تعدیل', width: '5%', sortable: true, searchable: true },
+        { key: 'invoiceNumber', title: 'شماره فاکتور', width: '5%', sortable: true, searchable: true },
     ], []);
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {

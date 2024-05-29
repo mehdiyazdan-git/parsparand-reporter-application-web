@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -12,22 +12,34 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import SelectInput from "../../utils/SelectInput";
+import Subtotal from "../../utils/Subtotal";
+import {useFilters} from "../contexts/FilterContext";
 
 const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
     const http = useHttp();
+    const {filters} = useFilters();
 
-    const invoiceSelect = async (searchQuery = '') => {
-        return await http.get(`/invoices/select?searchQuery=${searchQuery}`);
+    const invoiceSelect = async (searchQuery) => {
+        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filters.years?.jalaliYear && filters.years.jalaliYear.label}`);
     }
 
     const validationSchema = Yup.object().shape({
         adjustmentType: Yup.string().required('نوع تعدیل الزامیست.'),
         description: Yup.string().required('توضیحات الزامیست.'),
-        quantity: Yup.number().required('مقدار الزامیست.'),
-        unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
+        quantity: Yup.number()
+            .typeError('مقدار باید عدد باشد.')
+            .positive('مقدار باید مثبت باشد.')
+            .required('مقدار الزامیست.'),
+        unitPrice: Yup.number()
+            .typeError('قیمت واحد باید عدد باشد.')
+            .positive('قیمت واحد باید مثبت باشد.')
+            .required('قیمت واحد الزامیست.'),
         invoiceId: Yup.number().required('شناسه فاکتور الزامیست.'),
         adjustmentDate: Yup.string().required('تاریخ تعدیل الزامیست.'),
-        adjustmentNumber: Yup.number().required('شماره تعدیل الزامیست.'),
+        adjustmentNumber: Yup.number()
+            .typeError('شماره تعدیل باید عدد باشد.')
+            .required('شماره تعدیل الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -38,11 +50,12 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
         }
         await onCreateAdjustment(data);
         onHide();
+
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show} >
+            <Modal.Header style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد تعدیل جدید"}
                 </Modal.Title>
@@ -51,7 +64,7 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            adjustmentType: '',
+                            adjustmentType: 'POSITIVE',
                             description: '',
                             quantity: '',
                             unitPrice: '',
@@ -66,29 +79,41 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <TextInput name="adjustmentType" label={"نوع تعدیل"} />
+                                        <NumberInput name="adjustmentNumber" label={"شماره سند تعدیل"} />
                                     </Col>
                                     <Col>
-                                        <NumberInput name="adjustmentNumber" label={"شماره تعدیل"} />
+                                        <SelectInput
+                                            name="adjustmentType"
+                                            label={"نوع تعدیل"}
+                                            options={[
+                                                { label: "مثبت", value: "POSITIVE" },
+                                                { label: "منفی", value: "NEGATIVE" },
+                                            ]}
+                                        />
                                     </Col>
+
                                 </Row>
                                 <Row>
+                                    <Col>
+                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                    </Col>
                                     <Col>
                                         <DateInput name="adjustmentDate" label={"تاریخ تعدیل"} />
                                     </Col>
-                                    <Col>
-                                        <NumberInput name="quantity" label={"مقدار"} />
-                                    </Col>
                                 </Row>
-                                <Row>
+                                <TextInput name="description" label={"توضیحات"} />
+                                <hr/>
+                                <Row className={"justify-content-center align-items-center mb-2"}>
                                     <Col>
                                         <NumberInput name="unitPrice" label={"قیمت واحد"} />
                                     </Col>
                                     <Col>
-                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                        <NumberInput name="quantity" label={"مقدار"} />
                                     </Col>
+                                   <Col>
+                                        <Subtotal label={"مبلغ کل"} />
+                                   </Col>
                                 </Row>
-                                <TextInput name="description" label={"توضیحات"} />
                             </Col>
                         </Row>
                         <Button $variant="success" type={"submit"}>

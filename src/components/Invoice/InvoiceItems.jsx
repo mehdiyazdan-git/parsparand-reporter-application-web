@@ -11,7 +11,7 @@ const InvoiceItems = () => {
     const [subtotal, setSubtotal] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
     const { control } = useFormContext();
-    const { fields, append, remove } = useFieldArray({
+    const { fields, append, remove} = useFieldArray({
         control,
         name: 'invoiceItems',
     });

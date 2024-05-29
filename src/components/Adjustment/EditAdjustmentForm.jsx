@@ -12,12 +12,17 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import SelectInput from "../../utils/SelectInput";
+import Subtotal from "../../utils/Subtotal";
+import {useFilters} from "../contexts/FilterContext";
 
 const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) => {
     const http = useHttp();
 
-    const invoiceSelect = async (searchQuery = '') => {
-        return await http.get(`/invoices/select?searchQuery=${searchQuery}`);
+    const {filters} = useFilters();
+
+    const invoiceSelect = async (searchQuery) => {
+        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filters.years?.jalaliYear && filters.years.jalaliYear.label}`);
     }
 
     const validationSchema = Yup.object().shape({
@@ -67,29 +72,41 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
                             <Col>
                                 <Row>
                                     <Col>
-                                        <TextInput name="adjustmentType" label={"نوع تعدیل"} />
+                                        <NumberInput name="adjustmentNumber" label={"شماره سند تعدیل"} />
                                     </Col>
                                     <Col>
-                                        <NumberInput name="adjustmentNumber" label={"شماره تعدیل"} />
+                                        <SelectInput
+                                            name="adjustmentType"
+                                            label={"نوع تعدیل"}
+                                            options={[
+                                                { label: "مثبت", value: "POSITIVE" },
+                                                { label: "منفی", value: "NEGATIVE" },
+                                            ]}
+                                        />
                                     </Col>
+
                                 </Row>
                                 <Row>
+                                    <Col>
+                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                    </Col>
                                     <Col>
                                         <DateInput name="adjustmentDate" label={"تاریخ تعدیل"} />
                                     </Col>
-                                    <Col>
-                                        <NumberInput name="quantity" label={"مقدار"} />
-                                    </Col>
                                 </Row>
-                                <Row>
+                                <TextInput name="description" label={"توضیحات"} />
+                                <hr/>
+                                <Row className={"justify-content-center align-items-center mb-2"}>
                                     <Col>
                                         <NumberInput name="unitPrice" label={"قیمت واحد"} />
                                     </Col>
                                     <Col>
-                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                        <NumberInput name="quantity" label={"مقدار"} />
+                                    </Col>
+                                    <Col>
+                                        <Subtotal label={"مبلغ کل"} />
                                     </Col>
                                 </Row>
-                                <TextInput name="description" label={"توضیحات"} />
                             </Col>
                         </Row>
                         <Button $variant="success" type={"submit"}>

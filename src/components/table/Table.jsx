@@ -15,8 +15,10 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import "../../App.css";
 import SearchCheckboxInput from "./SearchCheckboxInput";
 import { useFilters } from "../contexts/FilterContext";
+import SearchNumberInput from "./SearchNumberInput";
 
 const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPassword, listName }) => {
+
     const [data, setData] = useState([]);
     const [page, setPage] = useState(0);
     const [size, setSize] = useState(10);
@@ -198,6 +200,15 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                                     onChange={(event) => handleSearchChange(column.key, event.target.checked)}
                                     label={column.title}
                                 />
+                            ) : column.type === 'number' ? (
+                                <SearchNumberInput
+                                    key={column.key}
+                                    width={column.width}
+                                    id={column.key}
+                                    name={column.key}
+                                    value={search[column.key]}
+                                    onChange={(value) => handleSearchChange(column.key, value)}
+                                />
                             ) : (
                                 <SearchInput
                                     key={column.key}
@@ -208,6 +219,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                                     onChange={(event) => handleSearchChange(column.key, event.target.value)}
                                 />
                             )
+
                         ) : (
                             <th key={column.key} width={column.width}></th>
                         )
@@ -221,7 +233,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                         {columns.map((column) => (
                             <td key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
-                        <td style={{ padding: '0px' }}>
+                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%',justifyContent:'flex-end' }}>
                             {onResetPassword && (
                                 <IconKey
                                     style={{ margin: '0px 10px', cursor: 'pointer' }}

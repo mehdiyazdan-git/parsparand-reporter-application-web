@@ -2,6 +2,7 @@ import React from 'react';
 import {useFormContext, useWatch} from "react-hook-form";
 
 const ContractFields = ({ children }) => {
+
     const {control} = useFormContext();
     const salesType = useWatch({ control, name: "salesType" });
     return (
