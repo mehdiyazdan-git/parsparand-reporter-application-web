@@ -12,6 +12,7 @@ import CreateContractForm from "./CreateContractForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
+import {formatNumber} from "../../utils/functions/formatNumber";
 
 const Contracts = () => {
     const [editingContract, setEditingContract] = useState(null);
@@ -92,6 +93,8 @@ const Contracts = () => {
         { key: 'startDate', title: 'تاریخ شروع', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.startDate) },
         { key: 'endDate', title: 'تاریخ پایان', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.endDate) },
         { key: 'customerName', title: 'شناسه مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number',subtotal:true, render: (item) => formatNumber(item.totalQuantity) },
+        { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',subtotal:true, render: (item) => formatNumber(item.totalPrice) },
     ], []);
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
@@ -153,6 +156,7 @@ const Contracts = () => {
                 onDelete={handleDeleteContract}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                subTotal={true}
             />
 
             {editingContract && (

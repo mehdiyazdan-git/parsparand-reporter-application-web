@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, {createContext, useState, useContext, useEffect, Children} from 'react';
 
 const FilterContext = createContext();
 
@@ -21,7 +21,12 @@ export const FilterProvider = ({ children }) => {
             return newFilters;
         });
     };
+
+    const getFilter = (listName, key) => {
+        return filters[listName]?.[key];
+    }
     const getParams = (listName) => {
+
         const queryParams = new URLSearchParams();
         if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
             queryParams.append('jalaliYear', filters.years.jalaliYear.label);

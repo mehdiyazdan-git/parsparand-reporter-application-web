@@ -22,7 +22,7 @@ const Reports = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters, getParams , setFilter } = useFilters();
     const listName = 'reports';
 
     const getAllReports = useCallback(async (queryParams) => {
@@ -91,8 +91,8 @@ const Reports = () => {
         { key: 'id', title: 'شناسه', width: '5%', sortable: true, searchable: true },
         { key: 'reportDate', title: 'تاریخ', width: '10%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
         { key: 'reportExplanation', title: 'توضیحات', width: '40%', sortable: true, searchable: true },
-        { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', render: (item) => formatNumber(item.totalQuantity) },
-        { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number', render: (item) => formatNumber(item.totalPrice) },
+        { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', subtotal:true, render: (item) => formatNumber(item.totalQuantity) },
+        { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number', subtotal :true , render: (item) => formatNumber(item.totalPrice) },
 
     ], []);
 
@@ -111,8 +111,8 @@ const Reports = () => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async () => {
-        await http.get('/reports/download-all-reports.xlsx', { responseType: 'blob' })
+    const downloadExcelFile = useCallback(async (exportAll) => {
+        await http.get(`/reports/download-all-reports.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "reports.xlsx");
@@ -163,6 +163,8 @@ const Reports = () => {
                 onDelete={handleDeleteReport}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                subTotal={true}
+                downloadExcelFile={downloadExcelFile}
             />
 
             {editingReport && (

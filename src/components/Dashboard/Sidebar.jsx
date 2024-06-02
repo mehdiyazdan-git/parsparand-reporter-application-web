@@ -6,7 +6,7 @@ import styled from 'styled-components';
 const SidebarContainer = styled.div`
   width: 200px;
   height: 100vh;
-  background-color: #343a40;
+  background-color: rgba(1, 47, 87, 0.49);
   color: white;
   display: flex;
   flex-direction: column;

@@ -46,6 +46,13 @@ body {
 .table-header-row th {
     padding: 8px; /* Padding inside header cells */
 }
+.table-footer-row {
+    background-color: #f2f2f2; /* Footer background color */
+}
+
+.table-footer-row td {
+    padding: 8px; /* Padding inside footer cells */
+}
 
 .table-search-input {
     width: 100%; /* Full width of the cell */
@@ -83,4 +90,28 @@ body {
     text-align: right; /* Align header text to the right */
     font-family: "IRANSans", sans-serif; /* Font family for header text */
     text-indent: 10px;
+}
+
+/* Style for the table footer row */
+.table-footer {
+    background-color: rgba(98, 98, 98, 0.2);
+    font-weight: bold;
+    border: 1px solid rgba(29, 72, 231, 0.9);
+    font-size: 0.8rem;
+    text-indent: 1rem;
+    color: #014682;
+}
+.table-footer tr:hover {
+    background-color: rgba(238, 243, 248, 0.49);
+}
+
+/* Style for the subtotal columns */
+.subtotal-col {
+    text-align: right;
+    padding: 8px;
+    border: 2px solid #dddddd;
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #014682;
+
 }

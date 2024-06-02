@@ -3,7 +3,7 @@ import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import Pagination from '../pagination/Pagination';
 import ConfirmationModal from './ConfirmationModal';
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Th from "./Th";
 import SearchDateInput from "./SearchDateInput";
 import SearchInput from "./SearchInput";
@@ -16,8 +16,11 @@ import "../../App.css";
 import SearchCheckboxInput from "./SearchCheckboxInput";
 import { useFilters } from "../contexts/FilterContext";
 import SearchNumberInput from "./SearchNumberInput";
+import {formatNumber} from "../../utils/functions/formatNumber";
+import {SiMicrosoftexcel} from "react-icons/si";
+import Tooltip from "../../utils/Tooltip";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPassword, listName }) => {
+const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPassword, listName,downloadExcelFile}) => {
 
     const [data, setData] = useState([]);
     const [page, setPage] = useState(0);
@@ -31,6 +34,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const { filters, setFilter } = useFilters();
+    const [allData, setAllData] = useState([]); // State to hold all data for calculating overall subtotals
 
     const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
         if (column.searchable) {
@@ -62,6 +66,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         setSearch(newSearch);
         setFilter(listName, 'search', newSearch);
     };
+
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
         return (
@@ -99,6 +104,28 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         }
     };
 
+    // Fetch all data once to calculate overall subtotals
+    useEffect(() => {
+        const loadAllData = async () => {
+            try {
+                const queryParams = new URLSearchParams({
+                    page: 0,
+                    size: 1000000, // Large number to get all data
+                    sortBy: '',
+                    order: '',
+                    ...filters[listName]?.search,
+                });
+                const response = await fetchData(queryParams);
+                if (response.content) {
+                    setAllData(response.content);
+                }
+            } catch (error) {
+                console.log("table is reporting an error:", error);
+            }
+        };
+        loadAllData();
+    }, [filters, listName]);
+
     useEffect(() => {
         if (filters[listName]) {
             setSearch(filters[listName].search || initialSearchState);
@@ -135,6 +162,32 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         };
         load();
     }, [page, size, search, sortBy, order, refreshTrigger, filters, listName]);
+
+    // Calculate subtotals
+    const subtotals = useMemo(() => {
+        return columns.reduce((acc, column) => {
+            if (column.subtotal) {
+                acc[column.key] = data.reduce((sum, item) => sum + (item[column.key] || 0), 0);
+            }
+            return acc;
+        }, {});
+    }, [columns, data,filters, listName]);
+
+    // Calculate overall subtotals for all data
+    const overallSubtotals = useMemo(() => {
+        return columns.reduce((acc, column) => {
+            if (column.subtotal) {
+                acc[column.key] = allData.reduce((sum, item) => sum + (item[column.key] || 0), 0);
+            }
+            return acc;
+        }, {});
+    }, [columns, allData]);
+
+    // Calculate dynamic colspan
+    const subtotalColumnsCount = columns.filter(column => column.subtotal).length;
+    const dynamicColspan = columns.length - subtotalColumnsCount;
+
+
 
     if (!data) {
         return <LoadingDataErrorPage />;
@@ -260,6 +313,49 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                     </tr>
                 ))}
                 </tbody>
+                <tfoot className="table-footer">
+                <tr>
+                    <td colSpan={dynamicColspan} className="subtotal-label">جمع صفحه</td>
+                    {columns.map((column) => (
+                        column.subtotal ? (
+                            <td className="subtotal-col" key={column.key}>
+                                {formatNumber(subtotals[column.key])}
+                            </td>
+                        ) : null
+                    ))}
+                    <td>
+                        <SiMicrosoftexcel
+                            data-tooltip-id="export-current-page-to-excel-button"
+                            onClick={() => downloadExcelFile(false)}
+                            size={"1.3rem"}
+                            className={"mx-1"}
+                            color={"#41941a"}
+                            type="button"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td colSpan={dynamicColspan} className="subtotal-label">جمع کل</td>
+                    {columns.map((column) => (
+                        column.subtotal ? (
+                            <td className="subtotal-col" key={column.key}>
+                                {formatNumber(overallSubtotals[column.key])}
+                            </td>
+                        ) : null
+                    ))}
+                    <td>
+                        <SiMicrosoftexcel
+                            data-tooltip-id="export-total-query-to-excel-button"
+                            onClick={() => downloadExcelFile(true)}
+                            size={"1.3rem"}
+                            className={"mx-1"}
+                            color={"#41941a"}
+                            type="button"
+                        />
+                    </td>
+                </tr>
+                </tfoot>
+
             </table>
             <Pagination
                 currentPage={page}
@@ -279,6 +375,18 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                 show={showErrorModal}
                 handleClose={() => setShowErrorModal(false)}
                 errorMessage={errorMessage}
+            />
+            <Tooltip
+                id="export-current-page-to-excel-button"
+                color={"green"}
+                content="صفحه جاری"
+                place="left"
+            />
+            <Tooltip
+                id="export-total-query-to-excel-button"
+                color={"green"}
+                content="کل صفحات"
+                place="left"
             />
         </>
     );

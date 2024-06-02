@@ -12,6 +12,7 @@ import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
+import {formatNumber} from "../../utils/functions/formatNumber";
 
 const Invoices = () => {
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -28,6 +29,7 @@ const Invoices = () => {
         if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
             queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
         }
+        console.log(queryParams.toString())
         return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
@@ -93,33 +95,13 @@ const Invoices = () => {
         return statuses[invoiceStatusId] || 'نامشخص';
     }
     const convertSalesTypeToPersianCaption = (salesType) => {
-        const types = {
-            'CASH_SALES': 'فروش نقدی',
-            'CONTRACTUAL_SALES': 'فروش قراردادی',
-        }
-        return types[salesType] || 'نامشخص';
+        return 'CASH_SALES' === salesType.toString() ? 'فروش نقدی' : 'فروش قراردادی';
     }
 
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'invoiceNumber', title: 'شماره فاکتور', width: '5%', sortable: true, searchable: true },
         { key: 'issuedDate', title: 'تاریخ صدور', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
-        {
-            key: 'salesType',
-            title: 'نوع فروش',
-            width: '7%',
-            sortable: true,
-            searchable: true,
-            render : (item) => convertSalesTypeToPersianCaption(item.salesType),
-            type: 'select',
-            options: [{
-                value: 'CASH_SALES',
-                label: 'فروش نقدی',
-            }, {
-                value: 'CONTRACTUAL_SALES',
-                label: 'فروش قراردادی',
-            }]
-        },
         { key: 'customerName', title: 'نام مشتری', width: '20%', sortable: true, searchable: true },
         {
             key: 'invoiceStatusId',
@@ -146,7 +128,9 @@ const Invoices = () => {
                 label: 'تایید شده توسط مدیر عامل',
             },
             ]
-        }
+        },
+        { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', subtotal: true, render: (item) => formatNumber(item.totalQuantity) },
+        { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',  subtotal: true, render: (item) => formatNumber(item.totalPrice) },
         ], []);
 
 
@@ -217,6 +201,7 @@ const Invoices = () => {
                 onDelete={handleDeleteInvoice}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                subTotal={true}
             />
 
             {editingInvoice && (
