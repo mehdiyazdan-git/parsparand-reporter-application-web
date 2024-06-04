@@ -202,6 +202,7 @@ const Invoices = () => {
                 refreshTrigger={refreshTrigger}
                 listName={listName}
                 subTotal={true}
+                downloadExcelFile={downloadExcelFile}
             />
 
             {editingInvoice && (

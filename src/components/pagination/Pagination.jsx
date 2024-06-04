@@ -1,17 +1,29 @@
 import React, { useMemo } from 'react';
+import { useFilters } from "../contexts/FilterContext"; // Correct import statement for useFilters
 import "./Pagination.css";
 
-const Pagination = ({ currentPage, totalPages, pageSize, totalItems, onPageChange, onPageSizeChange }) => {
+const Pagination = ({ listName }) => {
+    const { filters, setPagination } = useFilters(); // Correctly using the useFilters hook
+
+    // Retrieve pagination details from filters using the listName
+    const currentPage = filters[listName]?.page || 0;
+    const totalPages = filters[listName]?.totalPages || 1;
+    const pageSize = filters[listName]?.pageSize || 10;
+    const totalItems = filters[listName]?.totalElements || 0;
+
+    // Handle changing the page size and resetting to the first page
     const handlePageSizeChange = (event) => {
-        onPageSizeChange(Number(event.target.value));
-        onPageChange(0); // Reset to first page (zero-indexed) when page size changes
+        const newSize = Number(event.target.value);
+        setPagination(listName, 0, newSize); // Reset to first page when page size changes
     };
 
+    // Handle navigation to a specific page
     const goToPage = (pageNumber) => {
-        onPageChange(pageNumber - 1); // Subtract 1 for the zero-index-based server before sending the page number
+        setPagination(listName, pageNumber - 1, pageSize); // Subtract 1 because pages might be zero indexed in context
     };
 
-    const pageSizeOptions = useMemo(() => [5, 10, 20], []); // Memoize page size options to avoid re-creation on each render
+    // Memoize page size options to avoid re-creation on each render
+    const pageSizeOptions = useMemo(() => [5, 10, 20], []);
 
     return (
         <div className="pagination">

@@ -1,39 +1,32 @@
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import { useFilters } from "../contexts/FilterContext";
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import Pagination from '../pagination/Pagination';
 import ConfirmationModal from './ConfirmationModal';
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import React, { useEffect, useMemo, useState } from "react";
 import Th from "./Th";
 import SearchDateInput from "./SearchDateInput";
 import SearchInput from "./SearchInput";
 import SelectSearchInput from "../../utils/SelectSearchInput";
-import Modal from "react-bootstrap/Modal";
 import IconKey from "../assets/icons/IconKey";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import "../../App.css";
 import SearchCheckboxInput from "./SearchCheckboxInput";
-import { useFilters } from "../contexts/FilterContext";
 import SearchNumberInput from "./SearchNumberInput";
-import {formatNumber} from "../../utils/functions/formatNumber";
-import {SiMicrosoftexcel} from "react-icons/si";
+import { formatNumber } from "../../utils/functions/formatNumber";
+import { SiMicrosoftexcel } from "react-icons/si";
 import Tooltip from "../../utils/Tooltip";
+import {Modal} from "react-bootstrap";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPassword, listName,downloadExcelFile}) => {
-
+const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger, listName, downloadExcelFile }) => {
+    const { filters, setFilter} = useFilters();
     const [data, setData] = useState([]);
-    const [page, setPage] = useState(0);
-    const [size, setSize] = useState(10);
-    const [totalPages, setTotalPages] = useState(0);
-    const [totalElements, setTotalElements] = useState(0);
-    const [sortBy, setSortBy] = useState('');
-    const [order, setOrder] = useState('');
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters, setFilter } = useFilters();
     const [allData, setAllData] = useState([]); // State to hold all data for calculating overall subtotals
 
     const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
@@ -42,48 +35,22 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         }
         return acc;
     }, {}), [columns]);
+
     const [search, setSearch] = useState(initialSearchState);
 
-    const handlePageChange = (newPage) => {
-        setPage(newPage);
-        setFilter(listName, 'page', newPage);
-    };
-
-    const handlePageSizeChange = (newPageSize) => {
-        setSize(newPageSize);
-        setFilter(listName, 'size', newPageSize);
-    };
-
-    const handleSortChange = (sortKey, sortOrder) => {
-        setSortBy(sortKey);
-        setOrder(sortOrder);
+    const handleSortChange = useCallback((sortKey, sortOrder) => {
         setFilter(listName, 'sortBy', sortKey);
         setFilter(listName, 'order', sortOrder);
-    };
+    }, [listName, setFilter]);
 
-    const handleSearchChange = (key, value) => {
+    const handleSearchChange = useCallback((key, value) => {
         const newSearch = { ...search, [key]: value };
         setSearch(newSearch);
         setFilter(listName, 'search', newSearch);
-    };
+        setFilter(listName, 'page', 0);
+    }, [search, setFilter, listName]);
 
-
-    const ErrorModal = ({ show, handleClose, errorMessage }) => {
-        return (
-            <Modal show={show} onHide={handleClose} centered>
-                <Modal.Body
-                    className="text-center"
-                    style={{ fontFamily: "IRANSans", fontSize: "0.8rem", padding: "20px", fontWeight: "bold" }}>
-                    <div className="text-danger">{errorMessage}</div>
-                    <button className="btn btn-primary btn-sm mt-4" onClick={handleClose}>
-                        بستن
-                    </button>
-                </Modal.Body>
-            </Modal>
-        );
-    };
-
-    const handleDeleteConfirm = async () => {
+    const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {
             try {
                 const errorMessage = await onDelete(selectedItem);
@@ -102,7 +69,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                 }
             }
         }
-    };
+    }, [selectedItem, onDelete]);
 
     // Fetch all data once to calculate overall subtotals
     useEffect(() => {
@@ -126,24 +93,12 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
         loadAllData();
     }, [filters, listName]);
 
-    useEffect(() => {
-        if (filters[listName]) {
-            setSearch(filters[listName].search || initialSearchState);
-            setPage(filters[listName]?.page || 0);
-            setSize(filters[listName]?.size || 10);
-            setSortBy(filters[listName]?.sortBy || '');
-            setOrder(filters[listName]?.order || '');
-            setTotalPages(filters[listName]?.totalPages || 0);
-            setTotalElements(filters[listName]?.totalElements || 0);
-        }
-    }, [filters, initialSearchState, listName]);
-
     useDeepCompareEffect(() => {
         const load = async () => {
             try {
                 const queryParams = new URLSearchParams({
                     page: filters[listName]?.page || 0,
-                    size: filters[listName]?.size || 10,
+                    size: filters[listName]?.pageSize || 10,
                     sortBy: filters[listName]?.sortBy || '',
                     order: filters[listName]?.order || '',
                     ...filters[listName]?.search,
@@ -151,8 +106,10 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                 const response = await fetchData(queryParams);
                 if (response.content) {
                     setData(response.content);
-                    setTotalPages(response.totalPages);
-                    setTotalElements(response.totalElements);
+                    setFilter(listName, 'page', response.pageable.pageNumber);
+                    setFilter(listName, 'pageSize', response.pageable.pageSize);
+                    setFilter(listName, 'totalPages', response.totalPages);
+                    setFilter(listName, 'totalElements', response.totalElements);
                     setErrorMessage('');
                     setShowErrorModal(false);
                 }
@@ -161,7 +118,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
             }
         };
         load();
-    }, [page, size, search, sortBy, order, refreshTrigger, filters, listName]);
+    }, [ filters, listName]);
 
     // Calculate subtotals
     const subtotals = useMemo(() => {
@@ -171,7 +128,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
             }
             return acc;
         }, {});
-    }, [columns, data,filters, listName]);
+    }, [columns, data]);
 
     // Calculate overall subtotals for all data
     const overallSubtotals = useMemo(() => {
@@ -187,7 +144,18 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
     const subtotalColumnsCount = columns.filter(column => column.subtotal).length;
     const dynamicColspan = columns.length - subtotalColumnsCount;
 
-
+    const ErrorModal = ({ show, handleClose, errorMessage }) => (
+        <Modal show={show} onHide={handleClose} centered>
+            <Modal.Body
+                className="text-center"
+                style={{ fontFamily: "IRANSans", fontSize: "0.8rem", padding: "20px", fontWeight: "bold" }}>
+                <div className="text-danger">{errorMessage}</div>
+                <button className="btn btn-primary btn-sm mt-4" onClick={handleClose}>
+                    بستن
+                </button>
+            </Modal.Body>
+        </Modal>
+    );
 
     if (!data) {
         return <LoadingDataErrorPage />;
@@ -202,10 +170,10 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                         <Th
                             key={column.key}
                             width={column.width}
-                            sortBy={sortBy}
-                            sortOrder={order}
-                            setSortBy={(sortKey) => handleSortChange(sortKey, order)}
-                            setSortOrder={(sortOrder) => handleSortChange(sortBy, sortOrder)}
+                            sortBy={filters[listName]?.sortBy}
+                            sortOrder={filters[listName]?.order}
+                            setSortBy={(sortKey) => handleSortChange(sortKey, filters[listName]?.order)}
+                            setSortOrder={(sortOrder) => handleSortChange(filters[listName]?.sortBy, sortOrder)}
                             sortKey={column.key}
                             listName={listName}
                             setFilter={setFilter}
@@ -286,7 +254,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                         {columns.map((column) => (
                             <td key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
-                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%',justifyContent:'flex-end' }}>
+                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'flex-end' }}>
                             {onResetPassword && (
                                 <IconKey
                                     style={{ margin: '0px 10px', cursor: 'pointer' }}
@@ -355,16 +323,8 @@ const Table = ({ columns, fetchData, onEdit, onDelete, refreshTrigger, onResetPa
                     </td>
                 </tr>
                 </tfoot>
-
             </table>
-            <Pagination
-                currentPage={page}
-                totalPages={totalPages}
-                pageSize={size}
-                totalItems={totalElements}
-                onPageChange={handlePageChange}
-                onPageSizeChange={handlePageSizeChange}
-            />
+            <Pagination listName={listName} />
             <ConfirmationModal
                 show={showConfirmationModal}
                 handleClose={() => setShowConfirmationModal(false)}
