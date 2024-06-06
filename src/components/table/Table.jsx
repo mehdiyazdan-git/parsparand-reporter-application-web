@@ -91,7 +91,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName
             }
         };
         loadAllData();
-    }, [filters[listName]?.search.customerId]);
+    }, [filters[listName]?.search?.customerId]);
 
     useDeepCompareEffect(() => {
         const load = async () => {
