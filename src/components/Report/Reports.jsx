@@ -33,9 +33,9 @@ const Reports = () => {
         return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
     }, [filters]);
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(prev => !prev);
+    // }, [filters]);
 
     const createReport = useCallback(async (data) => {
         return await http.post("/reports", data);

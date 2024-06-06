@@ -1,0 +1,195 @@
+
+.monthly_report table {
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+.monthly_report table td {
+    border: 1px solid lightgray;
+    margin: 0;
+    padding: 0;
+}
+.monthly_report table tfoot td {
+    border: 1px solid lightgray;
+    margin: 0;
+    padding: 0;
+}
+
+.monthly_report table input[type="text"],
+.monthly_report table input[type="button"],
+.monthly_report table select[type="select"],
+.monthly_report .number-format table input [type="text"],
+.monthly_report table input[type="number"] {
+    border: none;
+    margin: 0;
+    padding: 5px;
+    width: 100%;
+}
+/* Style for the label element */
+/*.monthly_report label {*/
+/*  display: block;*/
+/*  font-size: 15px;*/
+/*  margin-bottom: 8px;*/
+/*}*/
+
+/* Style for the input element */
+.monthly_report input {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    padding: 8px 12px;
+    transition: border-color 0.2s ease-in-out;
+    width: 100%;
+}
+input {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    padding: 8px 12px;
+    transition: border-color 0.2s ease-in-out;
+    width: 100%;
+}
+
+/* Style for the select element when focused */
+.monthly_report input:focus {
+    border-color: #2196f3;
+    outline: none;
+}
+.monthly_report > div > select {
+    box-sizing: border-box;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    min-width: 250px;
+    padding: 8px 12px;
+    transition: border-color 0.2s ease-in-out;
+    width: 100%;
+}
+
+/* Style for the select element when focused */
+.monthly_report .select:focus {
+    border-color: #2196f3;
+    outline: none;
+}
+/* Style for table header */
+.monthly_report th {
+    background-color: #f5f6f7;
+    border: 1px solid #ccc;
+    color: #010101;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    text-align: center;
+}
+.monthly_report tfoot tr td {
+    background-color: #f5f6f7;
+    border: 1px solid #ccc;
+    color: #010101;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 12px;
+    text-align: center;
+}
+
+/* Style for table body */
+.monthly_report td {
+    border: 1px solid #edecec;
+    padding: 12px;
+}
+
+/* Style for table */
+.monthly_report table {
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+/* Style for rounded corners */
+.monthly_report table tr:first-child th:first-child {
+    border-top-right-radius: 8px;
+
+}
+.monthly_report table tr:first-child th:last-child {
+    border-top-left-radius: 8px;
+
+}
+
+.monthly_report table tr:last-child td:first-child {
+    border-bottom-right-radius: 8px;
+
+}
+
+.monthly_report table tr:last-child td:last-child {
+    border-bottom-left-radius: 8px;
+}
+.monthly_report button[type="button"] {
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.monthly_report button[type="button"]:hover {
+    background-color: #0c7cd5;
+}
+.monthly_report button[type="button"] svg {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.monthly_report button[type="button"] svg path {
+    fill: #fff;
+}
+.monthly_report {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    font-family: "IRANSans", sans-serif;
+}
+
+.monthly_report button {
+    margin-left: 10px;
+}
+
+.monthly_report:last-of-type {
+    margin-top: 20px;
+}
+.monthly_report .delete-btn {
+    background-color: #fb5e54;
+    color: #fff;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.monthly_report .delete-btn:hover {
+    background-color: #d32f2f;
+}
+
+.monthly_report .submit-btn {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.monthly_report .submit-btn:hover {
+    background-color: #388e3c;
+}
+
+
+

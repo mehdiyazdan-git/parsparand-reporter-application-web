@@ -12,40 +12,46 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import useHttp from "../../hooks/useHttp";
+import SelectInput from "../../utils/SelectInput";
 
 const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
     const http = useHttp();
-
-    const yearSelect = async () => {
-        return await http.get(`/years/select`);
-    }
 
     const customerSelect = async (searchQuery = '') => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }
 
-    const validationSchema = Yup.object().shape({
-        paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
-        paymentDescryption: Yup.string().required('توضیحات پرداخت الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
-        paymentAmount: Yup.number().required('مبلغ پرداخت الزامیست.'),
-        paymentSubject: Yup.string().required('موضوع پرداخت الزامیست.'),
-    });
+    // const validationSchema = Yup.object().shape({
+    //     paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
+    //     paymentDescription: Yup.string()
+    //         .max(255, 'توضیحات پرداخت نباید بیشتر از 255 کاراکتر باشد.')
+    //         .typeError('توضیحات پرداخت باید باید متن باشد.')
+    //         .required('توضیحات پرداخت الزامیست.'),
+    //     customerId: Yup.number().required('مشتری الزامیست.'),
+    //     paymentAmount: Yup.number()
+    //         .typeError('مبلغ پرداخت باید باید عدد باشد.')
+    //         .positive('مبلغ پرداخت باید عدد مثبت باشد.')
+    //         .required('مبلغ پرداخت الزامیست.'),
+    // });
 
-    const resolver = useYupValidationResolver(validationSchema);
+    // const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        if (data.paymentDate) {
-            data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
-        }
-        await onCreatePayment(data);
-        onHide();
+       try {
+           if (data.paymentDate) {
+               data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
+           }
+           await onCreatePayment(data);
+           onHide();
+           console.log(data)
+       }catch (e){
+           console.log(e)
+       }
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show}>
+            <Modal.Header style={headerStyle}>
                 <Modal.Title style={titleStyle}>
                     {"ایجاد پرداخت جدید"}
                 </Modal.Title>
@@ -53,16 +59,9 @@ const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
-                        defaultValues={{
-                            paymentDate: '',
-                            paymentDescryption: '',
-                            customerId: '',
-                            yearId: '',
-                            paymentAmount: '',
-                            paymentSubject: '',
-                        }}
+
                         onSubmit={onSubmit}
-                        resolver={resolver}
+                        // resolver={resolver}
                     >
                         <Row>
                             <Col>
@@ -71,15 +70,12 @@ const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
                                         <DateInput name="paymentDate" label={"تاریخ پرداخت"} />
                                     </Col>
                                     <Col>
-                                        <TextInput name="paymentDescryption" label={"توضیحات پرداخت"} />
+                                        <TextInput name="paymentDescription" label={"توضیحات پرداخت"} />
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
                                         <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
                                     </Col>
                                 </Row>
                                 <Row>
@@ -87,7 +83,16 @@ const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
                                         <NumberInput name="paymentAmount" label={"مبلغ پرداخت"} />
                                     </Col>
                                     <Col>
-                                        <TextInput name="paymentSubject" label={"موضوع پرداخت"} />
+                                        <SelectInput
+                                            name="paymentSubject"
+                                            label={"موضوع پرداخت"}
+                                            options ={[
+                                                {value: "PRODUCT", label: 'محصول'},
+                                                {value: "INSURANCEDEPOSIT", label: 'سپرده بیمه'},
+                                                {value: "PERFORMANCEBOUND", label: 'حسن انجام کار'},
+                                                {value: "ADVANCEDPAYMENT", label: 'پیش پرداخت'},
+                                            ]}
+                                        />
                                     </Col>
                                 </Row>
                             </Col>

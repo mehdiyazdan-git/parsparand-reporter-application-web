@@ -39,6 +39,9 @@ export function TextInput({ name,backgroundColor, label,labelStyle, type, ...res
                                             fontSize: '0.8rem',
                                             paddingRight: type === 'password' ? '40px' : '10px',
                                             paddingLeft: '10px',
+                                            textOverflow : "ellipsis",
+                                            whiteSpace : "nowrap",
+                                            overflow: "hidden",
                                         }}
                                     />
                                     {type === 'password' && (

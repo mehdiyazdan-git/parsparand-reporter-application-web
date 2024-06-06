@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -32,10 +32,6 @@ const Invoices = () => {
         console.log(queryParams.toString())
         return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
-
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
 
     const createInvoice = useCallback(async (data) => {
         return await http.post("/invoices", data);
@@ -94,9 +90,6 @@ const Invoices = () => {
         }
         return statuses[invoiceStatusId] || 'نامشخص';
     }
-    const convertSalesTypeToPersianCaption = (salesType) => {
-        return 'CASH_SALES' === salesType.toString() ? 'فروش نقدی' : 'فروش قراردادی';
-    }
 
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
@@ -131,7 +124,7 @@ const Invoices = () => {
         },
         { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', subtotal: true, render: (item) => formatNumber(item.totalQuantity) },
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',  subtotal: true, render: (item) => formatNumber(item.totalPrice) },
-        ], []);
+    ], []);
 
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
@@ -164,12 +157,12 @@ const Invoices = () => {
     return (
         <div className="table-container">
             <ButtonContainer lastChild={
-                    <FileUpload
-                        uploadUrl={`/invoices/import`}
-                        refreshTrigger={refreshTrigger}
-                        setRefreshTrigger={setRefreshTrigger}
-                    />
-                }
+                <FileUpload
+                    uploadUrl={`/invoices/import`}
+                    refreshTrigger={refreshTrigger}
+                    setRefreshTrigger={setRefreshTrigger}
+                />
+            }
             >
                 <Button
                     $variant="primary"

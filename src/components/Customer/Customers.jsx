@@ -30,9 +30,9 @@ const Customers = () => {
         return await http.get(`/customers?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(prev => !prev);
+    // }, [refreshTrigger]);
 
     const createCustomer = useCallback(async (data) => {
         return await http.post("/customers", data);

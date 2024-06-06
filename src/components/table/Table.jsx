@@ -20,14 +20,14 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import Tooltip from "../../utils/Tooltip";
 import {Modal} from "react-bootstrap";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger, listName, downloadExcelFile }) => {
+const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName, downloadExcelFile }) => {
     const { filters, setFilter} = useFilters();
     const [data, setData] = useState([]);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const [allData, setAllData] = useState([]); // State to hold all data for calculating overall subtotals
+    const [allData, setAllData] = useState([]);
 
     const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
         if (column.searchable) {
@@ -91,7 +91,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
         };
         loadAllData();
-    }, [filters, listName]);
+    }, [filters[listName]?.search.customerId]);
 
     useDeepCompareEffect(() => {
         const load = async () => {
@@ -118,7 +118,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
         };
         load();
-    }, [ filters, listName]);
+    }, [ filters[listName]?.search, filters[listName]?.page, filters[listName]?.pageSize, filters[listName]?.sortBy, filters[listName]?.order]);
 
     // Calculate subtotals
     const subtotals = useMemo(() => {
@@ -165,7 +165,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
         <>
             <table className="recipient-table table-fixed-height mt-3">
                 <thead>
-                <tr className="table-header-row">
+                <tr className="table-header-row p-0 m-0">
                     {columns.map((column) => (
                         <Th
                             key={column.key}
@@ -242,7 +242,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                             )
 
                         ) : (
-                            <th key={column.key} width={column.width}></th>
+                            <th key={column.key} style={{width:`${column.width}`}}></th>
                         )
                     )}
                     <th width="5%"></th>
@@ -254,7 +254,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                         {columns.map((column) => (
                             <td key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
-                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'flex-end' }}>
+                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'flex-end', }}>
                             {onResetPassword && (
                                 <IconKey
                                     style={{ margin: '0px 10px', cursor: 'pointer' }}

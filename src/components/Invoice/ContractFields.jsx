@@ -10,12 +10,12 @@ const ContractFields = ({ children }) => {
             {salesType === 'CONTRACTUAL_SALES'
                 &&
                 React.Children.map(children, child => {
-                        return child.props.name
-                            ? React.createElement(child.type, {
-                                ...{...child.props,}
-                            })
-                            : child;
-                    })
+                    return child.props.name
+                        ? React.createElement(child.type, {
+                            ...{...child.props,}
+                        })
+                        : child;
+                })
             }
         </div>
     );

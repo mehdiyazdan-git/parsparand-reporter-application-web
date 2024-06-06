@@ -51,7 +51,7 @@ export const FilterProvider = ({ children }) => {
             queryParams.append('jalaliYear', filters.years.jalaliYear.label);
         }
         queryParams.append('page', filters[listName]?.page || 0);
-        queryParams.append('pageSize', filters[listName]?.pageSize || 10);
+        queryParams.append('size', filters[listName]?.pageSize || 10);
         queryParams.append('order', filters[listName]?.order || '');
         queryParams.append('sortBy', filters[listName]?.sortBy || '');
         Object.keys(filters[listName]?.search || {}).forEach((key) => {

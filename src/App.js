@@ -16,6 +16,10 @@ import InvoiceStatuses from "./components/InvoiceStatuses/InvoiceStatuses";
 import Years from "./components/Year/Years";
 import Payments from "./components/Payment/Payments";
 import {FilterProvider} from "./components/contexts/FilterContext";
+import MonthlyReport from "./components/Report/MonthlyReport";
+import AnnualReport from "./components/Report/AnnualReport";
+import YearComparisonReport from "./components/Report/YearComparisonReport";
+import ClientSummary from "./components/Report/ClientSummary";
 
 const queryClient = new QueryClient();
 
@@ -30,7 +34,11 @@ const App = () => {
                                 <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
                                 <Route path="/products" element={<Products />} />
                                 <Route path="/reports" element={<Reports />} />
+                                <Route path="/monthly-report" element={<MonthlyReport />} />
+                                <Route path="/annual-report" element={<AnnualReport />} />
+                                <Route path="/year-comparison-report" element={<YearComparisonReport />} />
                                 <Route path="/customers" element={<Customers />} />
+                                <Route path="/client-summary" element={<ClientSummary />} />
                                 <Route path="/invoices" element={<Invoices />} />
                                 <Route path="/invoiceStatuses" element={<InvoiceStatuses />} />
                                 <Route path="/payments" element={<Payments />} />

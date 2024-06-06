@@ -20,16 +20,16 @@ const Products = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters ,getParams} = useFilters();
     const listName = 'products';
 
-    const getAllProducts = useCallback(async (queryParams) => {
-        return await http.get(`/products?${queryParams.toString()}`).then(r => r.data);
-    }, [http, filters]);
+    const getAllProducts = useCallback(async () => {
+        return await http.get(`/products?${getParams(listName)}`).then(r => r.data);
+    }, [http, getParams, listName]);
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(prev => !prev);
+    // }, [refreshTrigger]);
 
     const createProduct = useCallback(async (data) => {
         return await http.post("/products", data);
@@ -49,11 +49,9 @@ const Products = () => {
             if (response.status === 201) {
                 setRefreshTrigger(prev => !prev);
                 setShowModal(false);
-            } else {
-                setErrorMessage(response.data);
-                setShowErrorModal(true);
             }
         } catch (error) {
+            console.log(error)
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -14,7 +14,7 @@ import { formatNumber } from "../../utils/functions/formatNumber";
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
 
-const Payments = () => {
+const Payments = ({ customerId }) => {
     const [editingPayment, setEditingPayment] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);
@@ -22,49 +22,43 @@ const Payments = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters,getParams,setFilter } = useFilters();
     const listName = 'payments';
 
-    const getAllPayments = useCallback(async (queryParams) => {
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
+    const getAllPayments = async () => {
+        if (!filters["payments"]?.search?.customerId || filters["payments"]?.search?.customerId !== customerId){
+            const newSearch = {...filters["payments"]?.search, customerId: customerId};
+            setFilter(listName, "search",newSearch);
         }
-        return await http.get(`/payments?${queryParams.toString()}`).then(r => r.data);
-    }, [filters, http]);
+        return await http.get(`/payments?${getParams(listName)}`).then(r => r.data);
+    };
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
-
-    const createPayment = useCallback(async (data) => {
+    const createPayment = async (data) => {
         return await http.post("/payments", data);
-    }, [http]);
+    };
 
-    const updatePayment = useCallback(async (id, data) => {
+    const updatePayment = async (id, data) => {
         return await http.put(`/payments/${id}`, data);
-    }, [http]);
+    };
 
-    const removePayment = useCallback(async (id) => {
+    const removePayment = async (id) => {
         return await http.delete(`/payments/${id}`);
-    }, [http]);
+    };
 
-    const handleAddPayment = useCallback(async (newPayment) => {
+    const handleAddPayment = async (newPayment) => {
         try {
             const response = await createPayment(newPayment);
             if (response.status === 201) {
                 setRefreshTrigger(prev => !prev);
                 setShowModal(false);
-            } else {
-                setErrorMessage(response.data);
-                setShowErrorModal(true);
             }
         } catch (error) {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    }, [createPayment]);
+    };
 
-    const handleUpdatePayment = useCallback(async (updatedPayment) => {
+    const handleUpdatePayment = async (updatedPayment) => {
         try {
             const response = await updatePayment(updatedPayment.id, updatedPayment);
             if (response.status === 200) {
@@ -79,20 +73,49 @@ const Payments = () => {
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
-    }, [updatePayment]);
+    };
 
-    const handleDeletePayment = useCallback(async (id) => {
+    const handleDeletePayment = async (id) => {
         await removePayment(id);
         setRefreshTrigger(prev => !prev);
-    }, [removePayment]);
+    };
+
+    const convertToPersianSubject = (subject) => {
+        switch (subject) {
+            case "PRODUCT":
+                return "محصول";
+            case "INSURANCEDEPOSIT":
+                return "سپرده بیمه";
+            case "PERFORMANCEBOUND":
+                return "حسن انجام کار";
+            case "ADVANCEDPAYMENT":
+                return "پیش پرداخت";
+            default:
+                return subject;
+        }
+    };
 
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'paymentDescryption', title: 'توضیحات', width: '20%', sortable: true, searchable: true },
-        { key: 'paymentDate', title: 'تاریخ', width: '15%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.paymentDate) },
-        { key: 'paymentAmount', title: 'مبلغ', width: '15%', sortable: true, searchable: true, render: item => formatNumber(item.paymentAmount) },
-        { key: 'paymentSubject', title: 'موضوع', width: '15%', sortable: true, searchable: true },
+        { key: 'paymentDescription', title: 'توضیحات', width: '14rem', sortable: true, searchable: true },
+        { key: 'paymentDate', title: 'تاریخ', width: '11%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.paymentDate) },
+        {
+            key: 'paymentSubject',
+            title: 'موضوع',
+            width: '15%',
+            sortable: true,
+            searchable: true,
+            render : item => convertToPersianSubject(item.paymentSubject),
+            type : 'select',
+            options : [
+                    { value: "PRODUCT", label: 'محصول' },
+                    { value: "INSURANCEDEPOSIT", label: 'سپرده بیمه' },
+                    { value: "PERFORMANCEBOUND", label: 'حسن انجام کار' },
+                    { value: "ADVANCEDPAYMENT", label: 'پیش پرداخت' },
+                ]
+        },
         { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
+        { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true,subtotal :true , render: item => formatNumber(item.paymentAmount) },
     ], []);
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
@@ -110,8 +133,9 @@ const Payments = () => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async () => {
-        await http.get('/payments/download-all-payments.xlsx', { responseType: 'blob' })
+    const downloadExcelFile = async (exportAll) => {
+        console.log(getParams(listName), `exportAll=${exportAll}`);
+        await http.get(`/payments/download-all-payments.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "payments.xlsx");
@@ -119,7 +143,8 @@ const Payments = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }, [http]);
+    };
+
 
     return (
         <div className="table-container">
@@ -162,6 +187,7 @@ const Payments = () => {
                 onDelete={handleDeletePayment}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                downloadExcelFile={downloadExcelFile}
             />
 
             {editingPayment && (

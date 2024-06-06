@@ -1,7 +1,7 @@
 import React from 'react';
+import * as Yup from "yup";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
-import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
@@ -29,15 +29,24 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
 
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),
-        warehouseReceiptDescription: Yup.string().required('توضیحات الزامیست.'),
+        warehouseReceiptDescription: Yup.string()
+            .max(255, 'توضیحات نمیتواند بیشتر از 255 کاراکتر باشد.')
+            .min(3, 'توضیحات نمیتواند کمتر از 3 کاراکتر باشد.')
+            .required('توضیحات الزامیست.'),
         warehouseReceiptNumber: Yup.number().required('شماره رسید الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
+        customerId: Yup.number().required(' مشتری الزامیست.'),
+
         warehouseReceiptItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
+                productId: Yup.number().required(' محصول الزامیست.'),
+                quantity: Yup.number()
+                    .typeError('مقدار باید عدد باشد.')
+                    .positive('مقدار باید مثبت باشد.')
+                    .required('مقدار الزامیست.'),
+                unitPrice: Yup.number()
+                    .typeError('قیمت واحد باید باید عدد باشد.')
+                    .positive('قیمت واحد باید مثبت باشد.')
+                    .required('قیمت واحد الزامیست.'),
             })
         )
     });
@@ -50,6 +59,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
         }
        await onCreateWarehouseReceipt(data);
         onHide();
+        console.log(data);
 
     };
 
@@ -68,7 +78,6 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
                             warehouseReceiptDescription: '',
                             warehouseReceiptNumber: '',
                             customerId: '',
-                            yearId: '',
                             warehouseReceiptItems: [
                                 {
                                     productId: '',
@@ -79,7 +88,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
                             ],
                         }}
                         onSubmit={onSubmit}
-                        resolver={resolver}
+                        // resolver={resolver}
                     >
                         <Row>
                             <Col>
@@ -93,10 +102,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
                                 </Row>
                                <Row>
                                    <Col>
-                                       <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
-                                   </Col>
-                                   <Col>
-                                       <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
+                                       <AsyncSelectInput name="customerId" label={" مشتری"} apiFetchFunction={customerSelect} />
                                    </Col>
                                </Row>
                                 <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />

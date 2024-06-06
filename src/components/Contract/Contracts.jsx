@@ -22,7 +22,7 @@ const Contracts = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
+    const { filters,getParams } = useFilters();
     const listName = 'contracts';
 
     const getAllContracts = useCallback(async (queryParams) => {
@@ -32,9 +32,9 @@ const Contracts = () => {
         return await http.get(`/contracts?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(prev => !prev);
+    // }, [filters]);
 
     const createContract = useCallback(async (data) => {
         return await http.post("/contracts", data);
@@ -112,8 +112,8 @@ const Contracts = () => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async () => {
-        await http.get('/contracts/download-all-contracts.xlsx', { responseType: 'blob' })
+    const downloadExcelFile = useCallback(async (exportAll) => {
+        await http.get(`/contracts/download-all-contracts.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "contracts.xlsx");
@@ -157,6 +157,7 @@ const Contracts = () => {
                 refreshTrigger={refreshTrigger}
                 listName={listName}
                 subTotal={true}
+                downloadExcelFile={downloadExcelFile}
             />
 
             {editingContract && (

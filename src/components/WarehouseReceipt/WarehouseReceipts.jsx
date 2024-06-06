@@ -33,9 +33,9 @@ const WarehouseReceipts = () => {
         return await http.get(`/warehouse-receipts?${queryParams.toString()}`).then(r => r.data);
     };
 
-    useEffect(() => {
-        setRefreshTrigger(!refreshTrigger);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(!refreshTrigger);
+    // }, [filters]);
 
     const createWarehouseReceipt = async (data) => {
         return await http.post("/warehouse-receipts", data);
@@ -165,6 +165,7 @@ const WarehouseReceipts = () => {
                 refreshTrigger={refreshTrigger}
                 listName={listName}
                 subTotal={true}
+                downloadExcelFile={downloadExcelFile}
             />
 
             {editingWarehouseReceipt && (

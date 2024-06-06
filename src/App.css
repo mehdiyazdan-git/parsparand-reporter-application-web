@@ -23,6 +23,9 @@ body {
     padding: 8px;
     border: 1px solid #d1d0d0;
     text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 .recipient-table th {
@@ -56,10 +59,46 @@ body {
 
 .table-search-input {
     width: 100%; /* Full width of the cell */
-    padding: 6px 12px; /* Padding inside input */
+    padding: 0; /* Padding inside input */
+    height: 40px; /* Height of the input */
     border: 1px solid #ddd; /* Border around the input */
     border-radius: 4px; /* Rounded corners */
-    font-size: 0.8rem; /* Smaller font size for input text */
+    font-size: 0.7rem; /* Smaller font size for input text */
+    font-family: "IRANSans", sans-serif; /* Font family for input text */
+    font-weight: bold;
+    direction: rtl; /* Right-to-left direction */
+    text-align: right; /* Align text to the right */
+    text-indent: 10px; /* Indent text */
+}
+/* text input clear indicator*/
+.table-search-input::-webkit-input-placeholder {
+    text-indent: 10px; /* Indent placeholder text */
+    font-family: "IRANSans", sans-serif; /* Font family for placeholder text */
+    font-weight: bold;
+    direction: rtl; /* Right-to-left direction */
+    text-align: right; /* Align placeholder text to the right */
+    color: #000; /* Placeholder text color */
+    opacity: 0.7; /* Slightly transparent placeholder */
+}
+
+.table-search-input:-ms-input-placeholder {
+    text-indent: 10px; /* Indent placeholder text */
+    font-family: "IRANSans", sans-serif; /* Font family for placeholder text */
+    font-weight: bold;
+    direction: rtl; /* Right-to-left direction */
+    text-align: right; /* Align placeholder text to the right */
+    color: #000; /* Placeholder text color */
+    opacity: 0.7; /* Slightly transparent placeholder */
+}
+
+.table-search-input::placeholder {
+    text-indent: 10px; /* Indent placeholder text */
+    font-family: "IRANSans", sans-serif; /* Font family for placeholder text */
+    font-weight: bold;
+    direction: rtl; /* Right-to-left direction */
+    text-align: right; /* Align placeholder text to the right */
+    color: #000; /* Placeholder text color */
+    opacity: 0.7; /* Slightly transparent placeholder */
 }
 
 /* For the date input specifically */

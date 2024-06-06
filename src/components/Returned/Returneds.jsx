@@ -31,9 +31,9 @@ const Returneds = () => {
         return await http.get(`/returneds?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
-    useEffect(() => {
-        setRefreshTrigger(prev => !prev);
-    }, [filters]);
+    // useEffect(() => {
+    //     setRefreshTrigger(prev => !prev);
+    // }, [filters]);
 
     const createReturned = useCallback(async (data) => {
         return await http.post("/returneds", data);

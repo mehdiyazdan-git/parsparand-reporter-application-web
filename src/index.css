@@ -169,6 +169,20 @@ html, body, #root {
   color: red;
 }
 
+.table-search-input {
+  width: 100%; /* Full width of the cell */
+  padding: 1px 1px; /* Padding inside input */
+  height: 35px; /* Height of the input */
+  border: 1px solid #ddd; /* Border around the input */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 0.8rem; /* Smaller font size for input text */
+}
+
+/* For the date input specifically */
+.table-search-input[type="date"] {
+  direction: ltr; /* Keep the direction left-to-right for date inputs */
+}
+
 
 
 

@@ -60,7 +60,7 @@ const WarehouseReceiptItems = () => {
             <table className="table table-striped table-bordered form-table">
                 <thead>
                 <tr>
-                    <th>شناسه محصول</th>
+                    <th> محصول</th>
                     <th>قیمت واحد</th>
                     <th>مقدار</th>
                     <th>مجموع</th>

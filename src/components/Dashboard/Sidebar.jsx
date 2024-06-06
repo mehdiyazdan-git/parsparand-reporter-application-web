@@ -43,7 +43,11 @@ const Sidebar = () => {
             <SidebarItem to="/warehouseReceipts" className={({ isActive }) => (isActive ? 'active' : '')}>حواله های انبار</SidebarItem>
             <SidebarItem to="/products" className={({ isActive }) => (isActive ? 'active' : '')}>محصولات</SidebarItem>
             <SidebarItem to="/reports" className={({ isActive }) => (isActive ? 'active' : '')}>گزارش ها</SidebarItem>
+            <SidebarItem to="/monthly-report" className={({ isActive }) => (isActive ? 'active' : '')}>گزارش ماهیانه</SidebarItem>
+            <SidebarItem to="/annual-report" className={({ isActive }) => (isActive ? 'active' : '')}>گزارش سالیانه</SidebarItem>
+            <SidebarItem to="/year-comparison-report" className={({ isActive }) => (isActive ? 'active' : '')}>گزارش مقایسه ای سال</SidebarItem>
             <SidebarItem to="/customers" className={({ isActive }) => (isActive ? 'active' : '')}>مشتریان</SidebarItem>
+            <SidebarItem to="/client-summary" className={({ isActive }) => (isActive ? 'active' : '')}>خلاصه مشتری</SidebarItem>
             <SidebarItem to="/invoices" className={({ isActive }) => (isActive ? 'active' : '')}>فاکتورها</SidebarItem>
             <SidebarItem to="/invoiceStatuses" className={({ isActive }) => (isActive ? 'active' : '')}>وضعیت های فاکتور</SidebarItem>
             <SidebarItem to="/payments" className={({ isActive }) => (isActive ? 'active' : '')}>پرداخت ها</SidebarItem>
