@@ -22,14 +22,11 @@ const Payments = ({ customerId }) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters,getParams,setFilter } = useFilters();
+    const {getParams} = useFilters();
     const listName = 'payments';
 
+
     const getAllPayments = async () => {
-        if (!filters["payments"]?.search?.customerId || filters["payments"]?.search?.customerId !== customerId){
-            const newSearch = {...filters["payments"]?.search, customerId: customerId};
-            setFilter(listName, "search",newSearch);
-        }
         return await http.get(`/payments?${getParams(listName)}`).then(r => r.data);
     };
 

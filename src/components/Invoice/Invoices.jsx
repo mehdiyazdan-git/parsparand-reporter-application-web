@@ -14,7 +14,7 @@ import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
 
-const Invoices = () => {
+const Invoices = ({contractNumber}) => {
     const [editingInvoice, setEditingInvoice] = useState(null);
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setEditShowModal] = useState(false);

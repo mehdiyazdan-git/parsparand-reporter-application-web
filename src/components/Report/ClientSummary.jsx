@@ -8,6 +8,7 @@ import styled from 'styled-components';
 import PaymentsModal from "../Payment/paymentsModal";
 import Payments from "../Payment/Payments";
 import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
+import InvoicesModal from "../Invoice/InvoicesModal";
 
 const Container = styled.div`
   font-family: IRANSans;
@@ -307,9 +308,12 @@ const ClientSummary = () => {
                                 <Row>{toPersianFormat(item.insuranceDeposit)}</Row>
                                 <Row>{toPersianFormat(item.salesAmount + item.vat)}</Row>
                                 <Row>
-                                    <Link to={`${filters[listName]?.search?.customerId}/${item.contractNumber}/${customer?.name}`}>
-                                        <IconEdit color="green" fontSize={"1rem"} />
-                                    </Link>
+                                    <InvoicesModal
+                                        contractNumber={item.contractNumber.toString()}
+                                        showModal={showModal}
+                                        handleShow={handleShow}
+                                        handleClose={handleClose}
+                                    />
                                 </Row>
                             </tr>
                         ))}

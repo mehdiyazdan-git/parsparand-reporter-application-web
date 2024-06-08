@@ -3,17 +3,17 @@ import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
-import Adjustments from "./Adjustments";
+import Invoices from "./Invoices";
 import {useFilters} from "../contexts/FilterContext";
 
-const AdjustmentsModal = ({customerId}) => {
-    const listName = "adjustments";
+const InvoicesModal = ({contractNumber}) => {
+    const listName = "invoices";
     const { filters,setFilter} = useFilters();
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filters[listName]?.search?.customerId || filters[listName]?.search?.customerId !== customerId){
-            const newSearch = {...filters[listName]?.search, customerId: customerId};
+        if (!filters[listName]?.search?.contractNumber || filters[listName]?.search?.contractNumber !== contractNumber){
+            const newSearch = {...filters[listName]?.search, contractNumber: contractNumber};
             setFilter(listName, "search",newSearch);
         }
         setShowModal(true);
@@ -22,7 +22,7 @@ const AdjustmentsModal = ({customerId}) => {
     const handleClose = () => {
         const keys = Object.keys(filters[listName]?.search);
         keys.forEach(key => {
-            if (key === "customerId"){
+            if (key === "contractNumber"){
                 delete filters[listName]?.search[key];
             }
         });
@@ -33,7 +33,7 @@ const AdjustmentsModal = ({customerId}) => {
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
             <Modal show={showModal} centered size={"xl"}>
                 <Modal.Body>
-                    <Adjustments customerId={customerId} />
+                    <Invoices contractNumber={contractNumber} />
                 </Modal.Body>
                 <Modal.Footer>
                     <Button $variant="warning" onClick={handleClose}>
@@ -45,4 +45,4 @@ const AdjustmentsModal = ({customerId}) => {
     );
 };
 
-export default AdjustmentsModal;
+export default InvoicesModal;

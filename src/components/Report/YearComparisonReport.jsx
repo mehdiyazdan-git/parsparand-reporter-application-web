@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import Select from 'react-select'
 import {titleStyle} from "../styles/styles";
 import SalesTable from "./SalesTable";
@@ -14,7 +14,7 @@ const YearComparisonReport = ({ error }) => {
 
     const{filters,setFilter} = useFilters();
     const listName = 'yearComparisonReport';
-    const initProductType = { value: "2", label: 'بشکه',measurementIndex : 'عدد' };
+    const initProductType = { value: 2, label: 'بشکه',measurementIndex : 'عدد' };
 
     const customStyles = {
         control: (provided) => ({
@@ -45,15 +45,19 @@ const YearComparisonReport = ({ error }) => {
     };
 
     const options = [
-        { value: "2", label: 'بشکه',measurementIndex : 'عدد' },
-        { value: "6", label: 'ضایعات',measurementIndex : 'کیلوگرم' },
-        { value: "1", label: 'مواد اولیه',measurementIndex : 'کیلوگرم' },
+        { value: 2, label: 'بشکه',measurementIndex : 'عدد' },
+        { value: 6, label: 'ضایعات',measurementIndex : 'کیلوگرم' },
+        { value: 1, label: 'مواد اولیه',measurementIndex : 'کیلوگرم' },
     ];
 
     const handleProductTypeChange = (selectedOption) => {
         setFilter(listName,'productType',selectedOption);
     };
-
+    useEffect(() => {
+        if(!filters[listName]?.productType){
+            setFilter(listName,'productType',{ value: 2, label: 'بشکه',measurementIndex : 'عدد' });
+        }
+    }, [filters, setFilter]);
     return (
         <div className="container-fluid mt-4" style={{ fontFamily: 'IRANSans', fontSize: '0.85rem',textAlign:"center" }}>
             <div className="row">
@@ -69,12 +73,12 @@ const YearComparisonReport = ({ error }) => {
                 />
             </div>
             <div className="container-fluid mt-2">
-                {filters[listName]?.productType?.value === "2" && (
+                {filters[listName]?.productType?.value === 2 && (
                     <div>
                         <div style={labelStyle}>سال جاری</div>
                         <div>
                             <SalesTable
-                                productType={"2"}
+                                productType={2}
                                 measurementIndex={filters[listName]?.productType?.["measurementIndex"]}
                             />
                         </div>
@@ -82,35 +86,35 @@ const YearComparisonReport = ({ error }) => {
                             style={labelStyle}>سال قبل</div>
                         <div>
                             <SalesTable
-                                productType={"2"}
+                                productType={2}
                                 previousYear={1}
                                 measurementIndex={filters[listName]?.productType?.["measurementIndex"]}
                             />
                         </div>
                     </div>
                 )}
-                {filters[listName]?.productType?.value === "6" && (
+                {filters[listName]?.productType?.value === 6 && (
                     <div>
                         <div style={labelStyle}>سال جاری</div>
-                        <div><SalesTable productType={"6"} measurementIndex={filters[listName]?.productType?.["measurementIndex"]}/></div>
+                        <div><SalesTable productType={6} measurementIndex={filters[listName]?.productType?.["measurementIndex"]}/></div>
                         <div className="table-year-label">سال قبل</div>
                         <div>
                             <SalesTable
-                                productType={"6"}
+                                productType={6}
                                 previousYear={1}
                                 measurementIndex={filters[listName]?.productType?.["measurementIndex"]}
                             />
                         </div>
                     </div>
                 )}
-                {filters[listName]?.productType?.value === "1" && (
+                {filters[listName]?.productType?.value === 1 && (
                     <div>
                         <div style={labelStyle}>سال جاری</div>
-                        <div><SalesTable productType={"1"} measurementIndex={filters[listName]?.productType?.["measurementIndex"]}/></div>
+                        <div><SalesTable productType={1} measurementIndex={filters[listName]?.productType?.["measurementIndex"]}/></div>
                         <div style={labelStyle}>سال قبل</div>
                         <div>
                             <SalesTable
-                                productType={"1"}
+                                productType={1}
                                 previousYear={1}
                                 measurementIndex={filters[listName]?.productType?.["measurementIndex"]}
                             />

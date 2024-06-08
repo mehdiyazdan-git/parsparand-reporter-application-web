@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import { useFilters } from "../contexts/FilterContext";
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
@@ -20,7 +20,7 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import Tooltip from "../../utils/Tooltip";
 import {Modal} from "react-bootstrap";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName, downloadExcelFile }) => {
+const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger, listName, downloadExcelFile }) => {
     const { filters, setFilter} = useFilters();
     const [data, setData] = useState([]);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
@@ -72,7 +72,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName
     }, [selectedItem, onDelete]);
 
     // Fetch all data once to calculate overall subtotals
-    useEffect(() => {
+    useDeepCompareEffect(() => {
         const loadAllData = async () => {
             try {
                 const queryParams = new URLSearchParams({
@@ -91,7 +91,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName
             }
         };
         loadAllData();
-    }, [filters[listName]?.search?.customerId]);
+    }, [fetchData, filters[listName], filters.years,refreshTrigger]);
 
     useDeepCompareEffect(() => {
         const load = async () => {
@@ -118,7 +118,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword, listName
             }
         };
         load();
-    }, [ filters[listName]?.search, filters[listName]?.page, filters[listName]?.pageSize, filters[listName]?.sortBy, filters[listName]?.order]);
+    }, [fetchData, filters[listName]?.page, filters[listName]?.pageSize, filters[listName]?.sortBy, filters[listName]?.order, filters[listName]?.search, filters.years,refreshTrigger]);
 
     // Calculate subtotals
     const subtotals = useMemo(() => {

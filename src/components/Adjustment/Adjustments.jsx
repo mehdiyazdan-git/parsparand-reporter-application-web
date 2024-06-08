@@ -24,14 +24,10 @@ const Adjustments = ({ customerId }) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters, setFilter } = useFilters();
+    const { filters} = useFilters();
     const listName = 'adjustments';
 
     const getAllAdjustments = useCallback(async (queryParams) => {
-        if (!filters[listName]?.search?.customerId || filters[listName]?.search?.customerId !== customerId){
-            const newSearch = {...filters[listName]?.search, customerId: customerId};
-            setFilter(listName, "search",newSearch);
-        }
         return await http.get(`/adjustments?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
