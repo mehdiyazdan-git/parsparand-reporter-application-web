@@ -8,14 +8,14 @@ const Subtotal = ({label}) => {
     const unitPrice = useWatch({control,name: 'unitPrice'});
     const quantity = useWatch({control,name: 'quantity'});
     return (
-        <div>
+        <>
             {label && <label htmlFor={label}>{label}</label>}
             <AmountNumber
                 value={unitPrice * quantity}
                 disabled
                 className={"amount-number"}
             />
-        </div>
+        </>
     );
 };
 

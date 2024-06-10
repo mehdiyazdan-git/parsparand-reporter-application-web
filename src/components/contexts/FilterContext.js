@@ -7,8 +7,6 @@ export const FilterProvider = ({children}) => {
         const storedFilters = sessionStorage.getItem('filters');
         return storedFilters ? JSON.parse(storedFilters) : {};
     });
-    // equals, greaterThan, lessThan, greaterThanOrEqualTo, lessThanOrEqualTo, contains, startsWith, endsWith
-    // Function to set a specific filter for a list
 
     const defaultFilter = {
         page: 0,

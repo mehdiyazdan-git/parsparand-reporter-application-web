@@ -15,7 +15,6 @@ const SelectSearchInput = ({options,value,onChange}) => {
                 isRtl={true}
                 isClearable={true}
             />
-
     );
 };
 

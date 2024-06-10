@@ -29,12 +29,14 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [allData, setAllData] = useState([]);
 
-    const initialSearchState = useMemo(() => columns.reduce((acc, column) => {
+    const filteredColumns = useMemo(() => columns.filter(column => column.display !== false), [columns]);
+
+    const initialSearchState = useMemo(() => filteredColumns.reduce((acc, column) => {
         if (column.searchable) {
             acc[column.key] = '';
         }
         return acc;
-    }, {}), [columns]);
+    }, {}), [filteredColumns]);
 
     const [search, setSearch] = useState(initialSearchState);
 
@@ -118,31 +120,31 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
         };
         load();
-    }, [fetchData, filters[listName]?.page, filters[listName]?.pageSize, filters[listName]?.sortBy, filters[listName]?.order, filters[listName]?.search, filters.years,refreshTrigger]);
+    }, [fetchData, filters[listName], filters.years,refreshTrigger]);
 
     // Calculate subtotals
     const subtotals = useMemo(() => {
-        return columns.reduce((acc, column) => {
+        return filteredColumns.reduce((acc, column) => {
             if (column.subtotal) {
                 acc[column.key] = data.reduce((sum, item) => sum + (item[column.key] || 0), 0);
             }
             return acc;
         }, {});
-    }, [columns, data]);
+    }, [filteredColumns, data]);
 
     // Calculate overall subtotals for all data
     const overallSubtotals = useMemo(() => {
-        return columns.reduce((acc, column) => {
+        return filteredColumns.reduce((acc, column) => {
             if (column.subtotal) {
                 acc[column.key] = allData.reduce((sum, item) => sum + (item[column.key] || 0), 0);
             }
             return acc;
         }, {});
-    }, [columns, allData]);
+    }, [filteredColumns, allData]);
 
     // Calculate dynamic colspan
-    const subtotalColumnsCount = columns.filter(column => column.subtotal).length;
-    const dynamicColspan = columns.length - subtotalColumnsCount;
+    const subtotalFilteredColumnsCount = filteredColumns.filter(column => column.subtotal).length;
+    const dynamicColspan = filteredColumns.length - subtotalFilteredColumnsCount;
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => (
         <Modal show={show} onHide={handleClose} centered>
@@ -166,7 +168,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             <table className="recipient-table table-fixed-height mt-3">
                 <thead>
                 <tr className="table-header-row p-0 m-0">
-                    {columns.map((column) => (
+                    {filteredColumns.map((column) => (
                         <Th
                             key={column.key}
                             width={column.width}
@@ -184,7 +186,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     <th width="7%">{"ویرایش|حذف"}</th>
                 </tr>
                 <tr className="table-header-row">
-                    {columns.map((column) =>
+                    {filteredColumns.map((column) =>
                         column.searchable ? (
                             column.type === 'date' ? (
                                 <SearchDateInput
@@ -251,10 +253,10 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 <tbody>
                 {data.map((item) => (
                     <tr key={item.id}>
-                        {columns.map((column) => (
-                            <td key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
+                        {filteredColumns.map((column) => (
+                            <td style={{fontSize:"0.72rem"}} key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
-                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'flex-end', }}>
+                        <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'center', textAlign: 'center' }}>
                             {onResetPassword && (
                                 <IconKey
                                     style={{ margin: '0px 10px', cursor: 'pointer' }}
@@ -284,7 +286,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 <tfoot className="table-footer">
                 <tr>
                     <td colSpan={dynamicColspan} className="subtotal-label">جمع صفحه</td>
-                    {columns.map((column) => (
+                    {filteredColumns.map((column) => (
                         column.subtotal ? (
                             <td className="subtotal-col" key={column.key}>
                                 {formatNumber(subtotals[column.key])}
@@ -304,7 +306,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 </tr>
                 <tr>
                     <td colSpan={dynamicColspan} className="subtotal-label">جمع کل</td>
-                    {columns.map((column) => (
+                    {filteredColumns.map((column) => (
                         column.subtotal ? (
                             <td className="subtotal-col" key={column.key}>
                                 {formatNumber(overallSubtotals[column.key])}

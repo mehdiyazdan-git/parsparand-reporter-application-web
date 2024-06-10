@@ -6,6 +6,7 @@ import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
+import {tableStyle, tdStyle, thStyle} from "../styles/styles";
 
 const ContractItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -55,36 +56,36 @@ const ContractItems = () => {
     return (
         <div className="form-container">
             <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
-            <table className="table table-striped table-bordered form-table">
+            <table className="table mt-1" style={{...tableStyle,overflow: 'visible'}}>
                 <thead>
                 <tr>
-                    <th>شناسه محصول</th>
-                    <th>قیمت واحد</th>
-                    <th>مقدار</th>
-                    <th>مجموع</th>
-                    <th>عملیات</th>
+                    <th style={thStyle}>شناسه محصول</th>
+                    <th style={thStyle}>قیمت واحد</th>
+                    <th style={thStyle}>مقدار</th>
+                    <th style={thStyle}>مجموع</th>
+                    <th style={thStyle}>عملیات</th>
                 </tr>
                 </thead>
                 <tbody>
                 {fields.map((field, index) => (
                     <tr key={field.id}>
-                        <td className="m-0 p-0" style={{ width: '50%' }}>
+                        <td className="m-0 p-0" style={{ width: '50%',...tdStyle }}>
                             <AsyncSelectInput name={`contractItems[${index}].productId`} apiFetchFunction={productSelect} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%',...tdStyle }}>
                             <NumberInput name={`contractItems[${index}].unitPrice`} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%',...tdStyle }}>
                             <NumberInput name={`contractItems[${index}].quantity`} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '20%' }}>
+                        <td className="m-0 p-0" style={{ width: '20%',...tdStyle }}>
                             <AmountNumber
                                 value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
                                 disabled
                                 className={"amount-number"}
                             />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '10%' }}>
+                        <td className="m-0 p-0" style={{ width: '10%',...tdStyle }}>
                             <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
                         </td>
                     </tr>
@@ -92,14 +93,14 @@ const ContractItems = () => {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td className="m-0 p-0" colSpan="2">جمع کل:</td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0" colSpan="2">جمع کل:</td>
+                    <td style={thStyle}  className="m-0 p-0">
                         <AmountNumber value={totalQuantity} disabled />
                     </td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle}  className="m-0 p-0">
                         <AmountNumber value={subtotal} disabled />
                     </td>
-                    <td className="m-0 p-0"></td>
+                    <td style={thStyle}  className="m-0 p-0"></td>
                 </tr>
                 </tfoot>
             </table>

@@ -47,7 +47,7 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
 
     return (
         <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white" closeButton>
+            <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ویرایش تعدیل"}
                 </Modal.Title>

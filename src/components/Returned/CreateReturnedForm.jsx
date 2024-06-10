@@ -12,6 +12,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import useHttp from "../../hooks/useHttp";
+import Subtotal from "../../utils/Subtotal";
 
 const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
     const http = useHttp();
@@ -21,12 +22,26 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
     }
 
     const validationSchema = Yup.object().shape({
-        quantity: Yup.number().required('مقدار الزامیست.'),
-        returnedDate: Yup.string().required('تاریخ مرجوعی الزامیست.'),
-        returnedDescription: Yup.string().required('توضیحات مرجوعی الزامیست.'),
-        returnedNumber: Yup.number().required('شماره مرجوعی الزامیست.'),
-        unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
+        quantity: Yup.number()
+            .typeError('مقدار باید عدد باشد.')
+            .positive('مقدار باید مثبت باشد.')
+            .required('مقدار الزامیست.'),
+        unitPrice: Yup.number()
+            .typeError('قیمت واحد باید عدد باشد.')
+            .positive('قیمت واحد باید مثبت باشد.')
+            .required('قیمت واحد الزامیست.'),
+        returnedDate: Yup.string().required('تاریخ الزامیست.'),
+        returnedDescription: Yup.string()
+            .max(255, 'توضیحات نمیتواند بیشتر از 255 کاراکتر باشد.')
+            .min(3, 'توضیحات نمیتواند کمتر از 3 کاراکتر باشد.')
+            .required('توضیحات  الزامیست.'),
+        returnedNumber: Yup.number()
+            .typeError('شماره مرجوعی باید عدد باشد.')
+            .integer('شماره مرجوی باید عدد صحیح باشد.')
+            .required('شماره  الزامیست.'),
+        customerId: Yup.number()
+            .typeError('مشتری الزامیست.')
+            .required(' مشتری الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -40,8 +55,8 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show} >
+            <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد مرجوعی جدید"}
                 </Modal.Title>
@@ -64,18 +79,18 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="quantity" label={"مقدار"} />
+                                        <NumberInput name="returnedNumber" label={"شماره "} />
                                     </Col>
                                     <Col>
-                                        <DateInput name="returnedDate" label={"تاریخ مرجوعی"} />
+                                        <DateInput name="returnedDate" label={"تاریخ "} />
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <TextInput name="returnedDescription" label={"توضیحات مرجوعی"} />
+                                        <TextInput name="returnedDescription" label={"توضیحات "} />
                                     </Col>
                                     <Col>
-                                        <NumberInput name="returnedNumber" label={"شماره مرجوعی"} />
+                                        <AsyncSelectInput name="customerId" label={" مشتری"} apiFetchFunction={customerSelect} />
                                     </Col>
                                 </Row>
                                 <Row>
@@ -83,7 +98,10 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
                                         <NumberInput name="unitPrice" label={"قیمت واحد"} />
                                     </Col>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
+                                        <NumberInput name="quantity" label={"مقدار"} />
+                                    </Col>
+                                    <Col>
+                                        <Subtotal label={"مبلغ کل"} />
                                     </Col>
                                 </Row>
                             </Col>

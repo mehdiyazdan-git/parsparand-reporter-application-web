@@ -13,7 +13,7 @@ const Th = ({ width, sortBy, sortOrder, setSortBy, setSortOrder, children, sortK
     };
 
     return (
-        <th className="text-center" style={{width:`${width}`}} onClick={handleClick}>
+        <th className="text-center" style={{width:`${width}`,fontSize:"0.71rem"}} onClick={handleClick}>
             {children} {sortBy === sortKey && (sortOrder === 'ASC' ? '↑' : '↓')}
         </th>
     );

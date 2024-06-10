@@ -171,11 +171,12 @@ html, body, #root {
 
 .table-search-input {
   width: 100%; /* Full width of the cell */
-  padding: 1px 1px; /* Padding inside input */
+  padding: 0.2rem; /* Padding inside input */
+  margin: 0;
   height: 35px; /* Height of the input */
   border: 1px solid #ddd; /* Border around the input */
   border-radius: 4px; /* Rounded corners */
-  font-size: 0.8rem; /* Smaller font size for input text */
+  font-size: 0.7rem; /* Smaller font size for input text */
 }
 
 /* For the date input specifically */

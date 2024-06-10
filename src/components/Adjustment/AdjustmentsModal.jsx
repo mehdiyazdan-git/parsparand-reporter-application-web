@@ -26,6 +26,8 @@ const AdjustmentsModal = ({customerId}) => {
                 delete filters[listName]?.search[key];
             }
         });
+        const newSearch = {...filters[listName]?.search, page: 0};
+        setFilter(listName, "search",newSearch);
         setShowModal(false);
     };
     return (

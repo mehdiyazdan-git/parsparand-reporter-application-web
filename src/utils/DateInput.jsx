@@ -4,10 +4,11 @@ import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
 import { ConnectForm } from "./ConnectForm";
+import "../App.css"
 
 const DateInput = ({ name, label, ...rest }) => {
     return (
-        <div>
+        <div className={"container-fluid p-0 m-0"}>
             <label className="label" style={{fontFamily:"IRANSansBold",fontSize:"0.75rem"}}>{label}</label>
             <ConnectForm>
                 {({ control, setValue }) => (
@@ -15,7 +16,7 @@ const DateInput = ({ name, label, ...rest }) => {
                         control={control}
                         name={name}
                         render={({ field, fieldState: { invalid, error } }) => (
-                            <>
+                            <div>
                                 <DatePicker
                                     value={field?.value ? new Date(field?.value) : ''}
                                     name={field.name}
@@ -49,7 +50,7 @@ const DateInput = ({ name, label, ...rest }) => {
                                         {error.message}
                                     </div>
                                 )}
-                            </>
+                            </div>
                         )}
                     />
                 )}

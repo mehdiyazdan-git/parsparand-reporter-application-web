@@ -58,8 +58,8 @@ const CreateContractForm = ({ onCreateContract, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show} >
+            <Modal.Header className="modal-header" style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد قرارداد جدید"}
                 </Modal.Title>

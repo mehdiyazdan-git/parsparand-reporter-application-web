@@ -28,7 +28,7 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
 
     return (
         <Modal size={"xl"} show={show} >
-            <Modal.Header style={headerStyle}>
+            <Modal.Header className="modal-header" style={headerStyle}>
                 <Modal.Title style={titleStyle}>
                     {"ایجاد مشتری جدید"}
                 </Modal.Title>

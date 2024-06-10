@@ -29,19 +29,48 @@ export function TextInput({ name,backgroundColor, label,labelStyle, type, ...res
                                         type={type === 'password' && !showPassword ? 'password' : 'text'}
                                         className={`input ${hasError ? 'red-placeholder' : ''}`}
                                         style={{
-                                            border: hasError ? '1px solid red' : '1px solid #73b5fe',
-                                            borderRadius: '4px',
+                                            border: hasError ? '1px solid red' : '1px solid #ccc',
                                             color: hasError ? 'red' : '#000',
                                             width: '100%',
                                             boxSizing: 'border-box',
-                                            minHeight: '40px',
-                                            backgroundColor: backgroundColor ? backgroundColor : 'rgba(255, 255, 255, 0.1)',
-                                            fontSize: '0.8rem',
+                                            minHeight: '35px',
+                                            backgroundColor: backgroundColor ? backgroundColor : 'rgba(255, 255, 255, 0.5)',
+                                            fontSize: '0.7rem',
                                             paddingRight: type === 'password' ? '40px' : '10px',
                                             paddingLeft: '10px',
                                             textOverflow : "ellipsis",
                                             whiteSpace : "nowrap",
                                             overflow: "hidden",
+                                            textIndent:"0.5rem",
+                                            padding:"0 0.1rem",
+                                            borderRadius: "0.25rem",
+                                            lineHeight: "1.0rem",
+                                            boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+
+                                            "&:focus": {
+                                                outline: "none",
+                                                borderColor: 'rgba(255, 255, 255, 0.5)',
+                                                boxShadow: "0 0 0 0.25rem rgba(13, 110, 253, 0.25)",
+                                            },
+                                            "&::placeholder": {
+                                                color: "#6b7280",
+                                                opacity: "1",
+                                                textIndent:"0.5rem",
+                                            },
+                                            "&:-webkit-autofill": {
+                                                boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
+
+                                                "&:focus": {
+                                                    borderColor: 'rgba(255, 255, 255, 0.5)',
+                                                    boxShadow: "0 0 0 0.25rem rgba(13, 110, 253, 0.25)",
+                                                },
+                                            },
+                                            "&:disabled": {
+                                                cursor: "not-allowed",
+                                                backgroundColor: "#e5e7eb",
+                                                borderColor: "#d1d5db",
+                                                opacity: 0.5,
+                                            },
                                         }}
                                     />
                                     {type === 'password' && (
@@ -56,7 +85,7 @@ export function TextInput({ name,backgroundColor, label,labelStyle, type, ...res
                                                 display: 'flex',
                                                 alignItems: 'center',
                                                 justifyContent: 'center',
-                                                width: '40px',
+                                                width: '35px',
                                                 backgroundColor: backgroundColor ? backgroundColor : 'rgba(255, 255, 255, 0.1)',
                                                 border: 'none',
                                                 cursor: 'pointer',

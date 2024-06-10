@@ -21,12 +21,24 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
     }
 
     const validationSchema = Yup.object().shape({
-        quantity: Yup.number().required('مقدار الزامیست.'),
-        returnedDate: Yup.string().required('تاریخ مرجوعی الزامیست.'),
-        returnedDescription: Yup.string().required('توضیحات مرجوعی الزامیست.'),
-        returnedNumber: Yup.number().required('شماره مرجوعی الزامیست.'),
-        unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
+        quantity: Yup.number()
+            .typeError('مقدار باید عدد باشد.')
+            .positive('مقدار باید مثبت باشد.')
+            .required('مقدار الزامیست.'),
+        unitPrice: Yup.number()
+            .typeError('قیمت واحد باید عدد باشد.')
+            .positive('قیمت واحد باید مثبت باشد.')
+            .required('قیمت واحد الزامیست.'),
+        returnedDate: Yup.string().required('تاریخ الزامیست.'),
+        returnedDescription: Yup.string()
+            .max(255, 'توضیحات نمیتواند بیشتر از 255 کاراکتر باشد.')
+            .min(3, 'توضیحات نمیتواند کمتر از 3 کاراکتر باشد.')
+            .required('توضیحات  الزامیست.'),
+        returnedNumber: Yup.number()
+            .typeError('شماره مرجوعی باید عدد باشد.')
+            .integer('شماره مرجوی باید عدد صحیح باشد.')
+            .required('شماره  الزامیست.'),
+        customerId: Yup.number().required(' مشتری الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -37,11 +49,12 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
         }
         await onUpdateReturned(data);
         onHide();
+        console.log(data)
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white" closeButton>
+        <Modal size={"xl"} show={show}>
+            <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ویرایش مرجوعی"}
                 </Modal.Title>

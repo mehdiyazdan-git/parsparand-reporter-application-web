@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -55,7 +55,7 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
 
     return (
         <Modal size={"xl"} show={show} >
-            <Modal.Header style={headerStyle} >
+            <Modal.Header className="modal-header" style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد تعدیل جدید"}
                 </Modal.Title>

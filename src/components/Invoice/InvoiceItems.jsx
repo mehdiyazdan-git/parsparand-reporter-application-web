@@ -6,6 +6,7 @@ import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
+import {tableStyle, tdStyle, thStyle} from "../styles/styles";
 
 const InvoiceItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -60,40 +61,40 @@ const InvoiceItems = () => {
     return (
         <div className="form-container">
             <IconAddCircleLine type="button" fontSize={25} onClick={addItem} />
-            <table className="table table-striped table-bordered form-table mt-1">
+            <table className="table mt-1" style={{...tableStyle,overflow: 'visible'}}>
                 <thead>
                 <tr>
-                    <th>شناسه محصول</th>
-                    <th>شناسه رسید انبار</th>
-                    <th>قیمت واحد</th>
-                    <th>مقدار</th>
-                    <th>مجموع</th>
-                    <th>عملیات</th>
+                    <th style={thStyle}>شناسه محصول</th>
+                    <th style={thStyle}>شناسه رسید انبار</th>
+                    <th style={thStyle}>قیمت واحد</th>
+                    <th style={thStyle}>مقدار</th>
+                    <th style={thStyle}>مجموع</th>
+                    <th style={thStyle}>عملیات</th>
                 </tr>
                 </thead>
                 <tbody>
                 {fields.map((field, index) => (
                     <tr key={field.id}>
-                        <td className="m-0 p-0" style={{ width: '25%' }}>
+                        <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
                             <AsyncSelectInput name={`invoiceItems[${index}].productId`} apiFetchFunction={productSelect} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '25%' }}>
+                        <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
                             <AsyncSelectInput name={`invoiceItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%', ...tdStyle  }}>
                             <NumberInput name={`invoiceItems[${index}].unitPrice`} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%' , ...tdStyle }}>
                             <NumberInput name={`invoiceItems[${index}].quantity`} />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '15%' }}>
+                        <td className="m-0 p-0" style={{ width: '15%', ...tdStyle  }}>
                             <AmountNumber
                                 value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
                                 disabled
                                 className={"amount-number"}
                             />
                         </td>
-                        <td className="m-0 p-0" style={{ width: '5%' }}>
+                        <td className="m-0 p-1" style={{ width: '5%', ...tdStyle ,textAlign: 'center', justifyContent: 'center' ,padding: '0.2rem' }}>
                             <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
                         </td>
                     </tr>
@@ -101,14 +102,14 @@ const InvoiceItems = () => {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td className="m-0 p-0" colSpan="3">جمع کل:</td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0" colSpan="3">جمع کل:</td>
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={totalQuantity} disabled />
                     </td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={subtotal} disabled />
                     </td>
-                    <td className="m-0 p-0"></td>
+                    <td style={thStyle} className="m-0 p-0"></td>
                 </tr>
                 </tfoot>
             </table>

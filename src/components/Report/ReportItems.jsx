@@ -6,6 +6,7 @@ import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
+import {tableStyle, tdStyle, thStyle} from "../styles/styles";
 
 const ReportItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -58,71 +59,23 @@ const ReportItems = () => {
         remove(index);
     }, [remove]);
 
-    const thStyle = {
-        padding: '0.25rem 0.75rem',
-        borderBottom: '1px solid #dee2e6',
-        backgroundColor: 'rgba(218,222,225,0.9)',
-        borderTop: '1px solid #cccccc',
-        borderRight: '1px solid #cccccc',
-        borderLeft: '1px solid #cccccc',
-        borderTopLeftRadius: '5px',
-        borderTopRightRadius: '5px',
-        boxSizing: 'border-box',
-        maxWidth: '100%',
-        overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
-        fontSize: '0.775rem',
-        lineHeight: 2,
-        color: '#212529',
-    };
 
-    const tdStyle = {
-        padding: '0.25rem 0.75rem',
-        borderBottom: '1px solid #dee2e6',
-        verticalAlign: 'top',
-        textAlign: 'left',
-        whiteSpace: 'pre-wrap',
-        wordWrap: 'break-word',
-        backgroundColor: '#fff',
-    };
-
-    const tableStyle = {
-        width: '100%',
-        borderCollapse: 'collapse',
-        tableLayout: 'fixed',
-        borderSpacing: 0,
-        border: '1px solid #ccc',
-        backgroundColor: '#fff',
-        boxShadow: '0px 0px 10px rgba(0, 0, 0, 0.1)',
-        borderRadius: '5px',
-        overflow: 'hidden',
-        marginBottom: '1rem',
-        fontSize: '0.875rem',
-        lineHeight: 1.5,
-        color: '#212529',
-        boxSizing: 'border-box',
-        display: 'block',
-        maxWidth: '100%',
-        overflowX: 'auto',
-        whiteSpace: 'nowrap',
-    }
 
     const renderedFields = useMemo(() => fields.map((field, index) => (
         <tr key={field.id}>
-            <td className="m-0 p-0" style={{ width: '25%'}}>
+            <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
                 <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
             </td>
-            <td className="m-0 p-0" style={{ width: '25%'}}>
+            <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
                 <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
             </td>
-            <td className="m-0 p-0" style={{ width: '10%'}}>
+            <td className="m-0 p-0" style={{ width: '10%',...tdStyle}}>
                 <NumberInput name={`reportItems[${index}].unitPrice`} />
             </td>
-            <td className="m-0 p-0" style={{ width: '5%'}}>
+            <td className="m-0 p-0" style={{ width: '5%',...tdStyle}}>
                 <NumberInput name={`reportItems[${index}].quantity`} />
             </td>
-            <td className="m-0 p-0" style={{ width: '10%'}}>
+            <td className="m-0 p-0" style={{ width: '10%',...tdStyle}}>
                 <AmountNumber
                     value={(parseInt(watchedFields[index]?.unitPrice, 10) || 0) * (parseInt(watchedFields[index]?.quantity, 10) || 0)}
                     disabled
@@ -136,9 +89,9 @@ const ReportItems = () => {
     )), [fields, watchedFields, customerSelect, warehouseReceiptSelect, removeItem]);
 
     return (
-        <div className="form-container">
+        <div className="form-container" >
             <IconAddCircleLine type="button" fontSize={25} onClick={addItem}/>
-            <table className="table mt-1" style={tableStyle}>
+            <table className="table mt-1" style={{...tableStyle,overflow: 'visible'}}>
                 <thead>
                 <tr>
                     <th style={thStyle}>شناسه مشتری</th>

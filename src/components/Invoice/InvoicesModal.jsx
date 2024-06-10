@@ -8,7 +8,7 @@ import {useFilters} from "../contexts/FilterContext";
 
 const InvoicesModal = ({contractNumber}) => {
     const listName = "invoices";
-    const { filters,setFilter} = useFilters();
+    const { filters,setFilter,setPagination} = useFilters();
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
@@ -16,6 +16,7 @@ const InvoicesModal = ({contractNumber}) => {
             const newSearch = {...filters[listName]?.search, contractNumber: contractNumber};
             setFilter(listName, "search",newSearch);
         }
+        setPagination(listName, 0 , filters[listName]?.pageSize);
         setShowModal(true);
     };
 
@@ -26,6 +27,8 @@ const InvoicesModal = ({contractNumber}) => {
                 delete filters[listName]?.search[key];
             }
         });
+        // setFilter(listName, "search",{...filters[listName]?.search, page: 0});
+        setPagination(listName, 0 , filters[listName]?.pageSize);
         setShowModal(false);
     };
     return (
@@ -36,7 +39,7 @@ const InvoicesModal = ({contractNumber}) => {
                     <Invoices contractNumber={contractNumber} />
                 </Modal.Body>
                 <Modal.Footer>
-                    <Button $variant="warning" onClick={handleClose}>
+                    <Button $variant="warning" type={"button"} onClick={handleClose}>
                         بستن
                     </Button>
                 </Modal.Footer>

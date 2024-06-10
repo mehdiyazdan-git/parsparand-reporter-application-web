@@ -26,12 +26,9 @@ const Invoices = ({contractNumber}) => {
     const listName = 'invoices';
 
     const getAllInvoices = useCallback(async (queryParams) => {
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
-        }
         console.log(queryParams.toString())
         return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
-    }, [filters, http]);
+    }, [http]);
 
     const createInvoice = useCallback(async (data) => {
         return await http.post("/invoices", data);

@@ -6,6 +6,7 @@ import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
+import {tableStyle, thStyle} from "../styles/styles";
 
 const WarehouseReceiptItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -57,14 +58,14 @@ const WarehouseReceiptItems = () => {
     return (
         <div className="form-container">
             <IconAddCircleLine type="button" fontSize={25}  onClick={addItem}/>
-            <table className="table table-striped table-bordered form-table">
+            <table className="table mt-1" style={{...tableStyle,overflow: 'visible'}}>
                 <thead>
                 <tr>
-                    <th> محصول</th>
-                    <th>قیمت واحد</th>
-                    <th>مقدار</th>
-                    <th>مجموع</th>
-                    <th>عملیات</th>
+                    <th style={thStyle}> محصول</th>
+                    <th style={thStyle}>قیمت واحد</th>
+                    <th style={thStyle}>مقدار</th>
+                    <th style={thStyle}>مجموع</th>
+                    <th style={thStyle}>عملیات</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -94,14 +95,14 @@ const WarehouseReceiptItems = () => {
                 </tbody>
                 <tfoot>
                 <tr>
-                    <td className="m-0 p-0" colSpan="2">جمع کل:</td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0" colSpan="2">جمع کل:</td>
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={totalQuantity} disabled />
                     </td>
-                    <td className="m-0 p-0">
+                    <td style={thStyle} className="m-0 p-0">
                         <AmountNumber value={subtotal} disabled />
                     </td>
-                    <td className="m-0 p-0"></td>
+                    <td style={thStyle} className="m-0 p-0"></td>
                 </tr>
                 </tfoot>
             </table>

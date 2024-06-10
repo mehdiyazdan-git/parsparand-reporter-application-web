@@ -21,8 +21,8 @@ const CreateInvoiceStatusForm = ({ onCreateInvoiceStatus, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} closeButton>
+        <Modal size={"xl"} show={show}>
+            <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد وضعیت فاکتور جدید"}
                 </Modal.Title>

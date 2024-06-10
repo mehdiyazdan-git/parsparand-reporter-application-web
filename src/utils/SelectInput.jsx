@@ -25,7 +25,7 @@ const SelectInput = ({ name, options, label }) => {
 
                         return (
                             <div>
-                                <label className="label">{label}</label>
+                                <label style={{fontFamily:"IRANSansBold",fontSize:"0.75rem"}} className="label">{label}</label>
                                 <Select
                                     {...field}
                                     options={options}

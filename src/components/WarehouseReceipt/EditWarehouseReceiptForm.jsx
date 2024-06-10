@@ -55,7 +55,7 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
 
     return (
         <Modal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white">
+            <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد رسید انبار جدید"}
                 </Modal.Title>

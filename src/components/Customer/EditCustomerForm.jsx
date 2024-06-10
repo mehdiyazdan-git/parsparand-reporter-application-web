@@ -27,8 +27,8 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
-            <Modal.Header style={headerStyle} className="bg-dark text-white" closeButton>
+        <Modal size={"xl"} show={show}>
+            <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ویرایش مشتری"}
                 </Modal.Title>

@@ -9,6 +9,7 @@ import PaymentsModal from "../Payment/paymentsModal";
 import Payments from "../Payment/Payments";
 import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
 import InvoicesModal from "../Invoice/InvoicesModal";
+import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
 
 const Container = styled.div`
   font-family: IRANSans;
@@ -328,9 +329,12 @@ const ClientSummary = () => {
                             <Row>{toPersianFormat(data.notInvoicedReportDto.insurance)}</Row>
                             <Row>{toPersianFormat(data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat)}</Row>
                             <Row>
-                                <Link to={`${filters[listName]?.search?.customerId}/notInvoiced`}>
-                                    <IconEdit color="green" fontSize={"1rem"} />
-                                </Link>
+                                <WarehouseReceiptsModal
+                                    customerId={filters[listName]?.search?.customerId}
+                                    showModal={showModal}
+                                    handleShow={handleShow}
+                                    handleClose={handleClose}
+                                />
                             </Row>
                         </tr>
                         <tr>

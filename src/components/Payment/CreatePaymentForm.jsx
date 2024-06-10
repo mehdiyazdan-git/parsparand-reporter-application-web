@@ -51,7 +51,7 @@ const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
 
     return (
         <Modal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle}>
+            <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد پرداخت جدید"}
                 </Modal.Title>

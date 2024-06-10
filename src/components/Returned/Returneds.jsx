@@ -53,13 +53,14 @@ const Returneds = () => {
             if (response.status === 201) {
                 setRefreshTrigger(prev => !prev);
                 setShowModal(false);
-            } else {
-                setErrorMessage(response.data);
-                setShowErrorModal(true);
             }
         } catch (error) {
-            setErrorMessage(error.response.data);
-            setShowErrorModal(true);
+            if (error.response){
+                setErrorMessage(error.response.data)
+                setShowErrorModal(true)
+            }else {
+                console.error(error);
+            }
         }
     }, [createReturned]);
 
