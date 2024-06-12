@@ -1,8 +1,9 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import "./monthlyReport.css";
 import useHttp from "../../hooks/useHttp";
 import { useFilters } from "../contexts/FilterContext";
 import { formatNumber } from "../../utils/functions/formatNumber";
+import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -38,7 +39,7 @@ const footerStyle = {
 
 function MonthlyReportByProduct({ productType, listName }) {
     const http = useHttp();
-    const { filters, getParams} = useFilters();
+    const { filters, getParams } = useFilters();
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,
@@ -47,7 +48,7 @@ function MonthlyReportByProduct({ productType, listName }) {
         amount: 0,
     });
 
-    const loadMonthlyReport = async () => {
+    const loadMonthlyReport = async (getParams, listName) => {
         try {
             const response = await http.get(`/reports/sales-by-month-and-product-type?${getParams(listName)}`);
             setMonthlyReport(response.data);
@@ -56,6 +57,9 @@ function MonthlyReportByProduct({ productType, listName }) {
         }
     };
 
+    useDeepCompareEffect(() => {
+        loadMonthlyReport(getParams, listName);
+    }, [filters.years?.jalaliYear.label, filters[listName]]);
 
     useEffect(() => {
         const calculatedSubtotals = monthlyReport.reduce((acc, curr) => {
@@ -66,11 +70,12 @@ function MonthlyReportByProduct({ productType, listName }) {
             return acc;
         }, { quantity: 0, cumulative_quantity: 0, cumulative_amount: 0, amount: 0 });
         setSubtotals(calculatedSubtotals);
-    }, [filters.years?.jalaliYear.label]);
+    }, [monthlyReport]);
 
     const subtotal = () => {
         return monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0);
-    }
+    };
+
     return (
         <div className="monthly-report" style={{ fontFamily: "IRANSans", backgroundColor: 'rgba(220, 220, 220, 0.2)' }}>
             <table style={{ fontSize: "0.75rem", border: "1px #a5b6c9 solid" }} className="table table-bordered table-responsive">
@@ -92,15 +97,9 @@ function MonthlyReportByProduct({ productType, listName }) {
                         <td style={rowStyle}>{item?.customerName}</td>
                         <td style={rowStyle}>{formatNumber(item?.totalQuantity)}</td>
                         <td style={rowStyle}>{formatNumber(item?.cumulativeTotalQuantity)}</td>
-                        <td style={rowStyle}>{formatNumber(
-                            isNaN(item?.cumulativeTotalQuantity) ||
-                            isNaN(item?.cumulativeTotalAmount) ||
-                            item?.cumulativeTotalQuantity === 0
-                                ? 0
-                                : Math.round(item?.cumulativeTotalAmount / item?.cumulativeTotalQuantity * 100) / 100
-                        )}</td>
+                        <td style={rowStyle}>{formatNumber(item?.avgUnitPrice ? item.avgUnitPrice : 0)}</td>
                         <td style={rowStyle}>{formatNumber(item?.totalAmount)}</td>
-                        <td style={rowStyle}>{formatNumber((item?.totalAmount / subtotal) * 100)}%</td>
+                        <td style={rowStyle}>{formatNumber(((item.totalAmount / subtotal()) * 100).toFixed(2))}%</td>
                     </tr>
                 ))}
                 </tbody>
@@ -112,10 +111,14 @@ function MonthlyReportByProduct({ productType, listName }) {
                     <td style={footerStyle}>{formatNumber(
                         isNaN(subtotals?.cumulative_amount) || isNaN(subtotals?.cumulative_quantity) || subtotals?.cumulative_quantity === 0
                             ? 0
-                            : (subtotals?.cumulative_amount / subtotals?.cumulative_quantity)
+                            : (subtotals?.cumulative_amount / subtotals?.cumulative_quantity).toFixed(0)
                     )}</td>
                     <td style={footerStyle}>{formatNumber(subtotals?.amount)}</td>
-                    <td style={footerStyle}>{formatNumber((subtotals?.amount / subtotal) * 100)}%</td>
+                    <td style={footerStyle}>{formatNumber(
+                        isNaN(subtotals?.amount) || subtotal() === 0
+                            ? 0
+                            : ((subtotals?.amount) / subtotal()) * 100
+                    )}%</td>
                 </tr>
                 </tfoot>
             </table>

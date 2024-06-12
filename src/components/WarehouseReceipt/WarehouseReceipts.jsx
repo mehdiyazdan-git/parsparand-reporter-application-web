@@ -25,17 +25,9 @@ const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const { filters,getParams } = useFilters();
     const listName = 'warehouseReceipts';
-    const getAllWarehouseReceipts = async (queryParams) => {
-
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear',`${filters.years.jalaliYear.label}`);
-        }
-        return await http.get(`/warehouse-receipts?${queryParams.toString()}`).then(r => r.data);
+    const getAllWarehouseReceipts = async () => {
+        return await http.get(`/warehouse-receipts?${getParams(listName)}`).then(r => r.data);
     };
-
-    // useEffect(() => {
-    //     setRefreshTrigger(!refreshTrigger);
-    // }, [filters]);
 
     const createWarehouseReceipt = async (data) => {
         return await http.post("/warehouse-receipts", data);

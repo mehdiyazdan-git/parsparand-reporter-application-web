@@ -30,6 +30,7 @@ export const FilterProvider = ({children}) => {
             return newFilters;
         });
     };
+
     const createFilter = (listName) => {
         if (!filters[listName]) {
             setFilters(prevFilters => ({
@@ -85,6 +86,39 @@ const getParams = (listName) => {
     return queryParams.toString();
 }
 
+const clearFilter = (listName,filter) => {
+    setFilters((prevFilters) => {
+        const newFilters = {...prevFilters};
+        newFilters[listName][filter] = null;
+        sessionStorage.setItem('filters', JSON.stringify(newFilters));
+        return newFilters;
+    });
+}
+const clearSearch = (listName) => {
+    setFilters((prevFilters) => {
+        const newFilters = {...prevFilters};
+        newFilters[listName].search = {};
+        sessionStorage.setItem('filters', JSON.stringify(newFilters));
+        return newFilters;
+    });
+}
+const addFilterToSearch = (listName, filter, value) => {
+    setFilters((prevFilters) => {
+        const newFilters = {...prevFilters};
+        newFilters[listName].search[filter] = value;
+        sessionStorage.setItem('filters', JSON.stringify(newFilters));
+        return newFilters;
+    });
+}
+const addFilter = (listName, filter, value) => {
+    setFilters((prevFilters) => {
+        const newFilters = {...prevFilters};
+        newFilters[listName][filter] = value;
+        sessionStorage.setItem('filters', JSON.stringify(newFilters));
+        return newFilters;
+    });
+}
+
 // Function to clear all filters for a list
 const clearFilters = (listName) => {
     setFilters((prevFilters) => {
@@ -108,8 +142,52 @@ useEffect(() => {
     initializeFilters();
 }, []);
 
+// excludeFilterFromSearch(listName,filterName,searchName,searchValue)
+    const excludeFilterFromSearch = (listName,filterName,searchName,searchValue) => {
+        setFilters((prevFilters) => {
+            const newFilters = {...prevFilters};
+            if (newFilters[listName].search[searchName] === searchValue) {
+                newFilters[listName].search[searchName] = '';
+            }
+            sessionStorage.setItem('filters', JSON.stringify(newFilters));
+            return newFilters;
+        });
+
+    }
+    const getExcludedFilterFromSearch = (listName,filterName,searchName,searchValue) => {
+        setFilters((prevFilters) => {
+            const newFilters = {...prevFilters};
+            if (newFilters[listName].search[searchName] === searchValue) {
+                newFilters[listName].search[searchName] = '';
+            }
+            sessionStorage.setItem('filters', JSON.stringify(newFilters));
+            return newFilters;
+        });
+    }
+// doFilterWithoutYear(listName)
+    const doFilterWithoutYear = (listName) => {
+        setFilters((prevFilters) => {
+            const newFilters = {...prevFilters};
+            newFilters[listName].year = null;
+            sessionStorage.setItem('filters', JSON.stringify(newFilters));
+            return newFilters;
+        });
+    }
+
 return (
-    <FilterContext.Provider value={{filters, setFilter, clearFilters, getParams, setPagination, getFilter, createFilter}}>
+    <FilterContext.Provider value={{
+        filters,
+        setFilter,
+        clearFilters,
+        getParams,
+        setPagination,
+        getFilter,
+        createFilter,
+        clearFilter,
+        clearSearch,
+        addFilterToSearch,
+        addFilter,
+    }}>
         {children}
     </FilterContext.Provider>
 );

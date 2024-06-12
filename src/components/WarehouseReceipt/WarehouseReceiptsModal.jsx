@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
@@ -8,18 +8,16 @@ import { useFilters } from "../contexts/FilterContext";
 
 const WarehouseReceiptsModal = ({ customerId }) => { // Renamed component
     const listName = "warehouseReceipts"; // Updated list name
-    const { filters, setFilter, setPagination } = useFilters();
+    const { filters, addFilterToSearch, setPagination,getFilter,createFilter } = useFilters();
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filters[listName]?.search?.notInvoiced && filters[listName]?.search?.notInvoiced === true) {
-            setFilter(listName, "search", { notInvoiced: true });
+        if (!getFilter("warehouseReceipts")){
+            createFilter("warehouseReceipts")
         }
-        if (!filters[listName]?.search?.customerId || filters[listName]?.search?.customerId !== customerId) {
-            const newSearch = { ...filters[listName]?.search, customerId: customerId };
-            setFilter(listName, "search", newSearch);
-        }
-        setPagination(listName, 0 , filters[listName]?.pageSize);
+        addFilterToSearch("warehouseReceipts", "notInvoiced", true);
+        addFilterToSearch("warehouseReceipts", "customerId", customerId);
+        setPagination("warehouseReceipts", 0 , filters[listName]?.pageSize);
         setShowModal(true);
     };
 
@@ -29,11 +27,18 @@ const WarehouseReceiptsModal = ({ customerId }) => { // Renamed component
             if (key === "customerId") {
                 delete filters[listName]?.search[key];
             }
+            if (key === "notInvoiced"){
+                delete filters[listName]?.search[key];
+            }
         });
         delete filters[listName]?.search["notInvoiced"];
         setPagination(listName, 0 , filters[listName]?.pageSize);
         setShowModal(false);
     };
+
+    useEffect(() => {
+
+    })
 
     return (
         <>

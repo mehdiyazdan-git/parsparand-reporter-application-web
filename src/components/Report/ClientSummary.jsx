@@ -330,7 +330,7 @@ const ClientSummary = () => {
                             <Row>{toPersianFormat(data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat)}</Row>
                             <Row>
                                 <WarehouseReceiptsModal
-                                    customerId={filters[listName]?.search?.customerId}
+                                    customerId={customer?.value}
                                     showModal={showModal}
                                     handleShow={handleShow}
                                     handleClose={handleClose}

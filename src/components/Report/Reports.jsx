@@ -22,7 +22,7 @@ const Reports = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters, getParams , setFilter } = useFilters();
+    const { filters, getParams} = useFilters();
     const listName = 'reports';
 
     const getAllReports = useCallback(async (queryParams) => {
@@ -31,7 +31,7 @@ const Reports = () => {
         }
         console.log(queryParams.toString())
         return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
-    }, [filters]);
+    }, [filters.years.jalaliYear, http]);
 
 
     const createReport = useCallback(async (data) => {

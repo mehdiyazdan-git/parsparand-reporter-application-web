@@ -25,10 +25,10 @@ const Invoices = ({contractNumber}) => {
     const { filters , getParams } = useFilters();
     const listName = 'invoices';
 
-    const getAllInvoices = useCallback(async (queryParams) => {
+    const getAllInvoices =async (queryParams) => {
         console.log(queryParams.toString())
-        return await http.get(`/invoices?${queryParams.toString()}`).then(r => r.data);
-    }, [http]);
+        return await http.get(`/invoices?${getParams(listName)}`).then(r => r.data);
+    }
 
     const createInvoice = useCallback(async (data) => {
         return await http.post("/invoices", data);
