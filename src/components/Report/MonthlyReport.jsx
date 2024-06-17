@@ -2,29 +2,45 @@ import React, {useEffect, useState} from 'react';
 import MonthlyReportByProduct from "./MonthlyReportByProduct";
 import Button from "../../utils/Button";
 import { useFilters } from "../contexts/FilterContext";
+import YearSelect from "../Year/YearSelect";
+import useHttp from "../../hooks/useHttp";
+import useFilter from "../contexts/useFilter";
 
 const MonthlyReport = () => {
-    const { filters, setFilter } = useFilters();
     const [ report , setReport ] = useState([]);
     const listName = 'monthlyReport';
-
+    const { filter, updateFilter,getParams } = useFilter(listName);
+    const http = useHttp();
     const handleMonthChange = (event) => {
-        setFilter(listName, 'search', { ...filters[listName]?.search, month: parseInt(event.target.value, 10) });
+        updateFilter({ 'month': Number(event.target.value) });
+    };
+
+   async function getMonthlyReport(month, year) {
+        return await http.get(`/reports/sales-by-month-and-product-type?${getParams(listName).toString()}`).then((r => r.data));
     }
 
     useEffect(() => {
-        setFilter(listName, 'search', { ...filters[listName]?.search, month: 1 });
+        if (filter?.month) {
+            const month = filter?.month;
+            const year = filter?.jalaliYear;
+            const data = getMonthlyReport(month, year);
+            setReport(data);
+        }
+    }, [filter?.month, filter?.jalaliYear]);
 
-        return () => {
-            setFilter(listName, 'search', { ...filters[listName]?.search, month: 1 });
-        };
-    }, []);
+    const handleJalaliYearChange = (value,label) => {
+        updateFilter({ 'jalaliYear': Number(label) });
+    };
 
     useEffect(() => {
-        if (filters[listName]?.search?.month) {
-            setReport([]);
-        }
-    }, [filters[listName]?.search?.month]);
+       updateFilter({ 'month': 1 });
+    }, []);
+
+    // useEffect(() => {
+    //     if (!filter.month) {
+    //         setReport([]);
+    //     }
+    // }, [filter?.month]);
 
 
 
@@ -45,7 +61,7 @@ const MonthlyReport = () => {
                         backgroundColor: 'rgba(255, 255, 255, 0.5)',
                     }}
                     onChange={handleMonthChange}
-                    value={filters[listName]?.search?.month || 1}
+                    value={filter?.month || 1}
                     className="table-search-input"
                     id="month"
                     name="month"
@@ -65,7 +81,11 @@ const MonthlyReport = () => {
                     <option value={12}>اسفند</option>
                 </select>
             </div>
-
+            <div className="col-3">
+                <YearSelect  value={sessionStorage.getItem(`jalaliYear`)}
+                             onChange={handleJalaliYearChange}
+                />
+            </div>
             <div className="row mt-5">
                 <div>
                     <MonthlyReportByProduct

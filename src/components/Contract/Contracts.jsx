@@ -11,8 +11,8 @@ import FileUpload from "../../utils/FileUpload";
 import CreateContractForm from "./CreateContractForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
-import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import useFilter from "../contexts/useFilter";
 
 const Contracts = () => {
     const [editingContract, setEditingContract] = useState(null);
@@ -22,19 +22,11 @@ const Contracts = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters,getParams } = useFilters();
     const listName = 'contracts';
 
-    const getAllContracts = useCallback(async (queryParams) => {
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
-        }
+    const getAllContracts = async (queryParams) => {
         return await http.get(`/contracts?${queryParams.toString()}`).then(r => r.data);
-    }, [filters, http]);
-
-    // useEffect(() => {
-    //     setRefreshTrigger(prev => !prev);
-    // }, [filters]);
+    }
 
     const createContract = useCallback(async (data) => {
         return await http.post("/contracts", data);
@@ -97,6 +89,24 @@ const Contracts = () => {
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',subtotal:true, render: (item) => formatNumber(item.totalPrice) },
     ], []);
 
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
+
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -156,6 +166,10 @@ const Contracts = () => {
                 onDelete={handleDeleteContract}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
                 subTotal={true}
                 downloadExcelFile={downloadExcelFile}
             />

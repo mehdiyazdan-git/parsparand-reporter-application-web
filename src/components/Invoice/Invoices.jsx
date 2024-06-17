@@ -11,8 +11,9 @@ import FileUpload from "../../utils/FileUpload";
 import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
-import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import useFilter from "../contexts/useFilter";
+import YearSelect from "../Year/YearSelect";
 
 const Invoices = ({contractNumber}) => {
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -22,12 +23,10 @@ const Invoices = ({contractNumber}) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters , getParams } = useFilters();
     const listName = 'invoices';
 
     const getAllInvoices =async (queryParams) => {
-        console.log(queryParams.toString())
-        return await http.get(`/invoices?${getParams(listName)}`).then(r => r.data);
+        return await http.get(`/invoices?${queryParams}`);
     }
 
     const createInvoice = useCallback(async (data) => {
@@ -123,7 +122,6 @@ const Invoices = ({contractNumber}) => {
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',  subtotal: true, render: (item) => formatNumber(item.totalPrice) },
     ], []);
 
-
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -139,9 +137,9 @@ const Invoices = ({contractNumber}) => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async () => {
+    const downloadExcelFile = async (queryParams) => {
 
-        await http.get(`/invoices/download-all-invoices.xlsx?${getParams(listName)}`, { responseType: 'blob' })
+        await http.get(`/invoices/download-all-invoices.xlsx?${queryParams}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "invoices.xlsx");
@@ -149,7 +147,7 @@ const Invoices = ({contractNumber}) => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }, [filters, http]);
+    }
 
     return (
         <div className="table-container">
@@ -174,6 +172,7 @@ const Invoices = ({contractNumber}) => {
                     color={"#41941a"}
                     type="button"
                 />
+
                 <CreateInvoiceForm
                     onCreateInvoice={handleAddInvoice}
                     show={showModal}

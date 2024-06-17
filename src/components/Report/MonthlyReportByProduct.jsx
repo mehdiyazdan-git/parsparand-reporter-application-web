@@ -39,7 +39,7 @@ const footerStyle = {
 
 function MonthlyReportByProduct({ productType, listName }) {
     const http = useHttp();
-    const { filters, getParams } = useFilters();
+    const { filter, getParams } = useFilters(listName);
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,
@@ -59,7 +59,7 @@ function MonthlyReportByProduct({ productType, listName }) {
 
     useDeepCompareEffect(() => {
         loadMonthlyReport(getParams, listName);
-    }, [filters.years?.jalaliYear.label, filters[listName]]);
+    }, [filter]);
 
     useEffect(() => {
         const calculatedSubtotals = monthlyReport.reduce((acc, curr) => {

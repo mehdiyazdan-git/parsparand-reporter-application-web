@@ -1,8 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import Table from "react-bootstrap/Table";
 import useHttp from "../../hooks/useHttp";
-import {useFilters} from "../contexts/FilterContext";
-import getCurrentYear from "../../utils/functions/getCurrentYear";
 import {formatNumber} from "../../utils/functions/formatNumber";
 
 const headerStyle = {
@@ -37,9 +35,8 @@ const footerStyle = {
     width: '14.30%',
 }
 
-const SalesTable = ({ productType, label, previousYear,measurementIndex }) => {
+const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliYear }) => {
     const http = useHttp();
-    const {filters} = useFilters();
     const [data, setData] = useState([
         {
             monthNumber: 1,
@@ -51,14 +48,11 @@ const SalesTable = ({ productType, label, previousYear,measurementIndex }) => {
 
     useEffect(() => {
         async function loadData() {
-            let year = filters?.years?.jalaliYear?.label || getCurrentYear()
-            if (previousYear)
-                year = year - 1;
-             await http.get(`/reports/sales-by-year/${Number(year)}/${productType}`)
+            await http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
                 .then(response => setData(response.data));
         }
         loadData();
-    }, [productType, previousYear,filters]);
+    }, [jalaliYear]);
 
     const firstHalfData = data.slice(0, 6);
     const secondHalfData = data.slice(6, 12);

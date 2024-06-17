@@ -12,6 +12,7 @@ import CreateReturnedForm from "./CreateReturnedForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
 
 const Returneds = () => {
     const [editingReturned, setEditingReturned] = useState(null);
@@ -31,9 +32,6 @@ const Returneds = () => {
         return await http.get(`/returneds?${queryParams.toString()}`).then(r => r.data);
     }, [filters, http]);
 
-    // useEffect(() => {
-    //     setRefreshTrigger(prev => !prev);
-    // }, [filters]);
 
     const createReturned = useCallback(async (data) => {
         return await http.post("/returneds", data);
@@ -96,6 +94,24 @@ const Returneds = () => {
         { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
     ], []);
 
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
+
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -155,6 +171,10 @@ const Returneds = () => {
                 onDelete={handleDeleteReturned}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
 
             {editingReturned && (

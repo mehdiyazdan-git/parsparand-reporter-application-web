@@ -10,6 +10,7 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateInvoiceStatusForm from "./CreateInvoiceStatusForm";
 import { saveAs } from 'file-saver';
+import useFilter from "../contexts/useFilter";
 
 const InvoiceStatuses = () => {
     const [editingInvoiceStatus, setEditingInvoiceStatus] = useState(null);
@@ -19,6 +20,7 @@ const InvoiceStatuses = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const listName = "invoiceStatuses";
 
     const getAllInvoiceStatuses = async (queryParams) => {
         return await http.get(`/invoice-statuses?${queryParams.toString()}`).then(r => r.data);
@@ -78,7 +80,23 @@ const InvoiceStatuses = () => {
         { key: 'id', title: 'شناسه', width: '10%', sortable: true },
         { key: 'name', title: 'نام وضعیت', width: '80%', sortable: true, searchable: true },
     ];
-
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -137,6 +155,11 @@ const InvoiceStatuses = () => {
                 }}
                 onDelete={handleDeleteInvoiceStatus}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
 
             {editingInvoiceStatus && (

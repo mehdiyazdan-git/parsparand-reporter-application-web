@@ -1,4 +1,4 @@
-// listNames: "products", "reports", "customers", "warehouseReceipts"
+// listNames: as example "products", "reports", "customers", "warehouseReceipts"
 // year: "jalaliYear" is global
 // each list has: search, page, pageSize, totalPages, totalElements
 // but search is different for each list
@@ -13,6 +13,7 @@
 // doFilterWithoutYear(listName)
 // setYears(year)
 // getYears()
+// generate a react useFilterHook
 export const filters = {
     "products": {
         "page": 0,
@@ -27,9 +28,6 @@ export const filters = {
         "totalPages": 0,
         "totalElements": 0,
         "search": {
-            "reportName": "",
-            "reportDescription": "",
-            "reportDate": "2024-04-07"
         }
     },
     "customers": {
@@ -38,9 +36,7 @@ export const filters = {
         "totalPages": 28,
         "totalElements": 275,
         "search": {
-            "customerName": "",
-            "customerDescription": "",
-            "customerNumber": ""
+
         }
     },
     "warehouseReceipts": {
@@ -49,12 +45,7 @@ export const filters = {
         "totalPages": 32,
         "totalElements": 319,
         "search": {
-            "customerName": "",
-            "totalPrice": "",
-            "totalQuantity": "",
-            "warehouseReceiptDate": "2024-04-07",
-            "warehouseReceiptDescription": "",
-            "warehouseReceiptNumber": ""
+
         }
     },
     "years": {

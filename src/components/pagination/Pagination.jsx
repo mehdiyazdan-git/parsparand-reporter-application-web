@@ -1,49 +1,32 @@
-import React, { useMemo } from 'react';
-import { useFilters } from "../contexts/FilterContext"; // Correct import statement for useFilters
+import React, { useMemo, useCallback } from 'react';
 import "./Pagination.css";
+import PageSizeSelector from "./PageSizeSelector";
 
-const Pagination = ({ listName }) => {
-    const { filters, setPagination } = useFilters(); // Correctly using the useFilters hook
+const Pagination = ({ filter, updateFilter }) => {
 
-    // Retrieve pagination details from filters using the listName
-    const currentPage = filters[listName]?.page || 0;
-    const totalPages = filters[listName]?.totalPages || 1;
-    const pageSize = filters[listName]?.pageSize || 10;
-    const totalItems = filters[listName]?.totalElements || 0;
+    const goToFirstPage = useCallback(() => updateFilter({ page: 0 }), [updateFilter]);
 
-    // Handle changing the page size and resetting to the first page
-    const handlePageSizeChange = (event) => {
-        const newSize = Number(event.target.value);
-        setPagination(listName, 0, newSize); // Reset to first page when page size changes
-    };
+    const goToPrevPage = useCallback(() => updateFilter({ page: Math.max(0, filter?.page - 1) }), [updateFilter, filter]);
 
-    // Handle navigation to a specific page
-    const goToPage = (pageNumber) => {
-        setPagination(listName, pageNumber - 1, pageSize); // Subtract 1 because pages might be zero indexed in context
-    };
+    const goToNextPage = useCallback(() => updateFilter({ page: Math.min(filter?.totalPages - 1, filter?.page + 1) }), [updateFilter, filter]);
 
-    // Memoize page size options to avoid re-creation on each render
-    const pageSizeOptions = useMemo(() => [5, 10, 20], []);
+    const goToLastPage = useCallback(() => updateFilter({ page: filter?.totalPages - 1 }), [updateFilter, filter]);
+
+    const startIndex = useMemo(() => filter?.page * filter?.size + 1, [filter]);
+    const endIndex = useMemo(() => Math.min((filter?.page + 1) * filter?.size, filter?.totalElements), [filter]);
 
     return (
         <div className="pagination">
-            <div className="page-size">
-                اندازه صفحه :
-                <select onChange={handlePageSizeChange} value={pageSize}>
-                    {pageSizeOptions.map(size => (
-                        <option key={size} value={size}>{size}</option>
-                    ))}
-                </select>
-            </div>
+            <PageSizeSelector filter={filter} updateFilter={updateFilter}/>
             <div className="page-info">
-                {`${Math.max(currentPage * pageSize + 1, 1)} تا ${Math.min((currentPage + 1) * pageSize, totalItems)} از ${totalItems}`}
+                {`${startIndex} تا ${endIndex} از ${filter?.totalElements}`}
             </div>
             <div className="page-controls">
-                <button onClick={() => goToPage(1)} disabled={currentPage === 0}>{'<<'}</button>
-                <button onClick={() => goToPage(currentPage)} disabled={currentPage === 0}>{'<'}</button>
-                صفحه {currentPage + 1} از {totalPages}
-                <button onClick={() => goToPage(currentPage + 2)} disabled={currentPage + 1 >= totalPages}>{'>'}</button>
-                <button onClick={() => goToPage(totalPages)} disabled={currentPage + 1 >= totalPages}>{'>>'}</button>
+                <button onClick={goToFirstPage} disabled={filter?.page === 0}>{'<<'}</button>
+                <button onClick={goToPrevPage} disabled={filter?.page === 0}>{'<'}</button>
+                صفحه  {filter?.page + 1} از {filter?.totalPages}
+                <button onClick={goToNextPage} disabled={filter?.page + 1 >= filter?.totalPages}>{'>'}</button>
+                <button onClick={goToLastPage} disabled={filter?.page + 1 >= filter?.totalPages}>{'>>'}</button>
             </div>
         </div>
     );

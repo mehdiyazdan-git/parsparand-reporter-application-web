@@ -11,6 +11,7 @@ import FileUpload from "../../utils/FileUpload";
 import CreateCustomerForm from "./CreateCustomerForm";
 import { saveAs } from 'file-saver';
 import { useFilters } from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
 
 const Customers = () => {
     const [editingCustomer, setEditingCustomer] = useState(null);
@@ -20,19 +21,11 @@ const Customers = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters } = useFilters();
     const listName = 'customers';
 
-    const getAllCustomers = useCallback(async (queryParams) => {
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
-        }
-        return await http.get(`/customers?${queryParams.toString()}`).then(r => r.data);
-    }, [filters, http]);
-
-    // useEffect(() => {
-    //     setRefreshTrigger(prev => !prev);
-    // }, [refreshTrigger]);
+    const getAllCustomers = async (queryParams) => {
+        return await http.get(`/customers?${queryParams}`);
+    }
 
     const createCustomer = useCallback(async (data) => {
         return await http.post("/customers", data);
@@ -109,6 +102,24 @@ const Customers = () => {
         );
     }, []);
 
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
+
     const downloadExcelFile = useCallback(async () => {
         await http.get('/customers/download-all-customers.xlsx', { responseType: 'blob' })
             .then((response) => response.data)
@@ -153,6 +164,10 @@ const Customers = () => {
                 onDelete={handleDeleteCustomer}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
 
             {editingCustomer && (

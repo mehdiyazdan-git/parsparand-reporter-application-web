@@ -3,8 +3,6 @@ import React from 'react';
 import styled from 'styled-components';
 import Sidebar from './Sidebar';
 import Navbar from './Navbar';
-import Content from './Content';
-import WarehouseReceipts from "../WarehouseReceipt/WarehouseReceipts";
 import {Outlet} from "react-router-dom";
 
 const DashboardContainer = styled.div`

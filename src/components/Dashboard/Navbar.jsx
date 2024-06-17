@@ -37,9 +37,9 @@ const Navbar = () => {
         <NavbarContainer>
             <NavbarBrand>پارس پرند حیان</NavbarBrand>
             <YearWrapper>
-                <Row>
-                    <YearSelect />
-                </Row>
+                {/*<Row>*/}
+                {/*    <YearSelect />*/}
+                {/*</Row>*/}
             </YearWrapper>
         </NavbarContainer>
     );

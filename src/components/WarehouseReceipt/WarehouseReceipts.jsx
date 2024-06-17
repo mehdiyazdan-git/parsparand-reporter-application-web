@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -11,8 +11,8 @@ import FileUpload from "../../utils/FileUpload";
 import CreateWarehouseReceiptForm from "./CreateWarehouseReceiptForm";
 import {saveAs} from 'file-saver';
 import {toShamsi} from "../../utils/functions/toShamsi";
-import {useFilters} from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import useFilter from "../contexts/useFilter";
 
 
 const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
@@ -23,10 +23,9 @@ const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters,getParams } = useFilters();
     const listName = 'warehouseReceipts';
-    const getAllWarehouseReceipts = async () => {
-        return await http.get(`/warehouse-receipts?${getParams(listName)}`).then(r => r.data);
+    const getAllWarehouseReceipts = async (queryParams) => {
+        return await http.get(`/warehouse-receipts?${queryParams}`);
     };
 
     const createWarehouseReceipt = async (data) => {
@@ -88,7 +87,23 @@ const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
         { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number',subtotal : true , render: (item) => formatNumber(item.totalQuantity) },
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number', subtotal : true , render: (item) => formatNumber(item.totalPrice) },
     ];
-
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -104,8 +119,8 @@ const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
         );
     };
 
-    async function downloadExcelFile() {
-        await http.get(`/warehouse-receipts/download-all-warehouse-receipts.xlsx?${getParams(listName)}`, { responseType: 'blob' })
+    async function downloadExcelFile(queryParams) {
+        await http.get(`/warehouse-receipts/download-all-warehouse-receipts.xlsx?${queryParams}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "warehouse_receipts.xlsx");
@@ -156,6 +171,10 @@ const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
                 onDelete={handleDeleteWarehouseReceipt}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
                 subTotal={true}
                 downloadExcelFile={downloadExcelFile}
             />

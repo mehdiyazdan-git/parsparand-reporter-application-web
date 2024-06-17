@@ -12,7 +12,7 @@ import CreatePaymentForm from "./CreatePaymentForm";
 import { saveAs } from 'file-saver';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import { toShamsi } from "../../utils/functions/toShamsi";
-import { useFilters } from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
 
 const Payments = ({ customerId }) => {
     const [editingPayment, setEditingPayment] = useState(null);
@@ -22,7 +22,6 @@ const Payments = ({ customerId }) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const {getParams} = useFilters();
     const listName = 'payments';
 
 
@@ -115,6 +114,24 @@ const Payments = ({ customerId }) => {
         { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true,subtotal :true , render: item => formatNumber(item.paymentAmount) },
     ], []);
 
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
+
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -184,6 +201,10 @@ const Payments = ({ customerId }) => {
                 onDelete={handleDeletePayment}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
                 downloadExcelFile={downloadExcelFile}
             />
 

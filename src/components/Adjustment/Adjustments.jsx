@@ -11,8 +11,8 @@ import FileUpload from "../../utils/FileUpload";
 import CreateAdjustmentForm from "./CreateAdjustmentForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
-import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import useFilter from "../contexts/useFilter";
 
 
 
@@ -24,12 +24,11 @@ const Adjustments = ({ customerId }) => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters} = useFilters();
     const listName = 'adjustments';
 
-    const getAllAdjustments = useCallback(async (queryParams) => {
+    const getAllAdjustments = async (queryParams) => {
         return await http.get(`/adjustments?${queryParams.toString()}`).then(r => r.data);
-    }, [filters, http]);
+    }
 
     const createAdjustment = useCallback(async (data) => {
         return await http.post("/adjustments", data);
@@ -148,6 +147,24 @@ const Adjustments = ({ customerId }) => {
 
     ], []);
 
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
+
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -208,6 +225,10 @@ const Adjustments = ({ customerId }) => {
                 onDelete={handleDeleteAdjustment}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
 
             {editingAdjustment && (

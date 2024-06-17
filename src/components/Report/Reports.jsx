@@ -13,6 +13,8 @@ import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import YearSelect from "../Year/YearSelect";
+import useFilter from "../contexts/useFilter";
 
 const Reports = () => {
     const [editingReport, setEditingReport] = useState(null);
@@ -22,16 +24,11 @@ const Reports = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters, getParams} = useFilters();
     const listName = 'reports';
 
-    const getAllReports = useCallback(async (queryParams) => {
-        if (filters.years?.jalaliYear && filters.years.jalaliYear.label) {
-            queryParams.append('jalaliYear', `${filters.years.jalaliYear.label}`);
-        }
-        console.log(queryParams.toString())
-        return await http.get(`/reports?${queryParams.toString()}`).then(r => r.data);
-    }, [filters.years.jalaliYear, http]);
+    const getAllReports = async (queryParams) => {
+        return await http.get(`/reports?${queryParams}`);
+    }
 
 
     const createReport = useCallback(async (data) => {
@@ -93,6 +90,7 @@ const Reports = () => {
 
     ], []);
 
+
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -108,8 +106,8 @@ const Reports = () => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async (exportAll) => {
-        await http.get(`/reports/download-all-reports.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
+    const downloadExcelFile = useCallback(async (queryParams,exportAll) => {
+        await http.get(`/reports/download-all-reports.xlsx?${queryParams}&exportAll=${exportAll}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "reports.xlsx");

@@ -1,8 +1,6 @@
-import React, {useCallback, useMemo, useState} from "react";
-import { useFilters } from "../contexts/FilterContext";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
-import Pagination from '../pagination/Pagination';
 import ConfirmationModal from './ConfirmationModal';
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import Th from "./Th";
@@ -19,38 +17,35 @@ import { formatNumber } from "../../utils/functions/formatNumber";
 import { SiMicrosoftexcel } from "react-icons/si";
 import Tooltip from "../../utils/Tooltip";
 import {Modal} from "react-bootstrap";
+import Pagination from "../pagination/Pagination";
+import useFilter from "../contexts/useFilter";
+import YearSelect from "../Year/YearSelect";
 
-const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger, listName, downloadExcelFile }) => {
-    const { filters, setFilter} = useFilters();
+
+const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger,listName, downloadExcelFile, }) => {
     const [data, setData] = useState([]);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [allData, setAllData] = useState([]);
+    const {filter,updateFilter,getParams} = useFilter(listName,() =>( {
+        page : 0,
+        size : 10,
+        order : 'ASC',
+        sortBy : 'id',
+        jalaliYear: JSON.parse(sessionStorage.getItem('jalaliYear')),
+    }));
 
-    const filteredColumns = useMemo(() => columns.filter(column => column.display !== false), [columns]);
-
-    const initialSearchState = useMemo(() => filteredColumns.reduce((acc, column) => {
-        if (column.searchable) {
-            acc[column.key] = '';
-        }
-        return acc;
-    }, {}), [filteredColumns]);
-
-    const [search, setSearch] = useState(initialSearchState);
-
-    const handleSortChange = useCallback((sortKey, sortOrder) => {
-        setFilter(listName, 'sortBy', sortKey);
-        setFilter(listName, 'order', sortOrder);
-    }, [listName, setFilter]);
-
-    const handleSearchChange = useCallback((key, value) => {
-        const newSearch = { ...search, [key]: value };
-        setSearch(newSearch);
-        setFilter(listName, 'search', newSearch);
-        setFilter(listName, 'page', 0);
-    }, [search, setFilter, listName]);
+    const handleSearchChange = (name, value) => {
+        updateFilter({ [name]: value });
+    };
+    useEffect(() => {
+        columns.forEach(col => {
+            updateFilter({[col.key]: ''})
+            updateFilter({'jalaliYear': Number(JSON.parse(sessionStorage.getItem('jalaliYear')))})
+        });
+    },[columns])
 
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {
@@ -77,14 +72,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     useDeepCompareEffect(() => {
         const loadAllData = async () => {
             try {
-                const queryParams = new URLSearchParams({
-                    page: 0,
-                    size: 1000000, // Large number to get all data
-                    sortBy: '',
-                    order: '',
-                    ...filters[listName]?.search,
-                });
-                const response = await fetchData(queryParams);
+                const response = await fetchData(getParams(listName,[],true).toString());
                 if (response.content) {
                     setAllData(response.content);
                 }
@@ -93,58 +81,48 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
         };
         loadAllData();
-    }, [fetchData, filters[listName], filters.years,refreshTrigger]);
+    }, [filter,refreshTrigger]);
 
     useDeepCompareEffect(() => {
         const load = async () => {
-            try {
-                const queryParams = new URLSearchParams({
-                    page: filters[listName]?.page || 0,
-                    size: filters[listName]?.pageSize || 10,
-                    sortBy: filters[listName]?.sortBy || '',
-                    order: filters[listName]?.order || '',
-                    ...filters[listName]?.search,
-                });
-                const response = await fetchData(queryParams);
-                if (response.content) {
-                    setData(response.content);
-                    setFilter(listName, 'page', response.pageable.pageNumber);
-                    setFilter(listName, 'pageSize', response.pageable.pageSize);
-                    setFilter(listName, 'totalPages', response.totalPages);
-                    setFilter(listName, 'totalElements', response.totalElements);
-                    setErrorMessage('');
-                    setShowErrorModal(false);
-                }
-            } catch (error) {
-                console.log("table is reporting an error:", error);
-            }
+            const params = getParams(listName,[],false);
+            return await fetchData(params.toString());
         };
-        load();
-    }, [fetchData, filters[listName], filters.years,refreshTrigger]);
+        load().then(response => {
+            setData(response.data.content);
+            updateFilter({page: response.data.pageable.pageNumber})
+            updateFilter({size: response.data.pageable.pageSize})
+            updateFilter({totalPages: response.data.totalPages})
+            updateFilter({totalElements: response.data.totalElements})
+        }).catch(error => {
+            console.log("table is reporting an error:", error);
+        });
+    }, [filter,refreshTrigger,getParams]);
+
 
     // Calculate subtotals
     const subtotals = useMemo(() => {
-        return filteredColumns.reduce((acc, column) => {
+        return columns.reduce((acc, column) => {
             if (column.subtotal) {
                 acc[column.key] = data.reduce((sum, item) => sum + (item[column.key] || 0), 0);
             }
             return acc;
         }, {});
-    }, [filteredColumns, data]);
+    }, [columns, data]);
 
     // Calculate overall subtotals for all data
     const overallSubtotals = useMemo(() => {
-        return filteredColumns.reduce((acc, column) => {
+        return columns.reduce((acc, column) => {
             if (column.subtotal) {
                 acc[column.key] = allData.reduce((sum, item) => sum + (item[column.key] || 0), 0);
             }
             return acc;
         }, {});
-    }, [filteredColumns, allData]);
+    }, [columns, allData]);
 
     // Calculate dynamic colspan
-    const subtotalFilteredColumnsCount = filteredColumns.filter(column => column.subtotal).length;
-    const dynamicColspan = filteredColumns.length - subtotalFilteredColumnsCount;
+    const subtotalcolumnsCount = columns.filter(column => column.subtotal).length;
+    const dynamicColspan = columns.length - subtotalcolumnsCount;
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => (
         <Modal show={show} onHide={handleClose} centered>
@@ -165,20 +143,19 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
 
     return (
         <>
+            <div className="col-3 mt-3">
+                <YearSelect onChange={handleSearchChange}/>
+            </div>
             <table className="recipient-table table-fixed-height mt-3">
                 <thead>
                 <tr className="table-header-row p-0 m-0">
-                    {filteredColumns.map((column) => (
+                    {columns.map((column,index) => (
                         <Th
-                            key={column.key}
+                            key={index}
+                            columnKey={column.key}
                             width={column.width}
-                            sortBy={filters[listName]?.sortBy}
-                            sortOrder={filters[listName]?.order}
-                            setSortBy={(sortKey) => handleSortChange(sortKey, filters[listName]?.order)}
-                            setSortOrder={(sortOrder) => handleSortChange(filters[listName]?.sortBy, sortOrder)}
-                            sortKey={column.key}
-                            listName={listName}
-                            setFilter={setFilter}
+                            filter={filter}
+                            updateFilter={updateFilter}
                         >
                             {column.title}
                         </Th>
@@ -186,22 +163,23 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     <th width="7%">{"ویرایش|حذف"}</th>
                 </tr>
                 <tr className="table-header-row">
-                    {filteredColumns.map((column) =>
+                    {columns.map((column) =>
                         column.searchable ? (
                             column.type === 'date' ? (
                                 <SearchDateInput
                                     key={column.key}
                                     width={column.width}
-                                    value={search[column.key] ? (column.render ? column.render(search[column.key]) : search[column.key]) : ''}
+                                    name={column.key || ''}
+                                    value={filter[column.key] ? (column.render ? column.render(filter[column.key]) : filter[column.key]) : ''}
                                     onChange={(date) => handleSearchChange(column.key, date)}
                                 />
                             ) : column.type === 'select' ? (
                                 <SelectSearchInput
                                     key={column.key}
                                     width={column.width}
-                                    name={column.key}
+                                    name={column?.key || ''}
                                     options={column.options}
-                                    value={search[column.key]}
+                                    value={filter[column?.key]}
                                     onChange={(value) => handleSearchChange(column.key, value)}
                                 />
                             ) : column.type === 'async-select' ? (
@@ -210,7 +188,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                                     width={column.width}
                                     name={column.key}
                                     apiFetchFunction={column.apiFetchFunction}
-                                    defaultValue={search[column.key]}
+                                    defaultValue={filter[column.key]}
                                     onChange={(value) => handleSearchChange(column.key, value)}
                                 />
                             ) : column.type === 'checkbox' ? (
@@ -218,8 +196,8 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                                     key={column.key}
                                     width={column.width}
                                     id={column.key}
-                                    name={column.key}
-                                    checked={search[column.key]}
+                                    name={column?.key || ''}
+                                    checked={filter?.[column.key]}
                                     onChange={(event) => handleSearchChange(column.key, event.target.checked)}
                                     label={column.title}
                                 />
@@ -229,7 +207,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                                     width={column.width}
                                     id={column.key}
                                     name={column.key}
-                                    value={search[column.key]}
+                                    value={filter[column.key]}
                                     onChange={(value) => handleSearchChange(column.key, value)}
                                 />
                             ) : (
@@ -237,8 +215,8 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                                     key={column.key}
                                     width={column.width}
                                     id={column.key}
-                                    name={column.key}
-                                    value={search[column.key]}
+                                    name={column?.key || ''}
+                                    value={filter?.[column.key]}
                                     onChange={(event) => handleSearchChange(column.key, event.target.value)}
                                 />
                             )
@@ -253,7 +231,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 <tbody>
                 {data.map((item) => (
                     <tr key={item.id}>
-                        {filteredColumns.map((column) => (
+                        {columns.map((column) => (
                             <td style={{fontSize:"0.72rem"}} key={column.key}>{column.render ? column.render(item) : item[column.key]}</td>
                         ))}
                         <td style={{ padding: '0px', whiteSpace: 'nowrap', width: '3%', justifyContent: 'center', textAlign: 'center' }}>
@@ -286,7 +264,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 <tfoot className="table-footer">
                 <tr>
                     <td colSpan={dynamicColspan} className="subtotal-label">جمع صفحه</td>
-                    {filteredColumns.map((column) => (
+                    {columns.map((column) => (
                         column.subtotal ? (
                             <td className="subtotal-col" key={column.key}>
                                 {formatNumber(subtotals[column.key])}
@@ -296,7 +274,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     <td>
                         <SiMicrosoftexcel
                             data-tooltip-id="export-current-page-to-excel-button"
-                            onClick={() => downloadExcelFile(false)}
+                            onClick={() => downloadExcelFile(getParams(listName),false)}
                             size={"1.3rem"}
                             className={"mx-1"}
                             color={"#41941a"}
@@ -306,7 +284,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 </tr>
                 <tr>
                     <td colSpan={dynamicColspan} className="subtotal-label">جمع کل</td>
-                    {filteredColumns.map((column) => (
+                    {columns.map((column) => (
                         column.subtotal ? (
                             <td className="subtotal-col" key={column.key}>
                                 {formatNumber(overallSubtotals[column.key])}
@@ -326,7 +304,10 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 </tr>
                 </tfoot>
             </table>
-            <Pagination listName={listName} />
+            <Pagination
+                filter={filter}
+                updateFilter={updateFilter}
+            />
             <ConfirmationModal
                 show={showConfirmationModal}
                 handleClose={() => setShowConfirmationModal(false)}

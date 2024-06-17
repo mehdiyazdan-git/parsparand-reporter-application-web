@@ -11,8 +11,7 @@ import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import ReportItems from "./ReportItems";
-import AsyncSelectInput from "../../utils/AsyncSelectInput";
-import NumberInput from "../../utils/NumberInput";
+
 
 const CreateReportForm = ({ onCreateReport, show, onHide }) => {
     const http = useHttp();

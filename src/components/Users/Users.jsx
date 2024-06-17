@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -10,6 +10,7 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateUserForm from "./CreateUserForm";
 import { saveAs } from 'file-saver';
+import useFilter from "../contexts/useFilter";
 
 const Users = () => {
     const [editingUser, setEditingUser] = useState(null);
@@ -19,6 +20,7 @@ const Users = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
+    const listName = "users";
 
     const getAllUsers = async (queryParams) => {
         return await http.get(`/users?${queryParams.toString()}`).then(r => r.data);
@@ -83,7 +85,23 @@ const Users = () => {
         { key: 'lastname', title: 'نام خانوادگی', width: '15%', sortable: true, searchable: true },
         { key: 'role', title: 'نقش', width: '10%', sortable: true, searchable: true },
     ];
-
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
+                searchFields[column.key] = '';
+            }
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
     const ErrorModal = ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -142,6 +160,11 @@ const Users = () => {
                 }}
                 onDelete={handleDeleteUser}
                 refreshTrigger={refreshTrigger}
+                listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
 
             {editingUser && (

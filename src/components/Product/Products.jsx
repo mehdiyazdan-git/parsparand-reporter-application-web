@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -10,7 +10,7 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateProductForm from "./CreateProductForm";
 import { saveAs } from 'file-saver';
-import { useFilters } from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
 
 const Products = () => {
     const [editingProduct, setEditingProduct] = useState(null);
@@ -20,16 +20,12 @@ const Products = () => {
     const http = useHttp();
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
-    const { filters ,getParams} = useFilters();
-    const listName = 'products';
+    const listName = "products";
 
-    const getAllProducts = useCallback(async () => {
-        return await http.get(`/products?${getParams(listName)}`).then(r => r.data);
-    }, [http, getParams, listName]);
 
-    // useEffect(() => {
-    //     setRefreshTrigger(prev => !prev);
-    // }, [refreshTrigger]);
+    const getAllProducts = async (queryParams) => {
+        return await http.get(`/products?${queryParams}`);
+    }
 
     const createProduct = useCallback(async (data) => {
         return await http.post("/products", data);
@@ -111,6 +107,22 @@ const Products = () => {
         },
     ], [options]);
 
+
+    let searchFields = {};
+    columns.forEach(column => {
+        if (column.searchable && column.key) {
+            searchFields[column.key] = '';
+        }
+    });
+    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
+        ...searchFields,
+        page: 0,
+        size: 5,
+        sortBy: "id",
+        order: "asc",
+        totalPages: 0,
+        totalElements: 0,
+    });
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -178,8 +190,11 @@ const Products = () => {
                 onDelete={handleDeleteProduct}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
+                updateFilter={updateFilter}
+                filter={filter}
+                getParams={getParams}
+                getJalaliYear={getJalaliYear}
             />
-
             {editingProduct && (
                 <EditProductForm
                     product={editingProduct}
@@ -191,7 +206,6 @@ const Products = () => {
                     }}
                 />
             )}
-
             <ErrorModal
                 show={showErrorModal}
                 handleClose={() => setShowErrorModal(false)}

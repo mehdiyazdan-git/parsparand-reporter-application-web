@@ -99,7 +99,7 @@ const AsyncSelectInput = ({name,apiFetchFunction,defaultValue,isDisabled,label})
                                     field.onChange(option ? option.value : null)}
                                 cacheOptions
                                 loadOptions={promiseOptions}
-
+                                name={name}
                                 defaultOptions
                                 placeholder={error ? error.message : "انتخاب کنید"}
                                 styles={{
