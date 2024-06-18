@@ -29,7 +29,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [allData, setAllData] = useState([]);
-    const {filter,updateFilter,getParams} = useFilter(listName,() =>( {
+    const {filter,updateFilter,getParams,findFilterByKey} = useFilter(listName,() =>( {
         page : 0,
         size : 10,
         order : 'ASC',
@@ -216,6 +216,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                                     width={column.width}
                                     id={column.key}
                                     name={column?.key || ''}
+                                    // value={filter?.[column.key]}
                                     value={filter?.[column.key]}
                                     onChange={(event) => handleSearchChange(column.key, event.target.value)}
                                 />

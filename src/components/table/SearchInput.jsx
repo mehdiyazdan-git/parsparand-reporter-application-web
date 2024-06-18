@@ -1,10 +1,11 @@
 import React from 'react';
 
 const SearchInput = ({ width, id,name, value, onChange, placeholder = "جستجو..." }) => {
+
+
     return (
         <th width={width} className="p-0 m-0">
             <input
-
                 type="search"
                 id={id}
                 name={name}

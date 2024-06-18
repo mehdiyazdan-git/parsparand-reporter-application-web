@@ -19,8 +19,9 @@ const useFilter = (entityName, initialValues) => {
          totalPages: 0,
          totalElements: 0,
      }), [])
-
-    const setupFilterInTableContext = useCallback((columns) => {
+    
+    // Function to prepopulate filter object by context Table columns  
+    const setupFilter = useCallback((columns) => {
         if (Array.isArray(columns) && columns.length > 0)  {
             const newFilter = {};
             columns.forEach(column => {
@@ -32,6 +33,8 @@ const useFilter = (entityName, initialValues) => {
             updateFilter(filterObject);
         }
     }, [pageable])
+
+
     // Function to update filter parameters
     const updateFilter = (newValues) => {
         setFilter((prevFilter) => ({
@@ -39,12 +42,17 @@ const useFilter = (entityName, initialValues) => {
             ...newValues,
         }));
     };
-     const getFilterFromOtherEntities = (otherKey) => {
-         if (sessionStorage.getItem(`filter_${otherKey}`)){
-             return JSON.parse(sessionStorage.getItem(`filter_${otherKey}`));
+
+
+     const findFilterItemByItemKey = useCallback((itemKey) => {
+         if (sessionStorage.getItem(`filter_${entityName}`)){
+             const filter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
+             if (filter && filter[itemKey]) {
+                 return filter[itemKey];
+             }
          }
-         return{};
-    }
+         return{}
+    },[entityName])
 
     // Function to reset filter to initial values
     const resetFilter = () => {
@@ -84,8 +92,8 @@ const useFilter = (entityName, initialValues) => {
         resetFilter,
         getParams,
         getJalaliYear,
-        setupFilterInTableContext,
-        getFilterFromOtherEntities
+        setupFilterInTableContext: setupFilter,
+        findFilterByKey: findFilterItemByItemKey
     };
 };
 
