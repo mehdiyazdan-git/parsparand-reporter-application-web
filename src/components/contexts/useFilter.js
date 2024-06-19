@@ -19,8 +19,8 @@ const useFilter = (entityName, initialValues) => {
          totalPages: 0,
          totalElements: 0,
      }), [])
-    
-    // Function to prepopulate filter object by context Table columns  
+
+    // Function to prepopulate a filter object by context Table columns
     const setupFilter = useCallback((columns) => {
         if (Array.isArray(columns) && columns.length > 0)  {
             const newFilter = {};

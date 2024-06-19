@@ -190,8 +190,9 @@ const Invoices = ({contractNumber}) => {
                 onDelete={handleDeleteInvoice}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                subTotal={true}
                 downloadExcelFile={downloadExcelFile}
+                hasSubTotal={true}
+                hasYearSelect={true}
             />
 
             {editingInvoice && (

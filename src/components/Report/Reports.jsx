@@ -83,7 +83,7 @@ const Reports = () => {
 
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true, searchable: true },
-        { key: 'reportDate', title: 'تاریخ', width: '10%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
+        { key: 'reportDate', title: 'تاریخ', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.reportDate) },
         { key: 'reportExplanation', title: 'توضیحات', width: '40%', sortable: true, searchable: true },
         { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true,type: 'number', subtotal:true, render: (item) => formatNumber(item.totalQuantity) },
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number', subtotal :true , render: (item) => formatNumber(item.totalPrice) },
@@ -158,7 +158,8 @@ const Reports = () => {
                 onDelete={handleDeleteReport}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                subTotal={true}
+                hasSubTotal={true}
+                hasYearSelect={true}
                 downloadExcelFile={downloadExcelFile}
             />
 

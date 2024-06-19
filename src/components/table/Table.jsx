@@ -20,9 +20,12 @@ import {Modal} from "react-bootstrap";
 import Pagination from "../pagination/Pagination";
 import useFilter from "../contexts/useFilter";
 import YearSelect from "../Year/YearSelect";
+import useHttp from "../../hooks/useHttp";
+import FiltersForm from "../../utils/FiltersForm";
 
 
-const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger,listName, downloadExcelFile, }) => {
+
+const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTrigger,listName, downloadExcelFile,hasYearSelect = false,hasSubTotal = false }) => {
     const [data, setData] = useState([]);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
     const [selectedItem, setSelectedItem] = useState(null);
@@ -36,14 +39,30 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
         sortBy : 'id',
         jalaliYear: JSON.parse(sessionStorage.getItem('jalaliYear')),
     }));
+    const http = useHttp();
 
     const handleSearchChange = (name, value) => {
         updateFilter({ [name]: value });
+        updateFilter({ page: 0 })
     };
+    const years = async () => {
+        return await http.get('years/select')
+            .then(response =>
+                response.data.map((item) => ({
+                    label: item.name,
+                    value: item.id,
+                })));
+            }
+
     useEffect(() => {
         columns.forEach(col => {
             updateFilter({[col.key]: ''})
-            updateFilter({'jalaliYear': Number(JSON.parse(sessionStorage.getItem('jalaliYear')))})
+            if (sessionStorage.getItem('jalaliYear')){
+                updateFilter({'jalaliYear': Number(JSON.parse(sessionStorage.getItem('jalaliYear')))})
+            }else {
+                const yearPromise = async () =>  await years().then(items => items[0].value);
+                updateFilter({'jalaliYear': yearPromise().then(res => res)})
+            }
         });
     },[columns])
 
@@ -73,8 +92,9 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
         const loadAllData = async () => {
             try {
                 const response = await fetchData(getParams(listName,[],true).toString());
-                if (response.content) {
-                    setAllData(response.content);
+                console.log("all data:", response)
+                if (response?.data?.content) {
+                    setAllData(response.data.content);
                 }
             } catch (error) {
                 console.log("table is reporting an error:", error);
@@ -89,6 +109,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             return await fetchData(params.toString());
         };
         load().then(response => {
+            console.log("table data:", response)
             setData(response.data.content);
             updateFilter({page: response.data.pageable.pageNumber})
             updateFilter({size: response.data.pageable.pageSize})
@@ -108,7 +129,8 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
             return acc;
         }, {});
-    }, [columns, data]);
+    }, [data]);
+
 
     // Calculate overall subtotals for all data
     const overallSubtotals = useMemo(() => {
@@ -119,6 +141,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             return acc;
         }, {});
     }, [columns, allData]);
+
 
     // Calculate dynamic colspan
     const subtotalcolumnsCount = columns.filter(column => column.subtotal).length;
@@ -143,9 +166,11 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
 
     return (
         <>
-            <div className="col-3 mt-3">
-                <YearSelect onChange={handleSearchChange}/>
-            </div>
+            { hasYearSelect && <div className="col-3 mt-3">
+                <YearSelect onChange={handleSearchChange} value={() => {
+                    return filter?.jalaliYear ? { label : filter.jalaliYear, value : filter.jalaliYear  }  :  years()[0]
+                }}/>
+            </div> }
             <table className="recipient-table table-fixed-height mt-3">
                 <thead>
                 <tr className="table-header-row p-0 m-0">
@@ -262,7 +287,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     </tr>
                 ))}
                 </tbody>
-                <tfoot className="table-footer">
+                { hasSubTotal &&  <tfoot className="table-footer">
                 <tr>
                     <td colSpan={dynamicColspan} className="subtotal-label">جمع صفحه</td>
                     {columns.map((column) => (
@@ -275,7 +300,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     <td>
                         <SiMicrosoftexcel
                             data-tooltip-id="export-current-page-to-excel-button"
-                            onClick={() => downloadExcelFile(getParams(listName),false)}
+                            onClick={() => downloadExcelFile(getParams(listName), false)}
                             size={"1.3rem"}
                             className={"mx-1"}
                             color={"#41941a"}
@@ -303,7 +328,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                         />
                     </td>
                 </tr>
-                </tfoot>
+                </tfoot>}
             </table>
             <Pagination
                 filter={filter}

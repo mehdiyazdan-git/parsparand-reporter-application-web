@@ -229,6 +229,8 @@ const Adjustments = ({ customerId }) => {
                 filter={filter}
                 getParams={getParams}
                 getJalaliYear={getJalaliYear}
+                hasSubTotal={true}
+                hasYearSelect={true}
             />
 
             {editingAdjustment && (

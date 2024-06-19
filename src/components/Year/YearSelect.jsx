@@ -1,38 +1,26 @@
 import React, {useEffect, useState} from 'react';
 import AsyncSelect from 'react-select/async';
-import useFilter from "../contexts/useFilter";
+import useHttp from "../../hooks/useHttp";
 
 const YearSelect = ({onChange,value}) => {
     const [inputValue, setInputValue] = useState('');
-    const [options, setOptions] = useState([]);
-
-    useEffect(() => {
-        fetch('http://localhost:9090/api/years/select')
-            .then(response => response.json())
-            .then(data => {
-                setOptions(data.map(year => ({ label: year.name.toString(), value: year.id })));
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    }, []);
-
-    useEffect(() => {
-        if (value) {
-            const selectedOption = sessionStorage.getItem(`jalaliYear`) ? Number(options.find(option => option.label === sessionStorage.getItem(`jalaliYear`))) : null;
-            if (selectedOption) {
-                onChange( `jalaliYear`, Number(selectedOption.label))
-            }
-            setInputValue(selectedOption ? selectedOption.label : '');
-        }
-    }, [options]);
+    const [options, setOptions] = useState([{label: '', value: ''}]);
+    const http = useHttp();
 
     const loadOptions = (inputValue, callback) => {
-        fetch('http://localhost:9090/api/years/select')
-            .then(response => response.json())
-            .then(data => {
-                callback(data.map(year => ({ label: year.name.toString(), value: year.id })));
-            })
+        http.get('/years/select')
+            .then(response => callback(response.data.map(year => ({ label: year.name.toString(), value: year.id }))))
             .catch(error => console.error('Error fetching data:', error));
     };
+
+    useEffect(() => {
+        http.get('/years/select')
+            .then(response => {
+                setOptions(response.data.map(year => ({label: year.name.toString(), value: year.id})));
+            })
+            .then(() => setInputValue(options[0].label))
+            .catch(error => console.error('Error fetching data:', error));
+    }, []);
 
     const handleInputChange = (newValue) => {
         setInputValue(newValue);
@@ -44,7 +32,7 @@ const YearSelect = ({onChange,value}) => {
 
     return (
         <AsyncSelect
-            value={sessionStorage.getItem(`jalaliYear`) ? options.find(option => option.label === sessionStorage.getItem(`jalaliYear`)) : null}
+            value={value ? options.find(option => option.label === value.toString()) : options[0]}
             // defaultValue={options.find(option => option.value === filter?.jalaliYear)}
             placeholder="انتخاب سال"
             noOptionsMessage={() => "سالی برای نمایش وجود ندارد"}
@@ -52,6 +40,7 @@ const YearSelect = ({onChange,value}) => {
             getOptionLabel={option => option.label}
             getOptionValue={option => option.value}
             defaultOptions
+            inputValue={inputValue}
             onInputChange={sessionStorage.getItem(`jalaliYear`) ? handleInputChange : undefined}
             onChange={(option) => {
                 if (option) {

@@ -12,7 +12,6 @@ import CreatePaymentForm from "./CreatePaymentForm";
 import { saveAs } from 'file-saver';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import { toShamsi } from "../../utils/functions/toShamsi";
-import useFilter from "../contexts/useFilter";
 
 const Payments = ({ customerId }) => {
     const [editingPayment, setEditingPayment] = useState(null);
@@ -25,8 +24,11 @@ const Payments = ({ customerId }) => {
     const listName = 'payments';
 
 
-    const getAllPayments = async () => {
-        return await http.get(`/payments?${getParams(listName)}`).then(r => r.data);
+
+
+
+    const getAllPayments = async (queryParams) => {
+        return await http.get(`/payments?${queryParams}`)
     };
 
     const createPayment = async (data) => {
@@ -114,23 +116,6 @@ const Payments = ({ customerId }) => {
         { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true,subtotal :true , render: item => formatNumber(item.paymentAmount) },
     ], []);
 
-    let searchFields = {};
-    columns.forEach(column => {
-        if (column.searchable && column.key) {
-            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
-                searchFields[column.key] = '';
-            }
-        }
-    });
-    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
-        ...searchFields,
-        page: 0,
-        size: 5,
-        sortBy: "id",
-        order: "asc",
-        totalPages: 0,
-        totalElements: 0,
-    });
 
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
@@ -147,9 +132,9 @@ const Payments = ({ customerId }) => {
         );
     }, []);
 
-    const downloadExcelFile = async (exportAll) => {
-        console.log(getParams(listName), `exportAll=${exportAll}`);
-        await http.get(`/payments/download-all-payments.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
+    const downloadExcelFile = async (queryParams,exportAll) => {
+        console.log(queryParams, `exportAll=${exportAll}`);
+        await http.get(`/payments/download-all-payments.xlsx?${queryParams}&exportAll=${exportAll}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "payments.xlsx");
@@ -201,11 +186,9 @@ const Payments = ({ customerId }) => {
                 onDelete={handleDeletePayment}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                updateFilter={updateFilter}
-                filter={filter}
-                getParams={getParams}
-                getJalaliYear={getJalaliYear}
                 downloadExcelFile={downloadExcelFile}
+                hasSubTotal={true}
+                hasYearSelect={true}
             />
 
             {editingPayment && (

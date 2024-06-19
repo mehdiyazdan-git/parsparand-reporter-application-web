@@ -170,8 +170,9 @@ const Contracts = () => {
                 filter={filter}
                 getParams={getParams}
                 getJalaliYear={getJalaliYear}
-                subTotal={true}
                 downloadExcelFile={downloadExcelFile}
+                hasSubTotal={true}
+                hasYearSelect={true}
             />
 
             {editingContract && (

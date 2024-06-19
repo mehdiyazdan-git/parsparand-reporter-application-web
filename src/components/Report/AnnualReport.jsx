@@ -17,7 +17,7 @@ const AnnualReport = () => {
                 <strong style={{...titleStyle,color:"darkblue"}}>گزارش فروش تجمیعی</strong>
             </div>
             <div className="col-3">
-                <YearSelect  value={sessionStorage.getItem(`jalaliYear`)}
+                <YearSelect  value={{label:filter?.jalaliYear,value:filter?.jalaliYear}}
                              onChange={handleJalaliYearChange}
                 />
             </div>

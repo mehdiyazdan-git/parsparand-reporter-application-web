@@ -175,6 +175,8 @@ const Returneds = () => {
                 filter={filter}
                 getParams={getParams}
                 getJalaliYear={getJalaliYear}
+                hasSubTotal={true}
+                hasYearSelect={true}
             />
 
             {editingReturned && (

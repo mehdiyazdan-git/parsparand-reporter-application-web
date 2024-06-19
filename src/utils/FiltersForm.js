@@ -71,54 +71,56 @@ const FiltersForm = ({ columns }) => {
     };
 
     return (
-        <Form>
-            {columns.map((column) =>
-                column.searchable ? (
-                    column.type === 'date' ? (
-                        <DateInput
-                            key={column.key}
-                            width={column.width}
-                            name={column.key || ''}
-                        />
-                    ) : column.type === 'select' ? (
-                        <SelectInput
-                            key={column.key}
-                            width={column.width}
-                            name={column?.key || ''}
-                            options={column.options}
-                        />
-                    ) : column.type === 'async-select' ? (
-                        <AsyncSelectInput
-                            key={column.key}
-                            width={column.width}
-                            name={column.key}
-                            apiFetchFunction={column.apiFetchFunction}
-                            defaultValue={location.search[column.key]}
-                            onChange={(value) => handleSearchChange(column.key, value)}
-                        />
-                    ) : column.type === 'checkbox' ? (
-                        <CheckboxInput
-                            width={column.width}
-                            name={column?.key || ''}
-                        />
-                    ) : column.type === 'number' ? (
-                        <NumberInput
-                            width={column.width}
-                            name={column.key}
-                        />
-                    ) : (
-                        <TextInput
-                            width={column.width}
-                            name={column?.key || ''}
-                        />
-                    )
+        <div className={'filters-form m-1 p-1 bg-white rounded shadow-sm'}>
+            <Form>
+                {columns.map((column) =>
+                    column.searchable ? (
+                        column.type === 'date' ? (
+                            <DateInput
+                                key={column.key}
+                                width={column.width}
+                                name={column.key || ''}
+                            />
+                        ) : column.type === 'select' ? (
+                            <SelectInput
+                                key={column.key}
+                                width={column.width}
+                                name={column?.key || ''}
+                                options={column.options}
+                            />
+                        ) : column.type === 'async-select' ? (
+                            <AsyncSelectInput
+                                key={column.key}
+                                width={column.width}
+                                name={column.key}
+                                apiFetchFunction={column.apiFetchFunction}
+                                defaultValue={location.search[column.key]}
+                                onChange={(value) => handleSearchChange(column.key, value)}
+                            />
+                        ) : column.type === 'checkbox' ? (
+                            <CheckboxInput
+                                width={column.width}
+                                name={column?.key || ''}
+                            />
+                        ) : column.type === 'number' ? (
+                            <NumberInput
+                                width={column.width}
+                                name={column.key}
+                            />
+                        ) : (
+                            <TextInput
+                                width={column.width}
+                                name={column?.key || ''}
+                            />
+                        )
 
-                ) : (
-                    <th key={column.key} style={{width:`${column.width}`}}></th>
-                )
-            )}
-            <button type="button" onClick={onReset}>Reset Filters</button>
-        </Form>
+                    ) : (
+                        <th className={'align-content-md-stretch'} key={column.key} style={{width:`${column.width}`}}></th>
+                    )
+                )}
+                <button type="button" onClick={onReset}>Reset Filters</button>
+            </Form>
+        </div>
     );
 };
 
