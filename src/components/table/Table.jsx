@@ -22,6 +22,7 @@ import YearSelect from "../Year/YearSelect";
 import useHttp from "../../hooks/useHttp";
 import PropTypes from "prop-types";
 import useFilter from "../contexts/useFilter";
+import TableHeaderFilterRow from "../Report/TableHeaderFilterRow";
 
 
 
@@ -33,13 +34,27 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [allData, setAllData] = useState([]);
-    const {filter,updateFilter,getParams,setupFilter} = useFilter(listName);
+    const {filter,updateFilter,getParams} = useFilter(listName);
     const http = useHttp();
 
     const handleSearchChange = (name, value) => {
         updateFilter({ [name]: value });
         updateFilter({ page: 0 })
     };
+    const setupFilter = useCallback((listName, columns) => {
+        if (!filter){
+            if (Array.isArray(columns) && columns.length > 0) {
+                const newFilter = columns.reduce((acc, column) => {
+                    if (column.searchable) {
+                        acc[column.name] = '';
+                    }
+                    return acc;
+                }, {});
+                const assign = Object.assign(newFilter, { page: 0, pageSize: 10, sort: '', order: '' });
+                updateFilter(assign)
+            }
+        }
+    }, []);
     const years = async () => {
         return await http.get('years/select')
             .then(response =>
@@ -86,6 +101,39 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
             }
         }
     }, [selectedItem, onDelete]);
+
+    // Fetch all data once to calculate overall subtotals
+    // useDeepCompareEffect(() => {
+    //     const loadAllData = async () => {
+    //         try {
+    //             const response = await fetchData(getParams(listName,[],true).toString());
+    //             console.log("all data:", response)
+    //             if (response?.data?.content) {
+    //                 setAllData(response.data.content);
+    //             }
+    //         } catch (error) {
+    //             console.log("table is reporting an error:", error);
+    //         }
+    //     };
+    //     loadAllData();
+    // }, [filter,refreshTrigger]);
+    //
+    // useDeepCompareEffect(() => {
+    //     const load = async () => {
+    //         const params = getParams(listName,[],false);
+    //         return await fetchData(params.toString());
+    //     };
+    //     load().then(response => {
+    //         console.log("table data:", response)
+    //         setData(response.data.content);
+    //         updateFilter({page: response.data.pageable.pageNumber})
+    //         updateFilter({size: response.data.pageable.pageSize})
+    //         updateFilter({totalPages: response.data.totalPages})
+    //         updateFilter({totalElements: response.data.totalElements})
+    //     }).catch(error => {
+    //         console.log("table is reporting an error:", error);
+    //     });
+    // }, [filter,refreshTrigger,getParams]);
 
     // Fetch all data once to calculate overall subtotals
     useDeepCompareEffect(() => {
@@ -190,73 +238,80 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                     ))}
                     <th width="7%">{"ویرایش|حذف"}</th>
                 </tr>
-                <tr className="table-header-row">
-                    {columns.map((column) =>
-                        column.searchable ? (
-                            column.type === 'date' ? (
-                                <SearchDateInput
-                                    key={column.key}
-                                    width={column.width}
-                                    name={column.key || ''}
-                                    value={filter[column.key] ? (column.render ? column.render(filter[column.key]) : filter[column.key]) : ''}
-                                    onChange={(date) => handleSearchChange(column.key, date)}
-                                />
-                            ) : column.type === 'select' ? (
-                                <SelectSearchInput
-                                    key={column.key}
-                                    width={column.width}
-                                    name={column?.key || ''}
-                                    options={column.options}
-                                    value={filter[column?.key]}
-                                    onChange={(value) => handleSearchChange(column.key, value)}
-                                />
-                            ) : column.type === 'async-select' ? (
-                                <AsyncSelectInput
-                                    key={column.key}
-                                    width={column.width}
-                                    name={column.key}
-                                    apiFetchFunction={column.apiFetchFunction}
-                                    defaultValue={filter[column.key]}
-                                    onChange={(value) => handleSearchChange(column.key, value)}
-                                />
-                            ) : column.type === 'checkbox' ? (
-                                <SearchCheckboxInput
-                                    key={column.key}
-                                    width={column.width}
-                                    id={column.key}
-                                    name={column?.key || ''}
-                                    checked={filter?.[column.key]}
-                                    onChange={(event) => handleSearchChange(column.key, event.target.checked)}
-                                    label={column.title}
-                                />
-                            ) : column.type === 'number' ? (
-                                <SearchNumberInput
-                                    key={column.key}
-                                    width={column.width}
-                                    id={column.key}
-                                    name={column.key}
-                                    value={filter[column.key]}
-                                    onChange={(value) => handleSearchChange(column.key, value)}
-                                />
-                            ) : (
-                                <SearchInput
-                                    key={column.key}
-                                    width={column.width}
-                                    id={column.key}
-                                    name={column?.key || ''}
-                                    // value={filter?.[column.key]}
-                                    value={filter?.[column.key]}
-                                    onChange={(event) => handleSearchChange(column.key, event.target.value)}
-                                />
-                            )
-
-                        ) : (
-                            <th key={column.key} style={{width:`${column.width}`}}></th>
-                        )
-                    )}
-                    <th width="5%"></th>
-                </tr>
+                    <tr>
+                        <TableHeaderFilterRow
+                            columns={columns}
+                            filter={filter}
+                            updateFilter={updateFilter}
+                        />
+                    </tr>
                 </thead>
+                {/*<tr className="table-header-row">*/}
+                {/*    {columns.map((column) =>*/}
+                {/*        column.searchable ? (*/}
+                {/*            column.type === 'date' ? (*/}
+                {/*                <SearchDateInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    name={column.key || ''}*/}
+                {/*                    value={filter[column.key] ? (column.render ? column.render(filter[column.key]) : filter[column.key]) : ''}*/}
+                {/*                    onChange={(date) => handleSearchChange(column.key, date)}*/}
+                {/*                />*/}
+                {/*            ) : column.type === 'select' ? (*/}
+                {/*                <SelectSearchInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    name={column?.key || ''}*/}
+                {/*                    options={column.options}*/}
+                {/*                    value={filter[column?.key]}*/}
+                {/*                    onChange={(value) => handleSearchChange(column.key, value)}*/}
+                {/*                />*/}
+                {/*            ) : column.type === 'async-select' ? (*/}
+                {/*                <AsyncSelectInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    name={column.key}*/}
+                {/*                    apiFetchFunction={column.apiFetchFunction}*/}
+                {/*                    defaultValue={filter[column.key]}*/}
+                {/*                    onChange={(value) => handleSearchChange(column.key, value)}*/}
+                {/*                />*/}
+                {/*            ) : column.type === 'checkbox' ? (*/}
+                {/*                <SearchCheckboxInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    id={column.key}*/}
+                {/*                    name={column?.key || ''}*/}
+                {/*                    checked={filter?.[column.key]}*/}
+                {/*                    onChange={(event) => handleSearchChange(column.key, event.target.checked)}*/}
+                {/*                    label={column.title}*/}
+                {/*                />*/}
+                {/*            ) : column.type === 'number' ? (*/}
+                {/*                <SearchNumberInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    id={column.key}*/}
+                {/*                    name={column.key}*/}
+                {/*                    value={filter[column.key]}*/}
+                {/*                    onChange={(value) => handleSearchChange(column.key, value)}*/}
+                {/*                />*/}
+                {/*            ) : (*/}
+                {/*                <SearchInput*/}
+                {/*                    key={column.key}*/}
+                {/*                    width={column.width}*/}
+                {/*                    id={column.key}*/}
+                {/*                    name={column?.key || ''}*/}
+                {/*                    // value={filter?.[column.key]}*/}
+                {/*                    value={filter?.[column.key]}*/}
+                {/*                    onChange={(event) => handleSearchChange(column.key, event.target.value)}*/}
+                {/*                />*/}
+                {/*            )*/}
+
+                {/*        ) : (*/}
+                {/*            <th key={column.key} style={{width:`${column.width}`}}></th>*/}
+                {/*        )*/}
+                {/*    )}*/}
+                {/*    <th width="5%"></th>*/}
+                {/*</tr>*/}
                 <tbody>
                 {data.map((item) => (
                     <tr key={item.id}>
@@ -363,27 +418,27 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
         </>
     );
 };
-// Table.propTypes = {
-//     columns: PropTypes.arrayOf(PropTypes.shape({
-//         key: PropTypes.string.isRequired,
-//         title: PropTypes.string.isRequired,
-//         width: PropTypes.string,
-//         sortable: PropTypes.bool,
-//         searchable: PropTypes.bool,
-//         type: PropTypes.oneOf(['date', 'string', 'number', 'select', 'async-select', 'checkbox']),
-//         render: PropTypes.func,
-//         options: PropTypes.array,
-//         apiFetchFunction: PropTypes.func,
-//         subtotal: PropTypes.bool
-//     })).isRequired,
-//     fetchData: PropTypes.func.isRequired,
-//     onEdit: PropTypes.func.isRequired,
-//     onDelete: PropTypes.func.isRequired,
-//     onResetPassword: PropTypes.func,
-//     refreshTrigger: PropTypes.bool.isRequired,
-//     listName: PropTypes.string.isRequired,
-//     downloadExcelFile: PropTypes.func.isRequired,
-//     hasYearSelect: PropTypes.bool,
-//     hasSubTotal: PropTypes.bool
-// };
+Table.propTypes = {
+    columns: PropTypes.arrayOf(PropTypes.shape({
+        key: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        width: PropTypes.string,
+        sortable: PropTypes.bool,
+        searchable: PropTypes.bool,
+        type: PropTypes.oneOf(['date', 'string', 'number', 'select', 'async-select', 'checkbox']),
+        render: PropTypes.func,
+        options: PropTypes.array,
+        apiFetchFunction: PropTypes.func,
+        subtotal: PropTypes.bool
+    })).isRequired,
+    fetchData: PropTypes.func.isRequired,
+    onEdit: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    onResetPassword: PropTypes.func,
+    refreshTrigger: PropTypes.bool.isRequired,
+    listName: PropTypes.string.isRequired,
+    downloadExcelFile: PropTypes.func.isRequired,
+    hasYearSelect: PropTypes.bool,
+    hasSubTotal: PropTypes.bool
+};
 export default Table;

@@ -1,7 +1,5 @@
-import {useCallback, useEffect, useMemo, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import useHttp from "../../hooks/useHttp";
-
-
 
 const useFilter = (entityName, initialValues) => {
     const storageKey = `filter_${entityName}`;
@@ -44,58 +42,38 @@ const useFilter = (entityName, initialValues) => {
             }
         }, [initialValues]);
 
-    const setupFilter = useCallback((listName, columns) => {
-        if (Array.isArray(columns) && columns.length > 0) {
-            const newFilter = columns.reduce((acc, column) => {
-                if (column.searchable) {
-                    acc[column.name] = '';
-                }
-                return acc;
-            }, {});
-            const filterObject = { ...pageable, ...newFilter };
-            updateFilter(listName, filterObject);
-        }
-    }, []);
 
-
-    // Function to update filter parameters
-    const updateFilter = (newValues) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            ...newValues,
-        }));
+    const updateFilter = (target = {}, ...filter) => {
+        filter.forEach(source => {
+            if (source) {
+                Object.keys(source).forEach(key => {
+                    let targetValue = target[key];
+                    let sourceValue = source[key];
+                    target[key] = targetValue instanceof Object && sourceValue instanceof Object ?
+                        updateFilter(targetValue, sourceValue) :
+                        sourceValue;
+                });
+            }
+        });
+        setFilter(target);
+        sessionStorage.setItem(storageKey, JSON.stringify(filter));
     };
 
-
-     const findFilterItemByItemKey = useCallback((itemKey) => {
-         if (sessionStorage.getItem(`filter_${entityName}`)){
-             const filter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
-             if (filter && filter[itemKey]) {
-                 return filter[itemKey];
-             }
-         }
-         return{}
-    },[entityName])
-
-    // Function to reset filter to initial values
-    const resetFilter = () => {
-        setFilter(initialValues);
-    };
     const getJalaliYear = () => {
         return JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
     }
 
     const getParams = (entity,excludes = [],subtotal = false) => {
         const params = new URLSearchParams();
-        const filter = JSON.parse(sessionStorage.getItem(`filter_${entity}`));
-        for (const [key, value] of Object.entries(filter)) {
-            if (value !== null && value !== undefined) {
-                params.set(key, value);
+        Object.entries(filter).forEach(([key, value]) => {
+            if (value !== null && value !== undefined && !excludes.includes(key)) {
+                if (Array.isArray(value)) {
+                    value.forEach(val => params.append(key, val));
+                } else {
+                    params.set(key, value);
+                }
             }
-            if (key === 'jalaliYear' && value !== null && value !== undefined) {
-                params.set('jalaliYear', sessionStorage.getItem(`jalaliYear`));
-            }
-        }
+        });
         if (subtotal) {
             params.set('size', filter?.totalElements || 1000000);
             params.set('page', '0');
@@ -104,19 +82,11 @@ const useFilter = (entityName, initialValues) => {
         return params;
     };
 
-    // Save filter values to sessionStorage whenever filter changes
-    useEffect(() => {
-        sessionStorage.setItem(storageKey, JSON.stringify(filter));
-    }, [filter, storageKey]);
-
     return {
         filter,
         updateFilter,
-        resetFilter,
         getParams,
         getJalaliYear,
-        setupFilterInTableContext: setupFilter,
-        findFilterByKey: findFilterItemByItemKey
     };
 };
 

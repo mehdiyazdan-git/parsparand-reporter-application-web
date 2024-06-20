@@ -1,26 +1,39 @@
 import React, {useEffect, useState} from 'react';
 import AsyncSelect from 'react-select/async';
 import useHttp from "../../hooks/useHttp";
+import years from "./Years";
 
 const YearSelect = ({onChange,value}) => {
     const [inputValue, setInputValue] = useState('');
     const [options, setOptions] = useState([{label: '', value: ''}]);
     const http = useHttp();
 
-    const loadOptions = (inputValue, callback) => {
+    const loadOptions =  (inputValue, callback) => {
         http.get('/years/select')
             .then(response => callback(response.data.map(year => ({ label: year.name.toString(), value: year.id }))))
             .catch(error => console.error('Error fetching data:', error));
     };
 
     useEffect(() => {
-        http.get('/years/select')
-            .then(response => {
-                setOptions(response.data.map(year => ({label: year.name.toString(), value: year.id})));
-            })
-            .then(() => setInputValue(options[0].label))
-            .catch(error => console.error('Error fetching data:', error));
+        loadOptions(inputValue, (options) => {
+            setOptions(options);
+        });
     }, []);
+
+    useEffect(() => {
+        if (sessionStorage.getItem(`jalaliYear`)) {
+            setInputValue(sessionStorage.getItem(`jalaliYear`));
+        }
+    }, []);
+
+    useEffect(() => {
+        if (inputValue) {
+            loadOptions(inputValue, (options) => {
+                setOptions(options);
+            });
+        }
+    }, [inputValue]);
+
 
     const handleInputChange = (newValue) => {
         setInputValue(newValue);
@@ -32,7 +45,7 @@ const YearSelect = ({onChange,value}) => {
 
     return (
         <AsyncSelect
-            value={value ? options.find(option => option.label === value.toString()) : options[0]}
+            value={options.find(option => option.value === value)}
             // defaultValue={options.find(option => option.value === filter?.jalaliYear)}
             placeholder="انتخاب سال"
             noOptionsMessage={() => "سالی برای نمایش وجود ندارد"}

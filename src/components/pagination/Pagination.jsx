@@ -13,6 +13,7 @@ const Pagination = ({ filter, updateFilter }) => {
     const goToLastPage = useCallback(() => updateFilter({ page: filter?.totalPages - 1 }), [updateFilter, filter]);
 
     const startIndex = () => filter?.page * filter?.size + 1;
+
     const endIndex = () => Math.min((filter?.page + 1) * filter?.size, filter?.totalElements);
 
     return (
