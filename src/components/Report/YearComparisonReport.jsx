@@ -1,12 +1,14 @@
 import React, { useEffect } from 'react';
 import Select from 'react-select';
 import SalesTable from "./SalesTable";
-import useFilter from "../contexts/useFilter";
+
 
 import useHttp from "../../hooks/useHttp";
 import YearSelect from "../Year/YearSelect";
 import { getCustomSelectStyles } from "../../utils/customStyles";
 import { titleStyle } from "../styles/styles";
+import useFilter from "../contexts/useFilter";
+
 
 const labelStyle = {
     color: '#ffffff',

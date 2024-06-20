@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import "./monthlyReport.css";
 import useHttp from "../../hooks/useHttp";
-import { useFilters } from "../contexts/FilterContext";
 import { formatNumber } from "../../utils/functions/formatNumber";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
+import useFilter from "../contexts/useFilter";
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -39,7 +39,7 @@ const footerStyle = {
 
 function MonthlyReportByProduct({ productType, listName }) {
     const http = useHttp();
-    const { filter, getParams } = useFilters(listName);
+    const { filter, getParams } = useFilter(listName);
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,

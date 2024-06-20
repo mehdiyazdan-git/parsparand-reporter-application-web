@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -11,10 +11,7 @@ import FileUpload from "../../utils/FileUpload";
 import CreateReportForm from "./CreateReportForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
-import { useFilters } from "../contexts/FilterContext";
 import {formatNumber} from "../../utils/functions/formatNumber";
-import YearSelect from "../Year/YearSelect";
-import useFilter from "../contexts/useFilter";
 
 const Reports = () => {
     const [editingReport, setEditingReport] = useState(null);

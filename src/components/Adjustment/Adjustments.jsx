@@ -16,6 +16,8 @@ import useFilter from "../contexts/useFilter";
 
 
 
+
+
 const Adjustments = ({ customerId }) => {
     const [editingAdjustment, setEditingAdjustment] = useState(null);
     const [showModal, setShowModal] = useState(false);

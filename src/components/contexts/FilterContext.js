@@ -12,9 +12,9 @@ const initialValues = {
 };
 
 const FilterProvider = ({ children }) => {
-    const [filter, setFilter] = useState(() => {
-        const storedFilter = localStorage.getItem('filter');
-        return storedFilter ? JSON.parse(storedFilter) : initialValues;
+    const [filters, setFilters] = useState(() => {
+        const storedFilters = localStorage.getItem('filters');
+        return storedFilters ? JSON.parse(storedFilters) : {};
     });
 
     const pageable = useMemo(() => ({
@@ -26,8 +26,7 @@ const FilterProvider = ({ children }) => {
         totalElements: 0,
     }), []);
 
-    // Function to prepopulate a filter object by context Table columns
-    const setupFilter = useCallback((columns) => {
+    const setupFilter = useCallback((listName, columns) => {
         if (Array.isArray(columns) && columns.length > 0) {
             const newFilter = columns.reduce((acc, column) => {
                 if (column.searchable) {
@@ -36,21 +35,25 @@ const FilterProvider = ({ children }) => {
                 return acc;
             }, {});
             const filterObject = { ...pageable, ...newFilter };
-            updateFilter(filterObject);
+            updateFilter(listName, filterObject);
         }
     }, [pageable]);
 
-    // Function to update filter parameters
-    const updateFilter = useCallback((newValues) => {
-        setFilter((prevFilter) => ({
-            ...prevFilter,
-            ...newValues,
+    const updateFilter = useCallback((listName, newValues) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [listName]: {
+                ...prevFilters[listName],
+                ...newValues,
+            }
         }));
     }, []);
 
-    // Function to reset filter to initial values
-    const resetFilter = useCallback(() => {
-        setFilter(initialValues);
+    const resetFilter = useCallback((listName) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            [listName]: initialValues,
+        }));
     }, []);
 
     const getJalaliYear = useCallback((entityName) => {
@@ -76,31 +79,25 @@ const FilterProvider = ({ children }) => {
         return params;
     }, []);
 
-    // Save filter values to sessionStorage whenever filter changes
     useEffect(() => {
-        sessionStorage.setItem('filter', JSON.stringify(filter));
-    }, [filter]);
+        localStorage.setItem('filters', JSON.stringify(filters));
+    }, [filters]);
 
     return (
         <FilterContext.Provider value={{
-            filter,
+            filters,
+            setupFilter,
             updateFilter,
             resetFilter,
-            getParams,
             getJalaliYear,
-            setupFilterInTableContext: setupFilter,
-        }}>
+            getParams,
+            pageable,
+            initialValues,
+        }}
+        >
             {children}
         </FilterContext.Provider>
-    );
-};
-
-export const useFilter = () => {
-    const context = useContext(FilterContext);
-    if (!context) {
-        throw new Error('useFilter must be used within a FilterProvider');
-    }
-    return context;
-};
+        );
+    };
 
 export default FilterProvider;

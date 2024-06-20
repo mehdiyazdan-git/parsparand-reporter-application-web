@@ -18,10 +18,11 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import Tooltip from "../../utils/Tooltip";
 import {Modal} from "react-bootstrap";
 import Pagination from "../pagination/Pagination";
-import useFilter from "../contexts/useFilter";
 import YearSelect from "../Year/YearSelect";
 import useHttp from "../../hooks/useHttp";
-import FiltersForm from "../../utils/FiltersForm";
+import PropTypes from "prop-types";
+import useFilter from "../contexts/useFilter";
+
 
 
 
@@ -32,13 +33,7 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [allData, setAllData] = useState([]);
-    const {filter,updateFilter,getParams,findFilterByKey} = useFilter(listName,() =>( {
-        page : 0,
-        size : 10,
-        order : 'ASC',
-        sortBy : 'id',
-        jalaliYear: JSON.parse(sessionStorage.getItem('jalaliYear')),
-    }));
+    const {filter,updateFilter,getParams,setupFilter} = useFilter(listName);
     const http = useHttp();
 
     const handleSearchChange = (name, value) => {
@@ -54,6 +49,11 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
                 })));
             }
 
+    useEffect(() => {
+        if (!filter){
+            setupFilter(listName,columns)
+        }
+    }, []);
     useEffect(() => {
         columns.forEach(col => {
             updateFilter({[col.key]: ''})
@@ -167,8 +167,11 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
     return (
         <>
             { hasYearSelect && <div className="col-3 mt-3">
-                <YearSelect onChange={handleSearchChange} value={() => {
-                    return filter?.jalaliYear ? { label : filter.jalaliYear, value : filter.jalaliYear  }  :  years()[0]
+                <YearSelect onChange={handleSearchChange}
+                            value={() => {
+                    return filter?.jalaliYear
+                        ? years().then(years => years.find(year => year.label === filter.jalaliYear))
+                        :  years()[0]
                 }}/>
             </div> }
             <table className="recipient-table table-fixed-height mt-3">
@@ -360,5 +363,27 @@ const Table = ({ columns, fetchData, onEdit, onDelete, onResetPassword,refreshTr
         </>
     );
 };
-
+// Table.propTypes = {
+//     columns: PropTypes.arrayOf(PropTypes.shape({
+//         key: PropTypes.string.isRequired,
+//         title: PropTypes.string.isRequired,
+//         width: PropTypes.string,
+//         sortable: PropTypes.bool,
+//         searchable: PropTypes.bool,
+//         type: PropTypes.oneOf(['date', 'string', 'number', 'select', 'async-select', 'checkbox']),
+//         render: PropTypes.func,
+//         options: PropTypes.array,
+//         apiFetchFunction: PropTypes.func,
+//         subtotal: PropTypes.bool
+//     })).isRequired,
+//     fetchData: PropTypes.func.isRequired,
+//     onEdit: PropTypes.func.isRequired,
+//     onDelete: PropTypes.func.isRequired,
+//     onResetPassword: PropTypes.func,
+//     refreshTrigger: PropTypes.bool.isRequired,
+//     listName: PropTypes.string.isRequired,
+//     downloadExcelFile: PropTypes.func.isRequired,
+//     hasYearSelect: PropTypes.bool,
+//     hasSubTotal: PropTypes.bool
+// };
 export default Table;

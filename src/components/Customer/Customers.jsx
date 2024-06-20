@@ -10,8 +10,8 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateCustomerForm from "./CreateCustomerForm";
 import { saveAs } from 'file-saver';
-import { useFilters } from "../contexts/FilterContext";
 import useFilter from "../contexts/useFilter";
+
 
 const Customers = () => {
     const [editingCustomer, setEditingCustomer] = useState(null);

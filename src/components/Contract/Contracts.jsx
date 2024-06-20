@@ -14,6 +14,8 @@ import { toShamsi } from "../../utils/functions/toShamsi";
 import {formatNumber} from "../../utils/functions/formatNumber";
 import useFilter from "../contexts/useFilter";
 
+
+
 const Contracts = () => {
     const [editingContract, setEditingContract] = useState(null);
     const [showModal, setShowModal] = useState(false);

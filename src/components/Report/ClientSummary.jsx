@@ -1,15 +1,15 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import { Link } from "react-router-dom";
 import useHttp from "../../hooks/useHttp";
-import IconEdit from "../assets/icons/IconEdit";
 import AsyncSelectSearchInput from "../table/AsyncSelectSearchInput";
-import { useFilters } from "../contexts/FilterContext";
+
 import styled from 'styled-components';
 import PaymentsModal from "../Payment/paymentsModal";
-import Payments from "../Payment/Payments";
 import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
 import InvoicesModal from "../Invoice/InvoicesModal";
 import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
+import useFilter from "../contexts/useFilter";
+
+
 
 const Container = styled.div`
   font-family: IRANSans;
@@ -93,8 +93,8 @@ const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'l
 
 const ClientSummary = () => {
     const http = useHttp();
-    const { filters, setFilter } = useFilters();
-    const listName = "clientSummaryList";
+    const listName = 'customerSummary';
+    const { filter, updateFilter } = useFilter(listName);
     const [customer, setCustomer] = useState(null);
     const [data, setData] = useState({
         clientSummaryList: [
@@ -244,36 +244,32 @@ const ClientSummary = () => {
 
     const loadData = async () => {
 
-        await http.get(`/customers/${filters[listName]?.search?.customerId}/summary`).then(response => setData(response.data));
-        await customerSelect().then(res => setCustomer(res.data.find(item => item.id === filters[listName]?.search?.customerId)));
+        await http.get(`/customers/${filter?.customerId}/summary`).then(response => setData(response.data));
+        await customerSelect().then(res => setCustomer(res.data.find(item => item.id === filter?.customerId)));
     }
     useEffect(() => {
-        if (!filters[listName]?.search?.customerId ||
-            filters[listName]?.search?.customerId === '' ||
-            filters[listName]?.search?.customerId === 'undefined') {
+        if (!filter?.customerId ||
+            filter?.customerId === '' ||
+            filter?.customerId === 'undefined') {
              customerSelect().then(res => {
-                const newSearch = { ...filters[listName]?.search, customerId: res.data[0].id  };
-                setFilter(listName, 'search', newSearch);
+                updateFilter({customerId: res.data[0].id});
             });
         }
     },[])
 
     useEffect(() => {
-        if (filters[listName]?.search?.customerId) {
+        if (filter?.customerId) {
             loadData()
         }
-    }, [filters[listName]?.search?.customerId]);
+    }, [filter?.customerId]);
 
     return (
         <Container>
             <div className="row mt-3">
                 <AsyncSelectSearchInput
                     fetchFunction={customerSelect}
-                    onChange={(value) => {
-                        const newSearch = { ...filters[listName]?.search, customerId: value };
-                        setFilter(listName, 'search', newSearch);
-                    }}
-                    value={filters[listName]?.search?.customerId}
+                    onChange={(value) => updateFilter({customerId: value})}
+                    value={filter?.customerId}
                 />
             </div>
 
@@ -348,7 +344,7 @@ const ClientSummary = () => {
                             <Row>{toPersianFormat(data.adjustmentReportDto.amount + data.adjustmentReportDto.vat)}</Row>
                             <Row>
                                 <AdjustmentsModal
-                                    customerId={filters[listName]?.search?.customerId}
+                                    customerId={filter?.customerId}
                                     showModal={showModal}
                                     handleShow={handleShow}
                                     handleClose={handleClose}
@@ -378,7 +374,7 @@ const ClientSummary = () => {
                             <Footer><strong>{totalPayment}</strong></Footer>
                             <Footer>
                                 <PaymentsModal
-                                    customerId={filters[listName]?.search?.customerId}
+                                    customerId={filter?.customerId}
                                     showModal={showModal}
                                     handleShow={handleShow}
                                     handleClose={handleClose}

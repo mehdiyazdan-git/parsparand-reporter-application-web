@@ -4,12 +4,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Invoices from "./Invoices";
-import {useFilters} from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
+
+
 
 const InvoicesModal = ({contractNumber}) => {
     const [tempFilters, setTempFilters] = useState({});
     const listName = "invoices";
-    const { filters,setFilter,setPagination,addFilter,clearFilter,addFilterToSearch} = useFilters();
+    const { filters,setFilter,setPagination,addFilter,clearFilter,addFilterToSearch} = useFilter();
     const [showModal, setShowModal] = useState(false);
 
 

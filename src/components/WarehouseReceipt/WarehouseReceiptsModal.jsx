@@ -3,12 +3,13 @@ import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
-import WarehouseReceipts from "./WarehouseReceipts"; // Renamed import
-import { useFilters } from "../contexts/FilterContext";
+import WarehouseReceipts from "./WarehouseReceipts";
+import useFilter from "../contexts/useFilter"; // Renamed import
+
 
 const WarehouseReceiptsModal = ({ customerId }) => { // Renamed component
     const listName = "warehouseReceipts"; // Updated list name
-    const { filters, addFilterToSearch, setPagination,getFilter,createFilter } = useFilters();
+    const { filters, addFilterToSearch, setPagination,getFilter,createFilter } = useFilter();
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {

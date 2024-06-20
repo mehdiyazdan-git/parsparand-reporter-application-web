@@ -4,30 +4,32 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Adjustments from "./Adjustments";
-import {useFilters} from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
+
+
 
 const AdjustmentsModal = ({customerId}) => {
     const listName = "adjustments";
-    const { filters,setFilter} = useFilters();
+    const { filter,updateFilter} = useFilter();
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filters[listName]?.search?.customerId || filters[listName]?.search?.customerId !== customerId){
-            const newSearch = {...filters[listName]?.search, customerId: customerId};
-            setFilter(listName, "search",newSearch);
+        if (!filter[listName]?.search?.customerId || filter[listName]?.search?.customerId !== customerId){
+            const newSearch = {...filter[listName]?.search, customerId: customerId};
+            updateFilter(listName, "search",newSearch);
         }
         setShowModal(true);
     };
 
     const handleClose = () => {
-        const keys = Object.keys(filters[listName]?.search);
+        const keys = Object.keys(filter[listName]?.search);
         keys.forEach(key => {
             if (key === "customerId"){
-                delete filters[listName]?.search[key];
+                delete filter[listName]?.search[key];
             }
         });
-        const newSearch = {...filters[listName]?.search, page: 0};
-        setFilter(listName, "search",newSearch);
+        const newSearch = {...filter[listName]?.search, page: 0};
+        updateFilter(listName, "search",newSearch);
         setShowModal(false);
     };
     return (

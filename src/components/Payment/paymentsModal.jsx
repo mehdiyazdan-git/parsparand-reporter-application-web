@@ -4,26 +4,26 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Payments from "./Payments";
 import Button from "../../utils/Button";
-import {useFilters} from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
+
 
 const PaymentsModal = ({customerId}) => {
     const listName = "payments";
-    const { filters,setFilter} = useFilters();
+    const { filter,updateFilter} = useFilter(listName);
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filters[listName]?.search?.customerId || filters[listName]?.search?.customerId !== customerId){
-            const newSearch = {...filters[listName]?.search, customerId: customerId};
-            setFilter(listName, "search",newSearch);
+        if (!filter?.customerId || filter?.customerId !== customerId){
+            updateFilter({'customerId': customerId});
         }
         setShowModal(true);
     };
 
-    const handleClose = () => {
-        const keys = Object.keys(filters[listName]?.search);
+    const handleClose = (entityName) => {
+        const keys = Object.keys(sessionStorage.getItem(`filter_${entityName}`));
         keys.forEach(key => {
             if (key === "customerId"){
-                delete filters[listName]?.search[key];
+                delete filter[listName]?.search[key];
             }
         });
         setShowModal(false);

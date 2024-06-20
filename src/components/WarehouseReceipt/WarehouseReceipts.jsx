@@ -15,6 +15,8 @@ import {formatNumber} from "../../utils/functions/formatNumber";
 import useFilter from "../contexts/useFilter";
 
 
+
+
 const WarehouseReceipts = ({shouldNotDisplayCustomerName}) => {
     const [editingWarehouseReceipt, setEditingWarehouseReceipt] = useState(null);
     const [showModal, setShowModal] = useState(false);

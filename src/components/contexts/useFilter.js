@@ -1,38 +1,61 @@
 import {useCallback, useEffect, useMemo, useState} from 'react';
+import useHttp from "../../hooks/useHttp";
+
 
 
 const useFilter = (entityName, initialValues) => {
-
     const storageKey = `filter_${entityName}`;
-    // Load filter values from sessionStorage on component mount
-    const storedFilter = sessionStorage.getItem(storageKey);
-    const initialFilter = (storedFilter !== "undefined" && storedFilter !== null) ? JSON.parse(storedFilter) : initialValues;
-
-    const [filter, setFilter] = useState(initialFilter);
-
+    const [filter, setFilter] = useState(
+        {...initialValues,
+            'jalaliYear' : JSON.parse(sessionStorage.getItem('jalaliYear')),
+            ...JSON.parse(sessionStorage.getItem(storageKey) || '{}')}
+    );
+    const http = useHttp();
+    const years = async() => {
+        return await http.get('/years/select').then(res => res.data);
+    };
 
      const pageable = useMemo(() => ({
          page: 0,
-         size: 5,
+         size: 10,
          sortBy: "id",
          order: "asc",
          totalPages: 0,
          totalElements: 0,
      }), [])
 
-    // Function to prepopulate a filter object by context Table columns
-    const setupFilter = useCallback((columns) => {
-        if (Array.isArray(columns) && columns.length > 0)  {
-            const newFilter = {};
-            columns.forEach(column => {
-                if (column.searchable){
-                    newFilter[column.name] = '';
+    useEffect(() => {
+            let jalaliYear;
+            if (!filter.jalaliYear){
+                if (sessionStorage.getItem('jalaliYear')){
+                    jalaliYear = sessionStorage.getItem('jalaliYear');
+                }else {
+                    jalaliYear = years().then(res => res[0]);
                 }
-            });
-            const filterObject = Object.assign({}, pageable, newFilter);
-            updateFilter(filterObject);
+            }
+
+            if (!sessionStorage.getItem(storageKey)) {
+                const filterObject = { ...pageable,
+                    ...initialValues,
+                    'jalaliYear' : jalaliYear,
+                };
+                updateFilter(filterObject);
+
+            }
+        }, [initialValues]);
+
+    const setupFilter = useCallback((listName, columns) => {
+        if (Array.isArray(columns) && columns.length > 0) {
+            const newFilter = columns.reduce((acc, column) => {
+                if (column.searchable) {
+                    acc[column.name] = '';
+                }
+                return acc;
+            }, {});
+            const filterObject = { ...pageable, ...newFilter };
+            updateFilter(listName, filterObject);
         }
-    }, [pageable])
+    }, []);
 
 
     // Function to update filter parameters

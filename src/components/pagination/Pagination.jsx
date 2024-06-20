@@ -12,14 +12,14 @@ const Pagination = ({ filter, updateFilter }) => {
 
     const goToLastPage = useCallback(() => updateFilter({ page: filter?.totalPages - 1 }), [updateFilter, filter]);
 
-    const startIndex = useMemo(() => filter?.page * filter?.size + 1, [filter]);
-    const endIndex = useMemo(() => Math.min((filter?.page + 1) * filter?.size, filter?.totalElements), [filter]);
+    const startIndex = () => filter?.page * filter?.size + 1;
+    const endIndex = () => Math.min((filter?.page + 1) * filter?.size, filter?.totalElements);
 
     return (
         <div className="pagination">
             <PageSizeSelector filter={filter} updateFilter={updateFilter}/>
             <div className="page-info">
-                {`${startIndex} تا ${endIndex} از ${filter?.totalElements}`}
+                {`${startIndex()} تا ${endIndex()} از ${filter?.totalElements}`}
             </div>
             <div className="page-controls">
                 <button onClick={goToFirstPage} disabled={filter?.page === 0}>{'<<'}</button>

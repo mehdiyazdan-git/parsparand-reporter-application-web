@@ -24,9 +24,6 @@ const Payments = ({ customerId }) => {
     const listName = 'payments';
 
 
-
-
-
     const getAllPayments = async (queryParams) => {
         return await http.get(`/payments?${queryParams}`)
     };

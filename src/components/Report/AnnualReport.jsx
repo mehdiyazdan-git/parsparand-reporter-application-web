@@ -4,6 +4,9 @@ import {titleStyle} from "../styles/styles";
 import YearSelect from "../Year/YearSelect";
 import useFilter from "../contexts/useFilter";
 
+
+
+
 const AnnualReport = () => {
     const { filter, updateFilter, getParams } = useFilter('annual');
 

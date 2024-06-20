@@ -12,6 +12,9 @@ import CreateInvoiceStatusForm from "./CreateInvoiceStatusForm";
 import { saveAs } from 'file-saver';
 import useFilter from "../contexts/useFilter";
 
+
+
+
 const InvoiceStatuses = () => {
     const [editingInvoiceStatus, setEditingInvoiceStatus] = useState(null);
     const [showModal, setShowModal] = useState(false);

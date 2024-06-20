@@ -14,14 +14,14 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
-import {useFilters} from "../contexts/FilterContext";
+import useFilter from "../contexts/useFilter";
 
 const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
     const http = useHttp();
-    const {filters} = useFilters();
+    const {filter} = useFilter();
 
     const invoiceSelect = async (searchQuery) => {
-        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filters.years?.jalaliYear && filters.years.jalaliYear.label}`);
+        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filter.years?.jalaliYear && filter.years.jalaliYear.label}`);
     }
 
     const validationSchema = Yup.object().shape({

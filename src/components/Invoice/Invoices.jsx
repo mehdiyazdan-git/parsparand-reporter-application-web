@@ -12,8 +12,6 @@ import CreateInvoiceForm from "./CreateInvoiceForm";
 import { saveAs } from 'file-saver';
 import { toShamsi } from "../../utils/functions/toShamsi";
 import {formatNumber} from "../../utils/functions/formatNumber";
-import useFilter from "../contexts/useFilter";
-import YearSelect from "../Year/YearSelect";
 
 const Invoices = ({contractNumber}) => {
     const [editingInvoice, setEditingInvoice] = useState(null);
@@ -24,6 +22,7 @@ const Invoices = ({contractNumber}) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const listName = 'invoices';
+
 
     const getAllInvoices =async (queryParams) => {
         return await http.get(`/invoices?${queryParams}`);
@@ -172,7 +171,6 @@ const Invoices = ({contractNumber}) => {
                     color={"#41941a"}
                     type="button"
                 />
-
                 <CreateInvoiceForm
                     onCreateInvoice={handleAddInvoice}
                     show={showModal}
