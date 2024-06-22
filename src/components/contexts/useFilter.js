@@ -68,7 +68,7 @@ const useFilter = (entityName, initialValues) => {
         Object.entries(filter).forEach(([key, value]) => {
             if (value !== null && value !== undefined && !excludes.includes(key)) {
                 if (Array.isArray(value)) {
-                    value.forEach(val => params.append(key, val));
+                    value.forEach(val => params.set(key, val));
                 } else {
                     params.set(key, value);
                 }

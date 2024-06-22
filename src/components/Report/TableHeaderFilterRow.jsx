@@ -1,33 +1,20 @@
-import React, {forwardRef, useEffect, useRef} from 'react';
-import {useController, useForm, useFormContext, useWatch} from "react-hook-form";
+import React, { useEffect, useRef } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 
-const NumberInput = forwardRef(({name, label, register, control, className}, ref) => {
+const NumberInput = ({ name, label, register }) => {
     const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
 
     return (
         <input
             ref={inputRef}
-            {...register(name, {valueAsNumber: true})}
+            {...register(name, { valueAsNumber: true })}
             className="form-control"
         />
     );
-});
-const DateInput = forwardRef(({name, label, register, control, className}, ref) => {
-    const inputRef = useRef(null);
-    const methods = useForm({mode: "onChange"});
-    const {value} = useWatch({control});
+};
 
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
+const DateInput = ({ name, label, register }) => {
+    const inputRef = useRef(null);
 
     return (
         <input
@@ -36,15 +23,10 @@ const DateInput = forwardRef(({name, label, register, control, className}, ref) 
             className="form-control"
         />
     );
-});
-const SelectInput = forwardRef(({name, label, register, control, className, options}, ref) => {
-    const inputRef = useRef(null);
+};
 
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
+const SelectInput = ({ name, label, register, options }) => {
+    const inputRef = useRef(null);
 
     return (
         <select
@@ -59,16 +41,10 @@ const SelectInput = forwardRef(({name, label, register, control, className, opti
             ))}
         </select>
     );
-});
+};
 
-const CheckboxInput = forwardRef(({name, label, register, control, className}, ref) => {
+const CheckboxInput = ({ name, label, register }) => {
     const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
 
     return (
         <input
@@ -78,16 +54,10 @@ const CheckboxInput = forwardRef(({name, label, register, control, className}, r
             className="form-control"
         />
     );
-});
+};
 
-const RadioInput = forwardRef(({name, label, register, control, className, options}, ref) => {
+const RadioInput = ({ name, label, register, options }) => {
     const inputRef = useRef(null);
-
-    useEffect(() => {
-        if (inputRef.current) {
-            inputRef.current.focus();
-        }
-    }, []);
 
     return (
         <div>
@@ -101,78 +71,64 @@ const RadioInput = forwardRef(({name, label, register, control, className, optio
                         className="form-control"
                     />
                     {option.label}
-                    </div>
-                ))}
-            </div>
-        );
-    });
+                </div>
+            ))}
+        </div>
+    );
+};
 
-    const TextInput = forwardRef(({name, label, register, control, className}, ref) => {
-        const inputRef = useRef(null);
-
-        useEffect(() => {
-            if (inputRef.current) {
-                inputRef.current.focus();
-            }
-        }, []);
-
-        return (
-            <td>
-                <input
-                    ref={inputRef}
-                    {...register(name)}
-                    className="form-control"
-                />
-            </td>
-        )
-    });
-
-
-const TableHeaderFilterRow = ({columns, filter, updateFilter}) => {
+const TableHeaderFilterRow = ({ columns, filter, updateFilter }) => {
     const {
-        register, control
-        , handleSubmit,
-        formState,
+        register,
+        control,
+        handleSubmit,
+        formState: { dirtyFields },
     } = useForm({
-        mode: "onChange",
-        defaultValues: filter
+        mode: 'onChange',
+        defaultValues: filter,
     });
 
     const values = useWatch({
-        control: control
+        control,
     });
-    const onSubmit = (data) => {
-        console.log(data);
-    }
 
     useEffect(() => {
-        const dirtyFields = formState.dirtyFields;
-        const dirtyValues = Object.entries(dirtyFields).reduce((acc, [key, isDirty]) => {
-            if (isDirty) {
-                acc[key] = values[key];
-            }
-            return acc;
-        }, {});
+        const dirtyValues = Object.entries(dirtyFields).reduce(
+            (acc, [key, isDirty]) => {
+                if (isDirty) {
+                    acc[key] = values[key];
+                }
+                return acc;
+            },
+            {}
+        );
 
         if (Object.keys(dirtyValues).length > 0) {
             updateFilter(dirtyValues);
         }
-    }, [values, formState.dirtyFields, updateFilter]);
+    }, [values, dirtyFields, updateFilter]);
 
     return (
-           <>
-               {columns.map((column) => (
-                   <th className={'p-0 m-0'} key={column.key}>
-                       <TextInput name={column.key} control={control} key={column.key} register={register} />
-                   </th>
-               ))}
-           </>
-
+        <>
+            {columns.map((column) => (
+                <th className="p-0 m-0" key={column.key}>
+                    <TextInput name={column.key} control={control} register={register} />
+                </th>
+            ))}
+        </>
     );
-
 };
 
+const TextInput = ({ name, control, register }) => {
+    const inputRef = useRef(null);
+
+    return (
+        <input
+            ref={inputRef}
+            {...register(name)}
+            className="form-control"
+        />
+    );
+};
 
 export default TableHeaderFilterRow;
-
-
