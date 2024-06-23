@@ -2,11 +2,11 @@ import React from 'react';
 import Th from './Th';
 import PropTypes from 'prop-types';
 
-const TableHeader = ({ columns, filter, updateFilter }) => (
+const TableHeader = ({ columns, filter, updateFilter,listName }) => (
     <thead>
     <tr className="table-header-row p-0 m-0">
         {columns.map((column, index) => (
-            <Th key={index} columnKey={column.key} width={column.width} filter={filter} updateFilter={updateFilter}>
+            <Th key={index} columnKey={column.key} width={column.width} filter={filter} updateFilter={updateFilter} listName={listName}>
                 {column.title}
             </Th>
         ))}

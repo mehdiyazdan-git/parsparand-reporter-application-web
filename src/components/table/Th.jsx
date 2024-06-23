@@ -1,9 +1,9 @@
 import React from 'react';
 
-const Th = ({ columnKey, filter, updateFilter, width, children }) => {
+const Th = ({ columnKey, filter, updateFilter, width, children,listName }) => {
     const handleSortChange = (column) => {
         const isAsc = filter.sortBy === column && filter.order === 'asc';
-        updateFilter({
+        updateFilter(listName,{
             sortBy: column,
             order: isAsc ? 'desc' : 'asc'
         });

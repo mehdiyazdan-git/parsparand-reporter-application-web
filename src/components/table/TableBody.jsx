@@ -8,27 +8,14 @@ import ConfirmationModal from "./ConfirmationModal";
 import {Modal} from "react-bootstrap";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
 
-const TableBody = ({ columns, fetchData, listName, filter, refreshTrigger, getParams, updateFilter, onEdit, onDelete, onResetPassword}) => {
-    const [data, setData] = useState([]);
+const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword}) => {
+
+
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-    useDeepCompareEffect(() => {
-        const load = async () => {
-            const params = getParams(listName, [], false);
-            return await fetchData(params.toString());
-        };
-        load().then(response => {
-            setData(response.data.content);
-            updateFilter({ page: response.data.pageable.pageNumber });
-            updateFilter({ size: response.data.pageable.pageSize });
-            updateFilter({ totalPages: response.data.totalPages });
-            updateFilter({ totalElements: response.data.totalElements });
-        }).catch(error => {
-            console.log("table is reporting an error:", error);
-        });
-    }, [filter, refreshTrigger]);
+
 
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {
@@ -63,6 +50,9 @@ const TableBody = ({ columns, fetchData, listName, filter, refreshTrigger, getPa
                 </Modal.Body>
             </Modal>
         );
+
+
+
     if (!data) {
         return <LoadingDataErrorPage />;
     }
@@ -113,7 +103,7 @@ const TableBody = ({ columns, fetchData, listName, filter, refreshTrigger, getPa
         />
         </tbody>
     );
-};
+}
 
 TableBody.propTypes = {
     columns: PropTypes.array.isRequired,

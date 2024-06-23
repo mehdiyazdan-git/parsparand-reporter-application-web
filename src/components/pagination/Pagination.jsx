@@ -1,16 +1,16 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useCallback } from 'react';
 import "./Pagination.css";
 import PageSizeSelector from "./PageSizeSelector";
 
-const Pagination = ({ filter, updateFilter }) => {
+const Pagination = ({ filter, updateFilter,listName='' }) => {
 
-    const goToFirstPage = useCallback(() => updateFilter({ page: 0 }), [updateFilter]);
+    const goToFirstPage = useCallback(() => updateFilter(listName,{ page: 0 }), [updateFilter]);
 
-    const goToPrevPage = useCallback(() => updateFilter({ page: Math.max(0, filter?.page - 1) }), [updateFilter, filter]);
+    const goToPrevPage = useCallback(() => updateFilter(listName,{ page: Math.max(0, filter?.page - 1) }), [updateFilter, filter]);
 
-    const goToNextPage = useCallback(() => updateFilter({ page: Math.min(filter?.totalPages - 1, filter?.page + 1) }), [updateFilter, filter]);
+    const goToNextPage = useCallback(() => updateFilter(listName,{ page: Math.min(filter?.totalPages - 1, filter?.page + 1) }), [updateFilter, filter]);
 
-    const goToLastPage = useCallback(() => updateFilter({ page: filter?.totalPages - 1 }), [updateFilter, filter]);
+    const goToLastPage = useCallback(() => updateFilter(listName,{ page: filter?.totalPages - 1 }), [updateFilter, filter]);
 
     const startIndex = () => filter?.page * filter?.size + 1;
 

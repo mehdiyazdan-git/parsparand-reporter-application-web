@@ -2,26 +2,12 @@ import React, { useMemo } from 'react';
 import { SiMicrosoftexcel } from "react-icons/si";
 import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import Tooltip from "../../utils/Tooltip";
 
-const TableFooter = ({ columns, data,fetchData, downloadExcelFile, listName, getParams, hasSubTotal }) => {
-    const [allData, setAllData] = React.useState([]);
+const TableFooter = ({ columns, data,allData, downloadExcelFile, listName, getParams, hasSubTotal }) => {
+
     const dynamicColspan = columns.length - columns.filter(column => column.subtotal).length;
-    useDeepCompareEffect(() => {
-        const loadAllData = async () => {
-            try {
-                const response = await fetchData(getParams(listName, [], true).toString());
-                if (response?.data?.content) {
-                    setAllData(response.data.content);
-                }
-            } catch (error) {
-                console.log("table is reporting an error:", error);
-            }
-        };
-        loadAllData();
-    }, [data]);
-    // Calculate subtotals
+
     const subtotals = useMemo(() => {
         return columns.reduce((acc, column) => {
             if (column.subtotal) {

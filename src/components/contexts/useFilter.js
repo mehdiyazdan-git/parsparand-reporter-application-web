@@ -1,63 +1,17 @@
-import {useEffect, useMemo, useState} from 'react';
-import useHttp from "../../hooks/useHttp";
+import {useState} from 'react';
 
 const useFilter = (entityName, initialValues) => {
     const storageKey = `filter_${entityName}`;
-    const [filter, setFilter] = useState(
-        {...initialValues,
-            'jalaliYear' : JSON.parse(sessionStorage.getItem('jalaliYear')),
-            ...JSON.parse(sessionStorage.getItem(storageKey) || '{}')}
-    );
-    const http = useHttp();
-    const years = async() => {
-        return await http.get('/years/select').then(res => res.data);
-    };
+    const [filter, setFilter] = useState(() => {
+        const storedFilter = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+        return {...initialValues, ...storedFilter};
+    });
 
-     const pageable = useMemo(() => ({
-         page: 0,
-         size: 10,
-         sortBy: "id",
-         order: "asc",
-         totalPages: 0,
-         totalElements: 0,
-     }), [])
+    const updateFilter = (entityName, newValues) => {
+        setFilter(prevFilter => ({...prevFilter, ...newValues}));
+        sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(newValues));
+    }
 
-    useEffect(() => {
-            let jalaliYear;
-            if (!filter.jalaliYear){
-                if (sessionStorage.getItem('jalaliYear')){
-                    jalaliYear = sessionStorage.getItem('jalaliYear');
-                }else {
-                    jalaliYear = years().then(res => res[0]);
-                }
-            }
-
-            if (!sessionStorage.getItem(storageKey)) {
-                const filterObject = { ...pageable,
-                    ...initialValues,
-                    'jalaliYear' : jalaliYear,
-                };
-                updateFilter(filterObject);
-
-            }
-        }, [initialValues]);
-
-
-    const updateFilter = (target = {}, ...filter) => {
-        filter.forEach(source => {
-            if (source) {
-                Object.keys(source).forEach(key => {
-                    let targetValue = target[key];
-                    let sourceValue = source[key];
-                    target[key] = targetValue instanceof Object && sourceValue instanceof Object ?
-                        updateFilter(targetValue, sourceValue) :
-                        sourceValue;
-                });
-            }
-        });
-        setFilter(target);
-        sessionStorage.setItem(storageKey, JSON.stringify(filter));
-    };
 
     const getJalaliYear = () => {
         return JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
@@ -69,14 +23,14 @@ const useFilter = (entityName, initialValues) => {
             if (value !== null && value !== undefined && !excludes.includes(key)) {
                 if (Array.isArray(value)) {
                     value.forEach(val => params.set(key, val));
-                } else {
-                    params.set(key, value);
                 }
             }
         });
         if (subtotal) {
             params.set('size', filter?.totalElements || 1000000);
             params.set('page', '0');
+            params.delete('totalElements');
+            params.delete('totalPages');
         }
         excludes.forEach(param => params.delete(param));
         return params;

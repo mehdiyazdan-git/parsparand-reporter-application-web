@@ -7,31 +7,13 @@ import SearchNumberInput from './SearchNumberInput';
 import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
 
-const TableSearch = ({ columns, filter,updateFilter }) => {
+const TableSearch = ({ columns, filter,updateFilter,listName }) => {
 
     const handleSearchChange = (name, value) => {
-        updateFilter({ [name]: value });
-        updateFilter({ page: 0 });
+        updateFilter(listName, { [name]: value });
     };
-    const setupFilter = (columns) => {
-        if (!filter) {
-            if (Array.isArray(columns) && columns.length > 0) {
-                const newFilter = columns.reduce((acc, column) => {
-                    if (column.searchable) {
-                        acc[column.name] = '';
-                    }
-                    return acc;
-                }, {});
-                const assign = Object.assign(newFilter, { page: 0, pageSize: 10, sort: '', order: '' });
-                updateFilter(assign);
-            }
-        }
-    }
-    useEffect(() => {
-        if (!filter){
-            setupFilter(filter)
-        }
-    });
+
+
   return  (
         <tr className="table-header-row">
             {columns.map((column) =>
