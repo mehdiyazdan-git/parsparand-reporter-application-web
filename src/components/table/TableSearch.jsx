@@ -81,10 +81,5 @@ const TableSearch = ({ columns, filter,updateFilter,listName }) => {
         </tr>
     );
 }
-TableSearch.propTypes = {
-    columns: PropTypes.array.isRequired,
-    filter: PropTypes.object.isRequired,
-    handleSearchChange: PropTypes.func.isRequired
-};
 
 export default TableSearch;

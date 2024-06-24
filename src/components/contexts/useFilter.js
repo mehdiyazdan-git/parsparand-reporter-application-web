@@ -1,8 +1,8 @@
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 
 
 const useFilter = (entityName, initialValues) => {
-    const [filter, setFilter] = useState(() => {
+    const [filter, setFilter] = useState((entityName, initialValues) => {
         const storedFilter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`)) || {};
         return {...initialValues, ...storedFilter};
     });
@@ -11,7 +11,7 @@ const useFilter = (entityName, initialValues) => {
         const result = { ...obj1 };
 
         for (let key in obj2) {
-            if (obj2.hasOwnProperty(key)) {
+            if (Object.prototype.hasOwnProperty.call(obj2, key)) {
                 if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
                     result[key] = deepMerge(obj1[key], obj2[key]);
                 } else {
@@ -25,9 +25,11 @@ const useFilter = (entityName, initialValues) => {
 
     const updateFilter = (entityName, newValues) => {
         const parse = JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
-        setFilter(deepMerge(parse, newValues))
-        sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(filter));
+        const merged = deepMerge(parse, newValues)
+        sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(merged));
     };
+
+
 
 
     const getJalaliYear = () => {
@@ -42,6 +44,10 @@ const useFilter = (entityName, initialValues) => {
                     value.forEach(val => params.set(key, val));
                 }
             }
+            excludes.forEach((exclude) => {
+                params.delete(exclude);
+
+            });
         });
         if (subtotal) {
             params.set('size', filter?.totalElements || 1000000);

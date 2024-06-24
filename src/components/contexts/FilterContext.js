@@ -1,4 +1,4 @@
-import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
 
 const FilterContext = createContext();
 
@@ -37,6 +37,7 @@ const FilterProvider = ({ children }) => {
             const filterObject = { ...pageable, ...newFilter };
             updateFilter(listName, filterObject);
         }
+
     }, [pageable]);
 
     const updateFilter = useCallback((listName, newValues) => {

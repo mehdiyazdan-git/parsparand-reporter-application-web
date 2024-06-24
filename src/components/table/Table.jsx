@@ -1,9 +1,8 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
 import Pagination from "../pagination/Pagination";
-import PropTypes from "prop-types";
 import useFilter from "../contexts/useFilter";
 import TableYear from "./TableYear";
 import useHttp from "../../hooks/useHttp";
@@ -20,36 +19,11 @@ const Table = ({
     const { filter, updateFilter, getParams } = useFilter();
 
 
-    const loadData = async (listName,excludes = [],subtotal = false) => {
+    const loadData = async (excludes = [], subtotal = false) => {
         const params = getParams(listName,excludes,subtotal);
         return  await fetchData(params.toString());
     };
 
-    const extractFormEntries = (columns) => {
-        if (!columns){
-            return {};
-        }
-        return Object
-            .fromEntries(columns.filter(column => column.searchable)
-                .map(column => [column.key, '']));
-    }
-
-    const [searchObject,setSearchObject] = useState(extractFormEntries(columns));
-
-    const handleSearchChange = (event) => {
-        const { name, value } = event.target;
-        setSearchObject(prevState => ({
-            ...prevState,
-            [name]: value,}
-
-        ));
-        return Object
-            .fromEntries(columns.filter(column => column.searchable)
-                .map(column => [column.key, '']));
-    }
-    const handleResetSearch = () => {
-        setSearchObject(extractFormEntries(columns));
-    }
     const extractInitialFiltersFromColumns = (columns) => {
         const initialFilters = {};
         columns.forEach((column) => {
@@ -98,50 +72,51 @@ const Table = ({
                 : null
     }
 
-    useEffect(() => {
-        updateFilter(listName,deepMerge(initialFilters,filter));
-        loadData(listName,[],false).then(response => {
+    useDeepCompareEffect(() => {
+
+            loadData(['page','pageNumber','jalaliYear'], false).then(response => {
+                setData(response.data.content);
+                updateFilter(listName, {
+                    ...filter,
+                    page: response.data.pageable.pageNumber,
+                    pageSize: response.data.pageable.pageSize,
+                    totalPages: response.data.totalPages,
+                    totalElements: response.data.totalElements,
+                });
+
+            })
+            // load all data
+            loadData([], true)
+                .then(response => {
+                    setAllData(response.data.content);
+                })
+        },
+        [sessionStorage.getItem(`filter_${listName}`)]);
+
+    useDeepCompareEffect(() => {
+        updateFilter(listName, deepMerge(initialFilters, filter));
+        loadData(['page','pageNumber','jalaliYear'],false).then(response => {
             setData(response.data.content);
             updateFilter(listName,{
                 ...filter,
-                page: response.data.pageable.page,
+                page: response.data.pageable.pageNumber,
                 pageSize: response.data.pageable.pageSize,
                 totalPages: response.data.totalPages ,
                 totalElements: response.data.totalElements ,
             });
-
         })
-        // load all data
-        loadData(listName,['totalPages','totalElements','page','order','orderBy'],true)
-            .then(response => {
+        loadData([], true).then(response => {
             setAllData(response.data.content);
         })
     }, []);
-
-    useDeepCompareEffect(() => {
-        loadData().then(response => {
-            setData(response.data.content);
-            updateFilter(listName,{
-                ...filter,
-                page: response.data.pageable.page,
-                pageSize: response.data.pageable.pageSize,
-                totalPages: response.data.totalPages ,
-                totalElements: response.data.totalElements ,
-            });
-        })
-        // load all data
-        loadData(listName,[],true).then(response => {
-            setAllData(response.data.content);
-        })
-    }, [filter]);
 
     return (
         <>
             {hasYearSelect && <TableYear filter={filter} updateFilter={updateFilter}/>}
             <table className="recipient-table table-fixed-height mt-3">
-                <TableHeader columns={columns} filter={filter} updateFilter={updateFilter} />
-                <TableSearch columns={columns} filter={filter} updateFilter={updateFilter}  handleSearchChange={handleSearchChange}/>
-                <TableBody columns={columns} onEdit={onEdit} onDelete={onDelete} onResetPassword={onResetPassword} data={data}/>
+                <TableHeader columns={columns} filter={filter} updateFilter={updateFilter} listName={listName} />
+                <TableSearch columns={columns} filter={filter} updateFilter={updateFilter} />
+                <TableBody data={data} allData={allData} columns={columns} filter={filter} updateFilter={updateFilter}  fetchData={fetchData}/>
                 <TableFooter
                     allData={allData} columns={columns} filter={filter} updateFilter={updateFilter}
                     downloadExcelFile={downloadExcelFile} listName={listName}
@@ -153,30 +128,7 @@ const Table = ({
     );
 };
 
-Table.propTypes = {
-    columns: PropTypes.array.isRequired,
-    fetchData: PropTypes.func.isRequired,
-    onEdit: PropTypes.func,
-    onDelete: PropTypes.func,
-    onResetPassword: PropTypes.func,
-    refreshTrigger: PropTypes.func,
-    listName: PropTypes.string.isRequired,
-    downloadExcelFile: PropTypes.func,
-    hasYearSelect: PropTypes.bool,
-    hasSubTotal: PropTypes.bool,
-};
 
-Table.defaultProps = {
-    onEdit: null,
-    onDelete: null,
-    onResetPassword: null,
-    refreshTrigger: null,
-    downloadExcelFile: null,
-    hasYearSelect: false,
-    hasSubTotal: false,
-};
-
-Table.displayName = 'Table';
 
 
 export default Table;

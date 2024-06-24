@@ -1,4 +1,4 @@
-import React, {useCallback, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import IconKey from '../assets/icons/IconKey';
@@ -6,9 +6,39 @@ import PropTypes from 'prop-types';
 import ConfirmationModal from "./ConfirmationModal";
 import {Modal} from "react-bootstrap";
 import LoadingDataErrorPage from "../../utils/LoadingDataErrorPage";
+import useHttp from "../../hooks/useHttp";
 
-const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword}) => {
+const TableBody = ({ columns, data, onEdit,updateFilter,getParams,listName, onDelete, onResetPassword,fetchData}) => {
+    // const [data,setData]=useState([]);
 
+    // useEffect(() => {
+    //     const loadData = async () => {
+    //         try {
+    //             const response = await fetchData();
+    //             setData(response.data);
+    //         } catch (error) {
+    //             // Handle error
+    //         }
+    //     };
+    //     loadData([], false).then(response => {
+    //         setData(response.data.content);
+    //         updateFilter(listName, {
+    //             ...filter,
+    //             page: response.data.pageable.pageNumber,
+    //             pageSize: response.data.pageable.pageSize,
+    //             totalPages: response.data.totalPages,
+    //             totalElements: response.data.totalElements,
+    //         });
+    //
+    //     })
+    // }, []);
+
+    // const filteredData = data.filter(item => {
+    //     return columns.some(column => {
+    //         const value = item[column.key];
+    //         return value.toString().toLowerCase().includes(filter.toLowerCase());
+    //     });
+    // })
 
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');

@@ -89,15 +89,4 @@ const TableFooter = ({ columns, data,allData, downloadExcelFile, listName,  hasS
     );
 };
 
-TableFooter.propTypes = {
-    columns: PropTypes.array.isRequired,
-    data: PropTypes.array.isRequired,
-    allData: PropTypes.array.isRequired,
-    dynamicColspan: PropTypes.number.isRequired,
-    downloadExcelFile: PropTypes.func.isRequired,
-    listName: PropTypes.string.isRequired,
-    getParams: PropTypes.func.isRequired,
-    hasSubTotal: PropTypes.bool.isRequired
-};
-
 export default TableFooter;
