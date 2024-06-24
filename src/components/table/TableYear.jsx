@@ -9,46 +9,42 @@ const TableYear = ({filter,updateFilter,listName}) => {
     const [inputValue, setInputValue] = useState('');
     const [options, setOptions] = useState([{label: '', value: ''}]);
 
-    const loadOptions = async (inputValue, callback) => {
-        if (inputValue.trim().length < 3) {
-            callback([]);
-            return;
-        }
-        const response = await http.get(`/years/select?`);
-        callback(response.data.map((item) => ({
-            label: item.name,
-            value: item.id,
-        })));
-    };
+
     useEffect(() => {
         (async () => {
             const response = await http.get(`/years/select?`);
-            setOptions(response.data.map((item) => ({
+            console.log(`/years/select:  `,response.data)
+            setOptions(prevState =>  response.data.map((item) => ({
                 label: item.name,
                 value: item.id,
             })));
         })();
+        setInputValue(filter?.jalaliYear ? filter.jalaliYear : options[0].label)
     }, []);
-
-
-    const handleChange = (selectedOption) => {
-        updateFilter(listName,{jalaliYear: selectedOption.value});
-    };
-    const handleInputChange = (inputValue) => {
-        setInputValue(inputValue)
-    };
 
     return (
         <div className="col-3 mt-3">
             <AsyncSelect
-                value={options.find(option => option.label === filter?.jalaliYear)}
-                defaultValue={options.find(year => year.label === JSON.parse(sessionStorage.getItem(`filter_${listName}`))?.jalaliYear)}
+                name={'jalaliYear'}
+                value={options.find((option) => option.label === filter?.jalaliYear)}
+                onChange={(option) => {
+                    updateFilter(listName,{'jalaliYear' :option.label});
+                }}
+                loadOptions={async (inputValue) => {
+                    const response = await http.get(`/years/select?name=${inputValue}`);
+                    return response.data.map((item) => ({
+                        label: item.name,
+                        value: item.id,
+                    }));
+                }}
+                defaultOptions={options}
+                classNamePrefix="select"
+                noOptionsMessage={() => "هیچ مورد یافت نشد"}
                 placeholder="انتخاب سال"
-                loadOptions={loadOptions}
-                options={options}
                 inputValue={inputValue}
-                onChange={handleChange}
-                onInputChange={handleInputChange}
+                onInputChange={(newValue) => {
+                    setInputValue(newValue);
+                }}
             />
         </div>
     );

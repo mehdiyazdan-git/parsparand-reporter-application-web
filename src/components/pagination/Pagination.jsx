@@ -1,16 +1,16 @@
-import React, { useCallback } from 'react';
+import React from 'react';
 import "./Pagination.css";
 import PageSizeSelector from "./PageSizeSelector";
 
 const Pagination = ({ filter, updateFilter,listName='' }) => {
 
-    const goToFirstPage = useCallback(() => updateFilter(listName,{ page: 0 }), [updateFilter]);
+    const goToFirstPage = () => updateFilter(listName,{ page: 0 })
 
-    const goToPrevPage = useCallback(() => updateFilter(listName,{ page: Math.max(0, filter?.page - 1) }), [updateFilter, filter]);
+    const goToPrevPage = updateFilter(listName,{ page: Math.max(0, filter?.page - 1) })
 
-    const goToNextPage = useCallback(() => updateFilter(listName,{ page: Math.min(filter?.totalPages - 1, filter?.page + 1) }), [updateFilter, filter]);
+    const goToNextPage = updateFilter(listName,{ page: Math.min(filter?.totalPages - 1, filter?.page + 1) })
 
-    const goToLastPage = useCallback(() => updateFilter(listName,{ page: filter?.totalPages - 1 }), [updateFilter, filter]);
+    const goToLastPage = () => updateFilter(listName,{ page: filter?.totalPages - 1 })
 
     const startIndex = () => filter?.page * filter?.size + 1;
 
@@ -18,7 +18,7 @@ const Pagination = ({ filter, updateFilter,listName='' }) => {
 
     return (
         <div className="pagination">
-            <PageSizeSelector filter={filter} updateFilter={updateFilter}/>
+            <PageSizeSelector filter={filter} updateFilter={updateFilter} listName={listName}/>
             <div className="page-info">
                 {`${startIndex()} تا ${endIndex()} از ${filter?.totalElements}`}
             </div>

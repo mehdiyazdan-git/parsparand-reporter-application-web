@@ -4,9 +4,11 @@ import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
 
-const TableFooter = ({ columns, data,allData, downloadExcelFile, listName, getParams, hasSubTotal }) => {
-
-    const dynamicColspan = columns.length - columns.filter(column => column.subtotal).length;
+const TableFooter = ({ columns, data,allData, downloadExcelFile, listName,  hasSubTotal,getParams }) => {
+    let dynamicColspan = 1
+    if (hasSubTotal){
+         dynamicColspan = columns.length - columns.filter(column => column.subtotal).length;
+    }
 
     const subtotals = useMemo(() => {
         return columns.reduce((acc, column) => {

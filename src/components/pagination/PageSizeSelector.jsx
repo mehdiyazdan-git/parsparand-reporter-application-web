@@ -1,11 +1,11 @@
 import React from 'react';
 
-const PageSizeSelector = ({filter,updateFilter}) => {
+const PageSizeSelector = ({filter,updateFilter,listName}) => {
     const handlePageSizeChange = React.useCallback((event) => {
         const size = parseInt(event.target.value);
         const page = Math.floor(filter?.page * filter?.size / size);
-        updateFilter({ size, page });
-    }, [filter, updateFilter]);
+        updateFilter(listName,{ size, page });
+    }, [filter, updateFilter, listName]);
     return (
         <div className="page-size">
             اندازه صفحه:

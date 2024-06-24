@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { useNavigate } from "react-router-dom";
-import {BASE_URL, IPADDRESS, PORT} from '../config/config'; // Ensure the BASE_URL is correctly imported
+import {BASE_URL} from '../config/config'; // Ensure the BASE_URL is correctly imported
 
 const AuthContext = createContext(null);
 

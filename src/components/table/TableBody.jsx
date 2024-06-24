@@ -1,5 +1,4 @@
 import React, {useCallback, useState} from 'react';
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import IconEdit from '../assets/icons/IconEdit';
 import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import IconKey from '../assets/icons/IconKey';
@@ -15,7 +14,6 @@ const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword}) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
-
 
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {
@@ -50,8 +48,6 @@ const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword}) => {
                 </Modal.Body>
             </Modal>
         );
-
-
 
     if (!data) {
         return <LoadingDataErrorPage />;
