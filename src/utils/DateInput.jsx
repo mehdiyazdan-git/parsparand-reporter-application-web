@@ -15,7 +15,10 @@ const DateInput = ({ name, label, ...rest }) => {
                     <Controller
                         control={control}
                         name={name}
-                        render={({ field, fieldState: { invalid, error } }) => (
+                        render={(
+                                {
+                                    field,
+                                    fieldState: { invalid, error } }) => (
                             <div>
                                 <DatePicker
                                     value={field?.value ? new Date(field?.value) : ''}
