@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {memo} from 'react';
 
-const SearchInput = ({ width, id,name, value, onChange, placeholder = "جستجو..." }) => {
+const SearchInput = memo(({width, id, name, value, onChange, placeholder = "جستجو..."}) => {
 
 
     return (
@@ -14,13 +14,15 @@ const SearchInput = ({ width, id,name, value, onChange, placeholder = "جستج�
                 onChange={onChange}
                 style={{
                     border: '1px solid #ccc',
-                    width: '100%',
+                    width: '50em',
+                    maxWidth: '100%',
                     boxSizing: 'border-box',
                     minHeight: '35px',
-                    margin: '0',
+                    margin: '0px',
+
                     backgroundColor: 'rgba(255, 255, 255, 1)',
-                    textIndent:"0.5rem",
-                    padding:"0 0.2rem",
+                    textIndent: "0.5rem",
+                    padding: "0px",
                     borderRadius: "0.25rem",
                     fontSize: "0.7rem",
                     lineHeight: "1.0rem",
@@ -35,7 +37,7 @@ const SearchInput = ({ width, id,name, value, onChange, placeholder = "جستج�
                     "&::placeholder": {
                         color: "#6b7280",
                         opacity: "1",
-                        textIndent:"0.5rem",
+                        textIndent: "0.5rem",
                     },
                     "&:-webkit-autofill": {
                         boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
@@ -56,6 +58,6 @@ const SearchInput = ({ width, id,name, value, onChange, placeholder = "جستج�
             />
         </th>
     );
-};
+});
 
-export default React.memo(SearchInput);
+export default SearchInput;

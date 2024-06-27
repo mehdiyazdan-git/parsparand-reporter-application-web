@@ -1,10 +1,13 @@
-import {useEffect, useState} from 'react';
-
+import { useState } from 'react';
 
 const useFilter = (entityName, initialValues) => {
-    const [filter, setFilter] = useState((entityName, initialValues) => {
-        const storedFilter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`)) || {};
-        return {...initialValues, ...storedFilter};
+    const [filter, setFilter] = useState(() => {
+        if ((sessionStorage.getItem(`filter_${entityName}`) !== 'undefined')){
+            const storedFilter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`)) || {};
+            return { ...initialValues, ...storedFilter };
+        }else {
+            return initialValues;
+        }
     });
 
     function deepMerge(obj1, obj2) {
@@ -24,30 +27,37 @@ const useFilter = (entityName, initialValues) => {
     }
 
     const updateFilter = (entityName, newValues) => {
-        const parse = JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
-        const merged = deepMerge(parse, newValues)
-        sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(merged));
+        if (sessionStorage.getItem(`filter_${entityName}`) !== 'undefined') {
+            const storedFilter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`)) || {};
+            const merged = deepMerge(storedFilter, newValues);
+            sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(merged));
+            setFilter(merged);
+        }else {
+            setFilter(newValues);
+        }
+
     };
 
-
-
-
     const getJalaliYear = () => {
-        return JSON.parse(sessionStorage.getItem(`filter_${entityName}`));
-    }
+        return JSON.parse(sessionStorage.getItem(`filter_${entityName}`))?.jalaliYear || null;
+    };
 
-    const getParams = (entity,excludes = [],subtotal = false) => {
+    const getParams = (entity, excludes = [], subtotal = false) => {
         const params = new URLSearchParams();
+        if (filter === null || filter === undefined) {
+            return params;
+        }
         Object.entries(filter).forEach(([key, value]) => {
             if (value !== null && value !== undefined && !excludes.includes(key)) {
                 if (Array.isArray(value)) {
                     value.forEach(val => params.set(key, val));
+                } else {
+                    params.set(key, value);
                 }
             }
-            excludes.forEach((exclude) => {
-                params.delete(exclude);
-
-            });
+        });
+        excludes.forEach((exclude) => {
+            params.delete(exclude);
         });
         if (subtotal) {
             params.set('size', filter?.totalElements || 1000000);

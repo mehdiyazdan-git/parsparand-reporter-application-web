@@ -1,29 +1,38 @@
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useState} from "react";
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
 import Pagination from "../pagination/Pagination";
 import useFilter from "../contexts/useFilter";
 import TableYear from "./TableYear";
-import useHttp from "../../hooks/useHttp";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import TableSearch from "./TableSearch";
-
+import getCurrentYear from "../../utils/functions/getCurrentYear";
+import useHttp from "../../hooks/useHttp";
 
 const Table = ({
-                   columns, fetchData, onEdit, onDelete, onResetPassword, refreshTrigger,
-                   listName, downloadExcelFile, hasYearSelect = false, hasSubTotal = false }) => {
-    const http = useHttp();
+                   columns,
+                   fetchData,
+                   onEdit,
+                   onDelete,
+                   onResetPassword,
+                   refreshTrigger,
+                   listName,
+                   downloadExcelFile,
+                   hasYearSelect = false,
+                   hasSubTotal = false,
+               }) => {
     const [data, setData] = useState([]);
     const [allData, setAllData] = useState([]);
-    const { filter, updateFilter, getParams } = useFilter();
+    const http = useHttp();
 
-
-    const loadData = async (excludes = [], subtotal = false) => {
-        const params = getParams(listName,excludes,subtotal);
-        return  await fetchData(params.toString());
+    const years = async () => {
+        const response = await http.get(`/years/select`);
+        return response.data.map((year) => ({
+            value: year.id,
+            label: year.name,
+        }));
     };
-
     const extractInitialFiltersFromColumns = (columns) => {
         const initialFilters = {};
         columns.forEach((column) => {
@@ -33,102 +42,127 @@ const Table = ({
         });
         return initialFilters;
     };
-    const getLastOption = async () => {
-        await http('/years/select?').then(response => {
-            const options = response.data.map(item => ({
-                key: item.id,
-                value: item.name
-            }));
-            return options[options.length - 1];
-        });
-    }
-    function deepMerge(obj1, obj2) {
-        const result = { ...obj1 };
-
-        for (let key in obj2) {
-            if (obj2.hasOwnProperty(key)) {
-                if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
-                    result[key] = deepMerge(obj1[key], obj2[key]);
-                } else {
-                    result[key] = obj2[key];
-                }
-            }
-        }
-
-        return result;
-    }
-
-    const initialFilters = {
+    const { filter, updateFilter, getParams} = useFilter(listName, {
         page: 0,
-        pageSize: 10,
+        size: 10,
         order: 'asc',
-        sortBy : 'id',
+        sortBy: 'id',
         ...extractInitialFiltersFromColumns(columns),
-        jalaliYear :
-            filter?.jalaliYear
-                ? filter.jalaliYear
-                ? getLastOption().then(res => res.label)
-            : null
-                : null
-    }
+        jalaliYear: getCurrentYear(),
+    });
+
+
+    const loadData = async (excludes = [], subtotal = false) => {
+        const params = getParams(listName, excludes, subtotal);
+        return await fetchData(params.toString());
+    };
 
     useDeepCompareEffect(() => {
-
-            loadData(['page','pageNumber','jalaliYear'], false).then(response => {
-                setData(response.data.content);
+        loadData(['page', 'pageNumber','totalPages','totalElements'], false).then(response => {
+            if (response?.data?.content && response?.data?.content?.length === 0) {
+               setData([])
                 updateFilter(listName, {
                     ...filter,
-                    page: response.data.pageable.pageNumber,
-                    pageSize: response.data.pageable.pageSize,
-                    totalPages: response.data.totalPages,
-                    totalElements: response.data.totalElements,
+                    totalPages: 0,
+                    totalElements: 0,
                 });
 
-            })
-            // load all data
-            loadData([], true)
-                .then(response => {
+            }else {
+                setData(response.data?.content);
+                updateFilter(listName, {
+                    ...filter,
+                    size: response?.data?.pageable.pageSize ,
+                    page: response?.data?.pageable?.pageNumber,
+                    totalPages: response?.data?.totalPages || 0,
+                    totalElements: response?.data?.totalElements || 0,
+                });
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+
+        loadData([], true).then(response => {
+            if (response?.data?.content && response?.data?.content?.length === 0){
+                setAllData([])
+            }else {
+                if (response?.data?.content && response?.data?.content?.length > 0) {
                     setAllData(response.data.content);
-                })
-        },
-        [sessionStorage.getItem(`filter_${listName}`)]);
+                }
+            }
+        }).catch((error) => {
+            console.error(error)
+        })
+    }, [refreshTrigger]);
+
 
     useDeepCompareEffect(() => {
-        updateFilter(listName, deepMerge(initialFilters, filter));
-        loadData(['page','pageNumber','jalaliYear'],false).then(response => {
-            setData(response.data.content);
-            updateFilter(listName,{
-                ...filter,
-                page: response.data.pageable.pageNumber,
-                pageSize: response.data.pageable.pageSize,
-                totalPages: response.data.totalPages ,
-                totalElements: response.data.totalElements ,
-            });
-        })
-        loadData([], true).then(response => {
-            setAllData(response.data.content);
-        })
-    }, []);
+        loadData([], false).then(response => {
+            if (response?.data?.content && response?.data?.content?.length === 0) {
+                setData([])
+                updateFilter(listName, {
+                    ...filter,
+                    totalPages: 0,
+                    totalElements: 0,
+                });
+            }else {
+                setData(response?.data?.content);
+                updateFilter(listName, {
+                    ...filter,
+                    size: response?.data?.pageable.pageSize || 10,
+                    page: response?.data?.pageable?.pageNumber || 0,
+                    totalPages: response?.data?.totalPages || 0,
+                    totalElements: response?.data?.totalElements || 0,
+                });
+            }
+
+        });
+        loadData(['page', 'pageNumber','totalPages','totalElements'], true).then(response => {
+            if (response?.data?.content && response?.data?.content?.length === 0) {
+                setAllData([])
+            }else {
+                setAllData(response?.data?.content || 0);
+            }
+        });
+    }, [filter]);
+
+    const handleYearChange = useCallback((year) => {
+        updateFilter(listName, {
+            ...filter,
+            jalaliYear: year.label,
+        });
+    }, [filter]);
+
 
     return (
         <>
-            {hasYearSelect && <TableYear filter={filter} updateFilter={updateFilter}/>}
+            {hasYearSelect &&  <TableYear
+                jalaliYear={filter.jalaliYear}
+                onChange={handleYearChange}
+                listname={listName}
+            />}
             <table className="recipient-table table-fixed-height mt-3">
                 <TableHeader columns={columns} filter={filter} updateFilter={updateFilter} listName={listName} />
-                <TableSearch columns={columns} filter={filter} updateFilter={updateFilter} />
-                <TableBody data={data} allData={allData} columns={columns} filter={filter} updateFilter={updateFilter}  fetchData={fetchData}/>
+                <TableSearch columns={columns} filter={filter} updateFilter={updateFilter} listName={listName} />
+                <TableBody
+                    data={data}
+                    columns={columns}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    onResetPassword={onResetPassword}
+                />
                 <TableFooter
-                    allData={allData} columns={columns} filter={filter} updateFilter={updateFilter}
-                    downloadExcelFile={downloadExcelFile} listName={listName}
-                    getParams={getParams} hasSubTotal={hasSubTotal} fetchData={fetchData}  data={data}
+                    allData={allData}
+                    columns={columns}
+                    downloadExcelFile={downloadExcelFile}
+                    listName={listName}
+                    getParams={getParams}
+                    hasSubTotal={hasSubTotal}
+                    data={data}
                 />
             </table>
-            <Pagination filter={filter} updateFilter={updateFilter} />
+            <Pagination filter={filter} updateFilter={updateFilter} listName={listName} />
         </>
     );
 };
-
-
-
 
 export default Table;

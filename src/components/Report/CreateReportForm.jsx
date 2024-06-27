@@ -46,14 +46,14 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
         }
     }
 
-    const onSubmit = async (data) => {
-        data.yearId = await getYearId();
-        if (data.reportDate) {
-            data.reportDate = moment(new Date(data.reportDate)).format('YYYY-MM-DD');
-            const data = await yearSelect().then((res) => res.data);
-            data.yearId = data.find((item) => item.name === Number(moment(new Date(data.reportDate)).format('jYYYY'))).id;
+    const onSubmit = async (entity) => {
+        entity.yearId = await getYearId();
+        if (entity.reportDate) {
+            entity.reportDate = moment(new Date(entity.reportDate)).format('YYYY-MM-DD');
+            const years = await yearSelect().then((res) => res.data);
+            entity.yearId = years.find((item) => item.name === Number(moment(new Date(years.reportDate)).format('jYYYY'))).id;
         }
-        await onCreateReport(data);
+        await onCreateReport(entity);
         onHide();
     };
 

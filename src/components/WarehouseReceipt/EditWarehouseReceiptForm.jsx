@@ -13,6 +13,31 @@ import useHttp from "../../hooks/useHttp";
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
+import styled from 'styled-components';
+
+const CustomModalBody = styled(Modal.Body)`
+  max-height: 70vh; /* Adjust as needed */
+  overflow-y: auto;
+`;
+
+const CustomModal = styled(Modal)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .modal-dialog {
+    width: auto;
+    max-width: 90%; /* Adjust as needed */
+  }
+
+  .modal-content {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px); /* This applies the glass effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+`;
 
 const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, show, onHide }) => {
     const http = useHttp();
@@ -24,8 +49,6 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
     const customerSelect = async (searchQuery = '') => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }
-
-
 
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),
@@ -50,21 +73,20 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
         }
         await onUpdateWarehouseReceipt(data);
         onHide();
-
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show} onHide={onHide}>
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد رسید انبار جدید"}
                 </Modal.Title>
             </Modal.Header>
-            <Modal.Body style={bodyStyle}>
+            <CustomModalBody style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id : warehouseReceipt.id,
+                            id: warehouseReceipt.id,
                             warehouseReceiptDate: warehouseReceipt.warehouseReceiptDate,
                             warehouseReceiptDescription: warehouseReceipt.warehouseReceiptDescription,
                             warehouseReceiptNumber: warehouseReceipt.warehouseReceiptNumber,
@@ -105,8 +127,8 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                         </Button>
                     </Form>
                 </div>
-            </Modal.Body>
-        </Modal>
+            </CustomModalBody>
+        </CustomModal>
     );
 };
 

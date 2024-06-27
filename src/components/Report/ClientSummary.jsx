@@ -10,73 +10,73 @@ import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
 import useFilter from "../contexts/useFilter";
 
 
-
 const Container = styled.div`
-  font-family: IRANSans;
-  font-size: 0.75rem;
-  width: 100%;
-  height: calc(100vh - 100px);
-  background-color: rgba(120, 120, 120, 0.2);
-  padding: 2rem;
-  margin-top: 1rem;
+    font-family: IRANSans;
+    font-size: 0.75rem;
+    width: 100%;
+    height: calc(100vh - 100px);
+    background-color: rgba(120, 120, 120, 0.2);
+    padding: 2rem;
+    margin-top: 1rem;
 `;
 
 const Header = styled.th`
-  background-color: rgba(220, 240, 240, 0.2);
-  font-size: 0.75rem;
-  font-weight: bold;
-  color: #333;
-  text-align: center;
-  padding: 0.5rem;
-  border: 1px #95a3b3 solid;
+    background-color: rgba(220, 240, 240, 0.2);
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px #95a3b3 solid;
+    width: 14.30%; /* Adjust the width to ensure alignment */
 `;
 
 const Row = styled.td`
-  font-size: 0.75rem;
-  color: #333;
-  text-align: center;
-  padding: 0.5rem;
-  border: 1px #95a3b3 solid;
-  font-family: IRANSans;
-  width: 14.30%;
-  background-color: rgba(240, 240, 240, 0.9);
+    font-size: 0.75rem;
+    color: #333;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px #95a3b3 solid;
+    font-family: IRANSans;
+    width: 14.30%; /* Adjust the width to ensure alignment */
+    background-color: rgba(240, 240, 240, 0.9);
 `;
 
 const Footer = styled.td`
-  background-color: rgba(220, 220, 220, 0.3);
-  font-size: 0.75rem;
-  color: #333;
-  text-align: center;
-  padding: 0.5rem;
-  border: 1px #95a3b3 solid;
-  font-family: IRANSans;
-  font-weight: bold;
-  width: 14.30%;
+    background-color: rgba(220, 220, 220, 0.3);
+    font-size: 0.75rem;
+    color: #333;
+    text-align: center;
+    padding: 0.5rem;
+    border: 1px #95a3b3 solid;
+    font-family: IRANSans;
+    font-weight: bold;
+    width: 14.30%; /* Adjust the width to ensure alignment */
 `;
 
 const TableContainer = styled.div`
-  border: 1px #989898 solid;
-  margin-top: 1rem;
+    border: 1px #989898 solid;
+    margin-top: 1rem;
 `;
 
 const Table = styled.table`
-  border: 1px #989898 solid;
-  border-collapse: collapse;
-  text-align: center;
-  width: 100%;
+    border: 1px #989898 solid;
+    border-collapse: collapse;
+    text-align: center;
+    width: 100%;
 `;
 
 const Thead = styled.thead`
-  background-color: rgba(220, 240, 240, 0.2);
+    background-color: rgba(220, 240, 240, 0.2);
 `;
 
 const Tbody = styled.tbody`
-  background-color: rgba(240, 240, 240, 0.9);
+    background-color: rgba(240, 240, 240, 0.9);
 `;
 
 const Tfoot = styled.tfoot`
-  background-color: rgba(225, 225, 240, 0.3);
-  border: 1px #989898 solid;
+    background-color: rgba(225, 225, 240, 0.3);
+    border: 1px #989898 solid;
 `;
 
 function toPersianFormat(number) {
@@ -252,7 +252,7 @@ const ClientSummary = () => {
             filter?.customerId === '' ||
             filter?.customerId === 'undefined') {
              customerSelect().then(res => {
-                updateFilter({customerId: res.data[0].id});
+                updateFilter(listName,{customerId: res.data[0].id});
             });
         }
     },[])
@@ -268,7 +268,7 @@ const ClientSummary = () => {
             <div className="row mt-3">
                 <AsyncSelectSearchInput
                     fetchFunction={customerSelect}
-                    onChange={(value) => updateFilter({customerId: value})}
+                    onChange={(value) => updateFilter(listName,{customerId: value})}
                     value={filter?.customerId}
                 />
             </div>
@@ -279,7 +279,7 @@ const ClientSummary = () => {
             <TableContainer>
                 <Table>
                     <Thead>
-                        <tr className="table-header">
+                        <tr>
                             <Header>{"شماره قرارداد"}</Header>
                             <Header>{"تعداد"}</Header>
                             <Header>{"فروش (ریال)"}</Header>

@@ -10,7 +10,6 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateProductForm from "./CreateProductForm";
 import { saveAs } from 'file-saver';
-import useFilter from "../contexts/useFilter";
 
 const Products = () => {
     const [editingProduct, setEditingProduct] = useState(null);
@@ -21,7 +20,6 @@ const Products = () => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const listName = "products";
-
 
     const getAllProducts = async (queryParams) => {
         return await http.get(`/products?${queryParams}`);
@@ -47,7 +45,7 @@ const Products = () => {
                 setShowModal(false);
             }
         } catch (error) {
-            console.log(error)
+            console.log(error);
             setErrorMessage(error.response.data);
             setShowErrorModal(true);
         }
@@ -107,22 +105,6 @@ const Products = () => {
         },
     ], [options]);
 
-
-    let searchFields = {};
-    columns.forEach(column => {
-        if (column.searchable && column.key) {
-            searchFields[column.key] = '';
-        }
-    });
-    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
-        ...searchFields,
-        page: 0,
-        size: 5,
-        sortBy: "id",
-        order: "asc",
-        totalPages: 0,
-        totalElements: 0,
-    });
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -190,11 +172,10 @@ const Products = () => {
                 onDelete={handleDeleteProduct}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                updateFilter={updateFilter}
-                filter={filter}
-                getParams={getParams}
-                getJalaliYear={getJalaliYear}
+                downloadExcelFile={downloadExcelFile}
+                hasYearSelect={false}
             />
+
             {editingProduct && (
                 <EditProductForm
                     product={editingProduct}

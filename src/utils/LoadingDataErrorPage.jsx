@@ -33,6 +33,7 @@ const ErrorMessage = styled.div`
   border-radius: 5px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   padding: 15px;
+    
   @media (max-width: 768px) {
     text-align: center;
   }
@@ -41,15 +42,9 @@ const ErrorMessage = styled.div`
 const LoadingDataErrorPage = () => {
     const auth = useAuth();
     return (
-        <ErrorPageContainer>
-            <ErrorMessage>
-                <p>خطا در دریافت اطلاعات از سرور</p>
-                <p>1 -لطفا یک با از برنامه خارج شده و مجددا وارد شوید.</p>
-                <p>2 - تنظیمات شبکه و vpn خود را چک کنید.</p>
-                <p>3 - در صورت مشکل در اتصال به اینترنت لطفا با پشتیبانی تماس بگیرید.</p>
-            </ErrorMessage>
-            <Button onClick={auth.logout}>خروج از سیستم</Button>
-        </ErrorPageContainer>
+        <tr>
+
+        </tr>
     );
 };
 

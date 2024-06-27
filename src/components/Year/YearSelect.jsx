@@ -1,76 +1,52 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
-import useHttp from "../../hooks/useHttp";
-import years from "./Years";
+import axios from 'axios';
+import {getCustomSelectStyles} from "../../utils/customStyles";
 
-
-
-
-
-const YearSelect = ({onChange,value,listName,filter,updateFilter}) => {
-    const [inputValue, setInputValue] = useState('');
-    const [options, setOptions] = useState([{label: '', value: ''}]);
-    const http = useHttp();
-
+function YearSelect({ value, onChange }) {
+    const [selectedYear, setSelectedYear] = useState(null);
 
     useEffect(() => {
-        if (!JSON.parse(sessionStorage.getItem(`filter_${listName}`))) {
-            const jalaliYear = options.find(option => option.value === value)?.label;
-            updateFilter(listName,{jalaliYear: jalaliYear});
-        }
-    }, [listName]);
-
-    useEffect(() => {
-        if (!value) {
-            setInputValue('');
-        }else {
-            setInputValue(value);
+        if (value) {
+            loadOptions(value).then(options => {
+                const matchingOption = options.find(option => option.value === value);
+                setSelectedYear(matchingOption);
+            });
         }
     }, [value]);
 
-    useEffect(() => {
-        if (filter?.jalaliYear) {
-            setInputValue(filter.jalaliYear);
+    const loadOptions = async (inputValue) => {
+        try {
+            const response = await axios.get('http://localhost:9090/api/years/select');
+            return response.data.map(year => ({
+                value: year.name,
+                label: year.name
+            }));
+        } catch (error) {
+            console.error('Error fetching years:', error);
+            return [];
         }
-    }, [filter]);
-
-    useEffect(() => {
-        if (inputValue) {
-            loadOptions(inputValue, (options) => {
-                setOptions(options);
-            });
-        }
-    }, [inputValue]);
-
-    function handleChange(newValue) {
-        onChange(newValue?.value);
-        sessionStorage.setItem(`jalaliYear`, JSON.stringify({jalaliYear: newValue?.value}));
-    }
-    const handleInputChange = (newValue) => {
-        setInputValue(newValue);
-        loadOptions(newValue, (options) => {
-            setOptions(options);
-        });
     };
 
-    function loadOptions(inputValue, callback) {
-        http.get('/years/select')
-            .then(response => callback(response.data.map(year => ({ label: year.name.toString(), value: year.id }))))
-            .catch(error => console.error('Error fetching data:', error));
-    }
-    const render = () => (
-        <AsyncSelect
-            value={years.find(year => year.id === value)}
-            defaultValue={years.find(year => year.id === filter?.jalaliYear)}
-            placeholder="انتخاب سال"
-            loadOptions={loadOptions}
-            options={options}
-            onChange={handleChange}
-            onInputChange={handleInputChange}
-        />
-    )
-    return render();
+    const handleChange = (selectedOption) => {
+        setSelectedYear(selectedOption);
+        if (onChange) {
+            onChange(selectedOption);
+        }
+    };
+    const customStyles = getCustomSelectStyles()
 
-};
+    return (
+        <AsyncSelect
+            cacheOptions
+            loadOptions={loadOptions}
+            defaultOptions
+            value={selectedYear}
+            onChange={handleChange}
+            placeholder="Select a year"
+            styles={customStyles}
+        />
+    );
+}
 
 export default YearSelect;

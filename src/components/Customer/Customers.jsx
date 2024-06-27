@@ -102,23 +102,6 @@ const Customers = () => {
         );
     }, []);
 
-    let searchFields = {};
-    columns.forEach(column => {
-        if (column.searchable && column.key) {
-            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
-                searchFields[column.key] = '';
-            }
-        }
-    });
-    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
-        ...searchFields,
-        page: 0,
-        size: 5,
-        sortBy: "id",
-        order: "asc",
-        totalPages: 0,
-        totalElements: 0,
-    });
 
     const downloadExcelFile = useCallback(async () => {
         await http.get('/customers/download-all-customers.xlsx', { responseType: 'blob' })
@@ -164,10 +147,8 @@ const Customers = () => {
                 onDelete={handleDeleteCustomer}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                updateFilter={updateFilter}
-                filter={filter}
-                getParams={getParams}
-                getJalaliYear={getJalaliYear}
+               hasSubTotal={false}
+                hasYearSelect={false}
             />
 
             {editingCustomer && (

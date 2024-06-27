@@ -1,127 +1,80 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Invoices from "./Invoices";
 import useFilter from "../contexts/useFilter";
+import styled from 'styled-components';
 
+const ModalBody = styled(Modal.Body)`
+  max-height: 70vh; /* Adjust as needed */
+  overflow-y: auto;
+`;
 
+const CustomModal = styled(Modal)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-const InvoicesModal = ({contractNumber}) => {
-    const [tempFilters, setTempFilters] = useState({});
-    const listName = "invoices";
-    const { filters,setFilter,setPagination,addFilter,clearFilter,addFilterToSearch} = useFilter();
+  .modal-dialog {
+    width: auto;
+    max-width: 90%; /* Adjust as needed */
+  }
+
+  .modal-content {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px); /* This applies the glass effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const InvoicesModal = ({ contractNumber }) => {
+    const listName = "contract-invoice-modal";
+    const { filter, updateFilter } = useFilter();
     const [showModal, setShowModal] = useState(false);
 
-
     const handleShow = () => {
-        const jalaliYear = filters[listName]?.search?.years;
-        if (filters[listName]?.search?.contractNumber && filters[listName]?.search?.jalaliYear){
-            clearFilter(listName,"contractNumber");
-            setTempFilters({...filters, years : jalaliYear})
-            setPagination(listName, 0 , filters[listName]?.pageSize);
-            setFilter(listName, "search",{...filters, years : jalaliYear});
-        }
-        if (!filters[listName]?.search?.jalaliYear){
-            const jalaliYear = filters[listName]?.search?.years;
-            addFilter(listName, "jalaliYear", jalaliYear);
-        }
-        if (!filters[listName]?.search?.contractNumber && !filters[listName]?.search?.jalaliYear){
-            const jalaliYear = filters[listName]?.search?.years;
-            addFilter(listName, "jalaliYear", jalaliYear);
-            addFilterToSearch(listName, "contractNumber", contractNumber);
-        }
-        setPagination(listName, 0 , filters[listName]?.pageSize);
+        updateFilter(listName, {
+            contractNumber: contractNumber,
+            page: 0,
+            size: 10,
+            sortBy: 'id',
+            order: 'asc',
+            ...filter
+        });
         setShowModal(true);
     };
 
     const handleClose = () => {
-        const keys = Object.keys(filters[listName]?.search);
-        keys.forEach(key => {
-            if (key === "contractNumber"){
-                delete filters[listName]?.search[key];
-            }
+        updateFilter(listName, {
+            contractNumber: '',
+            page: 0,
+            size: 10,
+            sortBy: 'id',
+            order: 'asc',
         });
-        clearFilter(listName,"contractNumber");
-        addFilter(listName, "jalaliYear", contractNumber);
-        setPagination(listName, 0 , filters[listName]?.pageSize);
-        addFilter(listName, "jalaliYear", tempFilters.years);
         setShowModal(false);
     };
+
     return (
         <>
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <Modal show={showModal} centered size={"xl"}>
-                <Modal.Body>
+            <CustomModal show={showModal} centered onHide={handleClose}>
+                <ModalBody>
                     <Invoices contractNumber={contractNumber} />
-                </Modal.Body>
+                </ModalBody>
                 <Modal.Footer>
                     <Button $variant="warning" type={"button"} onClick={handleClose}>
                         بستن
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </CustomModal>
         </>
     );
 };
 
 export default InvoicesModal;
-//const addFilterToSearch = (listName, filter, value) => {
-//     setFilters((prevFilters) => {
-//         const newFilters = {...prevFilters};
-//         newFilters[listName].search[filter] = value;
-//         sessionStorage.setItem('filters', JSON.stringify(newFilters));
-//         return newFilters;
-//     });
-// }
-// const addFilter = (listName, filter, value) => {
-//     setFilters((prevFilters) => {
-//         const newFilters = {...prevFilters};
-//         newFilters[listName][filter] = value;
-//         sessionStorage.setItem('filters', JSON.stringify(newFilters));
-//         return newFilters;
-//     });
-// }
-//
-// // Function to clear all filters for a list
-// const clearFilters = (listName) => {
-//     setFilters((prevFilters) => {
-//         const newFilters = {...prevFilters};
-//         delete newFilters[listName];
-//         sessionStorage.setItem('filters', JSON.stringify(newFilters));
-//         return newFilters;
-//     });
-// };
-//const clearFilter = (listName,filter) => {
-//     setFilters((prevFilters) => {
-//         const newFilters = {...prevFilters};
-//         newFilters[listName][filter] = null;
-//         sessionStorage.setItem('filters', JSON.stringify(newFilters));
-//         return newFilters;
-//     });
-// }
 
-//{
-//     "years": {
-//         "jalaliYear": {
-//             "label": 1403,
-//             "value": 4
-//         }
-//     },
-//     "clientSummaryList": {
-//         "search": {
-//             "customerId": 75
-//         }
-//     },
-//     "warehouseReceipts": {
-//         "search": {
-//             "notInvoiced": true,
-//             "customerId": 75
-//         },
-//         "page": 0,
-//         "pageSize": 10,
-//         "totalPages": 11,
-//         "totalElements": 106
-//     }
-// }

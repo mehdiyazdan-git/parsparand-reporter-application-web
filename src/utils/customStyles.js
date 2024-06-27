@@ -1,6 +1,8 @@
 export const getCustomSelectStyles = (error) => ({
     control: (provided) => ({
         ...provided,
+        width: '100%',
+        maxWith:'100%',
         maxHeight: '200px',
         height: "2em",
         overflowY: 'auto',
