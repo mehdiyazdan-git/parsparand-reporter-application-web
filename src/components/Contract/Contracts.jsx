@@ -91,24 +91,6 @@ const Contracts = () => {
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true,type: 'number',subtotal:true, render: (item) => formatNumber(item.totalPrice) },
     ], []);
 
-    let searchFields = {};
-    columns.forEach(column => {
-        if (column.searchable && column.key) {
-            if (column.type === 'date' || column.type === 'select' || column.type === 'async-select' || column.type === 'checkbox' || column.type === 'number')   {
-                searchFields[column.key] = '';
-            }
-        }
-    });
-    const { filter, updateFilter, getParams,getJalaliYear } = useFilter(listName, {
-        ...searchFields,
-        page: 0,
-        size: 5,
-        sortBy: "id",
-        order: "asc",
-        totalPages: 0,
-        totalElements: 0,
-    });
-
     const ErrorModal = useMemo(() => ({ show, handleClose, errorMessage }) => {
         return (
             <Modal show={show} onHide={handleClose} centered>
@@ -124,8 +106,9 @@ const Contracts = () => {
         );
     }, []);
 
-    const downloadExcelFile = useCallback(async (exportAll) => {
-        await http.get(`/contracts/download-all-contracts.xlsx?${getParams(listName)}&exportAll=${exportAll}`, { responseType: 'blob' })
+    const downloadExcelFile = async (queryParams) => {
+
+        await http.get(`/invoices/download-all-contracts.xlsx?${queryParams}`, { responseType: 'blob' })
             .then((response) => response.data)
             .then((blobData) => {
                 saveAs(blobData, "contracts.xlsx");
@@ -133,11 +116,17 @@ const Contracts = () => {
             .catch((error) => {
                 console.error('Error downloading file:', error);
             });
-    }, [http]);
+    }
 
     return (
         <div className="table-container">
-            <ButtonContainer lastChild={<FileUpload uploadUrl={`/contracts/import`} refreshTrigger={refreshTrigger} setRefreshTrigger={setRefreshTrigger} />}>
+            <ButtonContainer
+                lastChild={
+                    <FileUpload uploadUrl={`/contracts/import`}
+                                refreshTrigger={refreshTrigger}
+                                setRefreshTrigger={setRefreshTrigger}
+                    />
+            }>
                 <Button
                     $variant="primary"
                     onClick={() => setShowModal(true)}
@@ -168,10 +157,6 @@ const Contracts = () => {
                 onDelete={handleDeleteContract}
                 refreshTrigger={refreshTrigger}
                 listName={listName}
-                updateFilter={updateFilter}
-                filter={filter}
-                getParams={getParams}
-                getJalaliYear={getJalaliYear}
                 downloadExcelFile={downloadExcelFile}
                 hasSubTotal={true}
                 hasYearSelect={true}

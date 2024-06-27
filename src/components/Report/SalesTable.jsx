@@ -6,6 +6,7 @@ import {formatNumber} from "../../utils/functions/formatNumber";
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
     fontSize: '0.75rem',
+    fontFamily:'IRANSans',
     fontWeight: 'bold',
     color: '#333',
     textAlign: 'center',
@@ -15,11 +16,11 @@ const headerStyle = {
 
 const rowStyle = {
     fontSize: '0.75rem',
+    fontFamily:'IRANSans',
     color: '#333',
     textAlign: 'center',
     padding: '0.5rem',
     border: '1px #a5b6c9 solid',
-    fontFamily: 'IRANSans',
     width: '14.30%',
     backgroundColor: 'rgba(240, 240, 240, 0.9)',
 }
@@ -35,8 +36,9 @@ const footerStyle = {
     width: '14.30%',
 }
 
-const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliYear }) => {
+const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliYear,filter,listName }) => {
     const http = useHttp();
+    const loadData = async () => await http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`);
     const [data, setData] = useState([
         {
             monthNumber: 1,
@@ -46,13 +48,16 @@ const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliY
         },
     ]);
 
+
     useEffect(() => {
-        async function loadData() {
-            await http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
-                .then(response => setData(response.data));
-        }
-        loadData();
-    }, [jalaliYear]);
+        http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
+            .then(response => setData(response.data));
+    }, [jalaliYear,productType]);
+
+    useEffect(() => {
+         http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
+            .then(response => setData(response.data));
+    },[])
 
     const firstHalfData = data.slice(0, 6);
     const secondHalfData = data.slice(6, 12);

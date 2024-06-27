@@ -89,6 +89,9 @@ const Payments = ({ customerId }) => {
                 return subject;
         }
     };
+    const customerSelect = async (searchQuery) => {
+        return await http.get('/customers/select' + (searchQuery && searchQuery.length > 0 && searchQuery !== 'undefined') && `?searchQuery=${searchQuery}`);
+    }
 
     const columns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
@@ -109,8 +112,8 @@ const Payments = ({ customerId }) => {
                     { value: "ADVANCEDPAYMENT", label: 'پیش پرداخت' },
                 ]
         },
-        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true },
-        { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true,subtotal :true , render: item => formatNumber(item.paymentAmount) },
+        { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true,subtotal :true,type: 'number' , render: item => formatNumber(item.paymentAmount) },
+        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true,type: 'async-select',apiFetchFunction: customerSelect},
     ], []);
 
 

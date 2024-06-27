@@ -15,11 +15,12 @@ import Returneds from "./components/Returned/Returneds";
 import InvoiceStatuses from "./components/InvoiceStatuses/InvoiceStatuses";
 import Years from "./components/Year/Years";
 import Payments from "./components/Payment/Payments";
-import MonthlyReport from "./components/Report/MonthlyReport";
 import AnnualReport from "./components/Report/AnnualReport";
 import YearComparisonReport from "./components/Report/YearComparisonReport";
 import ClientSummary from "./components/Report/ClientSummary";
 import FilterProvider from "./components/contexts/FilterContext";
+import MonthlyReport from "./components/Report/MonthlyReportByProduct";
+
 
 const queryClient = new QueryClient();
 

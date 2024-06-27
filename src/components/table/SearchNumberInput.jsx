@@ -1,19 +1,19 @@
-import React from 'react';
+import React, {memo} from 'react';
 import {NumericFormat} from "react-number-format";
 
-const SearchNumberInput = ({ width, id, name, value, onChange, placeholder = "جستجو..." }) => {
+const SearchNumberInput = memo(({width, id, name, value, onChange, placeholder = "جستجو..."}) => {
     return (
         <th
             style={{
                 backgroundColor: 'rgba(255, 255, 255, 1)',
                 borderBottom: 'none',
                 boxSizing: 'border-box',
-                width:width,
-                margin:"0",
-                padding:"0.1rem 0.1rem",
+                width: width,
+                margin: "0",
+                padding: "0.1rem 0.1rem",
                 borderRadius: "0.25rem",
                 boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
-        }}
+            }}
         >
             <NumericFormat
                 placeholder={placeholder}
@@ -31,8 +31,8 @@ const SearchNumberInput = ({ width, id, name, value, onChange, placeholder = "ج
                     minHeight: '35px',
                     margin: '0',
                     backgroundColor: 'rgba(255, 255, 255, 1)',
-                    textIndent:"0.5rem",
-                    padding:"0 0.1rem",
+                    textIndent: "0.5rem",
+                    padding: "0 0.1rem",
                     borderRadius: "0.25rem",
                     fontSize: "0.7rem",
                     lineHeight: "1.0rem",
@@ -47,7 +47,7 @@ const SearchNumberInput = ({ width, id, name, value, onChange, placeholder = "ج
                     "&::placeholder": {
                         color: "#6b7280",
                         opacity: "1",
-                        textIndent:"0.5rem",
+                        textIndent: "0.5rem",
                     },
                     "&:-webkit-autofill": {
                         boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
@@ -68,6 +68,6 @@ const SearchNumberInput = ({ width, id, name, value, onChange, placeholder = "ج
             />
         </th>
     );
-};
+});
 
 export default SearchNumberInput;

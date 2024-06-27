@@ -1,57 +1,56 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from 'react';
+import AsyncSelect from 'react-select/async';
 import useHttp from "../../hooks/useHttp";
-import PropTypes from "prop-types";
-import AsyncSelect from "react-select/async";
+import {getCustomSelectStyles} from "../../utils/customStyles";
 
 
-const TableYear = ({filter,updateFilter,listName}) => {
+const TableYear = ({ jalaliYear, onChange }) => {
+    const [selectedYear, setSelectedYear] = useState(null);
     const http = useHttp();
-    const [inputValue, setInputValue] = useState('');
-    const [options, setOptions] = useState([{label: '', value: ''}]);
-
 
     useEffect(() => {
-        (async () => {
-            const response = await http.get(`/years/select?`);
-            console.log(`/years/select:  `,response.data)
-            setOptions(prevState =>  response.data.map((item) => ({
-                label: item.name,
-                value: item.id,
-            })));
-        })();
-        setInputValue(filter?.jalaliYear ? filter.jalaliYear : options[0].label)
-    }, []);
+        if (jalaliYear) {
+            // Fetch year options and set the initial value based on jalaliYear
+            loadOptions().then(options => {
+                const matchingOption = options.find(option => option.label === jalaliYear);
+                setSelectedYear(matchingOption);
+            });
+        }
+    }, [jalaliYear]);
+
+    const loadOptions = async () => {
+        try {
+            const response = await http.get('/years/select'); // Assuming your API endpoint
+            return response.data.map(year => ({
+                value: year.id,
+                label: year.name,
+            }));
+        } catch (error) {
+            console.error('Error fetching years:', error);
+            return [];
+        }
+    };
+
+    const handleChange = (selectedOption) => {
+        setSelectedYear(selectedOption);
+        if (onChange) {
+            onChange(selectedOption);
+        }
+    };
 
     return (
-        <div className="col-3 mt-3">
+        <div className="col">
             <AsyncSelect
-                name={'jalaliYear'}
-                value={options.find((option) => option.label === filter?.jalaliYear)}
-                onChange={(option) => {
-                    updateFilter(listName,{'jalaliYear' :option.label});
-                }}
-                loadOptions={async (inputValue) => {
-                    const response = await http.get(`/years/select?name=${inputValue}`);
-                    return response.data.map((item) => ({
-                        label: item.name,
-                        value: item.id,
-                    }));
-                }}
-                defaultOptions={options}
-                classNamePrefix="select"
-                noOptionsMessage={() => "هیچ مورد یافت نشد"}
-                placeholder="انتخاب سال"
-                inputValue={inputValue}
-                onInputChange={(newValue) => {
-                    setInputValue(newValue);
-                }}
+                value={selectedYear}
+                cacheOptions
+                loadOptions={loadOptions}
+                defaultOptions
+                onChange={handleChange}
+                placeholder="سال را انتخاب کنید"
+                styles={getCustomSelectStyles()}
             />
         </div>
     );
-};
-TableYear.prototype = {
-    filter: PropTypes.object,
-    updateFilter: PropTypes.func,
 };
 
 export default TableYear;

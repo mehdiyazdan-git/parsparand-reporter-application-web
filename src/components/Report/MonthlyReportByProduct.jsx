@@ -1,9 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState, useCallback, memo} from 'react';
 import "./monthlyReport.css";
 import useHttp from "../../hooks/useHttp";
-import { formatNumber } from "../../utils/functions/formatNumber";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
+import {formatNumber} from "../../utils/functions/formatNumber";
 import useFilter from "../contexts/useFilter";
+import getCurrentYear from "../../utils/functions/getCurrentYear";
+import YearSelect from "../Year/YearSelect";
+import MonthYear from "./MonthYear";
+import PersianMonthSelect from "../../utils/PersianMonthSelect";
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -37,9 +40,18 @@ const footerStyle = {
     width: '14.30%',
 };
 
-function MonthlyReportByProduct({ productType, listName }) {
+
+
+const MonthlyReportByProduct = memo(({productType, listName}) => {
     const http = useHttp();
-    const { filter, getParams } = useFilter(listName);
+
+    const {filter, getParams, updateFilter} = useFilter(listName, {
+        productType: productType,
+        jalaliYear: getCurrentYear(),
+        month: 1,
+    });
+    const [month, setMonth] = useState(filter.month);
+    const [year, setYear] = useState(filter.jalaliYear || getCurrentYear());
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,
@@ -48,18 +60,43 @@ function MonthlyReportByProduct({ productType, listName }) {
         amount: 0,
     });
 
-    const loadMonthlyReport = async (getParams, listName) => {
+    const loadMonthlyReport = useCallback(async () => {
         try {
-            const response = await http.get(`/reports/sales-by-month-and-product-type?${getParams(listName)}`);
+            const params = getParams(listName);
+            // Convert year in the parameters to the format expected by your API (if needed)
+            const adjustedYear = params.get('jalaliYear');
+            if (adjustedYear) {
+                params.set('jalaliYear', adjustedYear); // Assuming your API uses the same 'jalaliYear' key
+            }
+            const response = await http.get(`/reports/sales-by-month-and-product-type?${params}`);
             setMonthlyReport(response.data);
         } catch (error) {
             console.log(error);
         }
-    };
+    }, [getParams, listName]);
 
-    useDeepCompareEffect(() => {
-        loadMonthlyReport(getParams, listName);
-    }, [filter]);
+    useEffect(() => {
+        Object.keys(filter).map((key) => {
+            if (key === 'jalaliYear') {
+                setYear(filter.jalaliYear);
+            }
+            if (key === 'month') {
+                setMonth(filter.month);
+            }
+        })
+
+    }, []);
+
+    useEffect(() => {
+        loadMonthlyReport();
+    }, [filter.jalaliYear, filter.month]);
+
+    useEffect(() => {
+        if (!filter?.productType) {
+            updateFilter(listName, {productType: 2});
+        }
+    }, [filter.jalaliYear, filter.month]);
+
 
     useEffect(() => {
         const calculatedSubtotals = monthlyReport.reduce((acc, curr) => {
@@ -68,19 +105,42 @@ function MonthlyReportByProduct({ productType, listName }) {
             acc.cumulative_amount += curr.cumulativeTotalAmount;
             acc.amount += curr.totalAmount;
             return acc;
-        }, { quantity: 0, cumulative_quantity: 0, cumulative_amount: 0, amount: 0 });
+        }, {quantity: 0, cumulative_quantity: 0, cumulative_amount: 0, amount: 0});
         setSubtotals(calculatedSubtotals);
     }, [monthlyReport]);
 
-    const subtotal = () => {
+    const subtotal = useCallback(() => {
         return monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0);
+    }, [monthlyReport]);
+
+    let handleYearChange = (selectedYear) => {
+        setYear(selectedYear.value);  // Use selectedYear.value
+        updateFilter(listName, { jalaliYear: selectedYear.value }); // Update the filter
+    };
+
+    let handleMonthChange = (month) => {
+        setMonth(month)
+        updateFilter(listName, {month: Number(month)});
     };
 
     return (
-        <div className="monthly-report" style={{ fontFamily: "IRANSans", backgroundColor: 'rgba(220, 220, 220, 0.2)' }}>
-            <table style={{ fontSize: "0.75rem", border: "1px #a5b6c9 solid" }} className="table table-bordered table-responsive">
+        <div className="monthly-report" style={{fontFamily: "IRANSans", backgroundColor: 'rgba(220, 220, 220, 0.2)'}}>
+            <div className="row mt-3 mx-1 mb-3 ">
+                <div className="row mt-3 mx-1 mb-3 ">
+                    <div className="col-3">
+                        <YearSelect value={year} onChange={handleYearChange}/>
+                    </div>
+                    <div className="col-3">
+                        <PersianMonthSelect month={month} onChange={handleMonthChange}/>
+                    </div>
+                </div>
+            </div>
+
+
+            <table style={{fontSize: "0.75rem", border: "1px #a5b6c9 solid"}}
+                   className="table table-bordered table-responsive">
                 <thead>
-                <tr style={{ backgroundColor: 'rgba(220, 220, 220, 0.1)' }}>
+                <tr style={{backgroundColor: 'rgba(220, 220, 220, 0.1)'}}>
                     <th style={headerStyle}>ردیف</th>
                     <th style={headerStyle}>نام شرکت</th>
                     <th style={headerStyle}>تعداد ماه جاری</th>
@@ -118,12 +178,13 @@ function MonthlyReportByProduct({ productType, listName }) {
                         isNaN(subtotals?.amount) || subtotal() === 0
                             ? 0
                             : ((subtotals?.amount) / subtotal()) * 100
-                    )}%</td>
+                    )}%
+                    </td>
                 </tr>
                 </tfoot>
             </table>
         </div>
     );
-}
+});
 
 export default MonthlyReportByProduct;

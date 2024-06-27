@@ -1,69 +1,50 @@
-import React, {useEffect, useState} from 'react';
-import AsyncSelect from "react-select/async";
-import {getCustomSelectStyles} from "../../utils/customStyles";
+import React, { useState, useEffect } from 'react';
+import Select from 'react-select';
+import axios from 'axios';
 
-const AsyncSelectSearchInput = ({fetchFunction,defaultValue,value,onChange}) => {
+const AsyncSelectSearchInput = ({ name, fetchFunction, defaultValue, onChange }) => {
     const [options, setOptions] = useState([]);
-    const [_defaultValue,_setDefaultValue] = useState(defaultValue)
-
-    const fetchAPI = async (inputValue) => {
-        return await fetchFunction(inputValue)
-    };
-    const promiseOptions = async (inputValue) => {
-        try {
-            const response = await fetchAPI(inputValue);
-            const data = response.data; // Make sure this is an array.
-            if (!Array.isArray(data)) {
-                throw new Error('Data is not an array');
-            }
-            const newOptions = data.map((record) => ({
-                label: record.name,
-                value: record.id,
-            }));
-            setOptions(newOptions);
-            return newOptions;
-        } catch (error) {
-            console.error('There was an error fetching the options: ', error);
-            return []; // Return an empty array if there's an error.
-        }
-    };
-
+    const [selectedOption, setSelectedOption] = useState(null);
 
     useEffect(() => {
-        async function loadOptions() {
-            try {
-                const response = await fetchAPI();
-                const data = response.data; // Make sure this is an array.
-                if (!Array.isArray(data)) {
-                    throw new Error('Data is not an array');
-                }
-                const newOptions = data.map((record) => ({
-                    label: record.name,
-                    value: record.id,
+        if (defaultValue) {
+            fetchFunction('').then((response) => {
+                const formattedOptions = response.data.map((item) => ({
+                    value: item.id,
+                    label: item.name,
                 }));
-                setOptions(newOptions);
-                _setDefaultValue(defaultValue ? options.find((o)=> o?.value === defaultValue) : null)
-            } catch (error) {
-                console.error('There was an error in the initial options load: ', error);
-                // You might want to handle this error state appropriately.
-            }
+                setOptions(formattedOptions);
+                setSelectedOption(formattedOptions.find(option => option.value === defaultValue));
+            });
         }
-        loadOptions();
-    }, []);
-    return (
-        <div>
-            <AsyncSelect
+    }, [defaultValue, fetchFunction]);
 
-                value={value ? options.find((o)=> o?.value === value) : null}
-                onChange={(option) =>
-                    onChange(option ? option.value : null)}
-                cacheOptions
-                loadOptions={promiseOptions}
-                defaultOptions
-                placeholder={"جستجو..."}
-                styles={getCustomSelectStyles()}
-            />
-        </div>
+    const loadOptions = async (inputValue) => {
+        try {
+            const response = await fetchFunction(inputValue);
+            const formattedOptions = response.data.map((item) => ({
+                value: item.id,
+                label: item.name,
+            }));
+            setOptions(formattedOptions);
+            return formattedOptions;
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    return (
+        <Select
+            isSearchable
+            placeholder="Search..."
+            value={selectedOption}
+            loadOptions={loadOptions}
+            options={options}
+            onChange={(selectedOption) => {
+                setSelectedOption(selectedOption);
+                onChange(selectedOption ? selectedOption.value : null);
+            }}
+        />
     );
 };
 

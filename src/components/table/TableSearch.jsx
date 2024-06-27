@@ -1,11 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import SelectSearchInput from '../../utils/SelectSearchInput';
-import AsyncSelectInput from '../../utils/AsyncSelectInput';
 import SearchCheckboxInput from './SearchCheckboxInput';
 import SearchNumberInput from './SearchNumberInput';
 import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
+import AsyncSelectSearchInput from "./AsyncSelectSearchInput";
 
 const TableSearch = ({ columns, filter,updateFilter,listName }) => {
 
@@ -36,7 +35,7 @@ const TableSearch = ({ columns, filter,updateFilter,listName }) => {
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
-                        <AsyncSelectInput
+                        <AsyncSelectSearchInput
                             key={column.key}
                             width={column.width}
                             name={column.key}

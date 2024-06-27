@@ -17,10 +17,6 @@ import NumberInput from "../../utils/NumberInput";
 const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) => {
     const http = useHttp();
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`);
-    }
-
     const customerSelect = async (searchQuery) => {
         return await http.get(`/customers/select?searchQuery=${searchQuery}`);
     }

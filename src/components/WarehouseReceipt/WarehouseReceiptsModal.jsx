@@ -1,61 +1,73 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import WarehouseReceipts from "./WarehouseReceipts";
-import useFilter from "../contexts/useFilter"; // Renamed import
+import useFilter from "../contexts/useFilter";
+import styled from 'styled-components';
 
+const ModalBody = styled(Modal.Body)`
+    max-height: 70vh; /* Adjust as needed */
+    overflow-y: auto;
+`;
 
-const WarehouseReceiptsModal = ({ customerId }) => { // Renamed component
-    const listName = "warehouseReceipts"; // Updated list name
-    const { filters, addFilterToSearch, setPagination,getFilter,createFilter } = useFilter();
+const CustomModal = styled(Modal)`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .modal-dialog {
+        width: auto;
+        max-width: 90%; /* Adjust as needed */
+    }
+
+    .modal-content {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px); /* This applies the glass effect */
+        -webkit-backdrop-filter: blur(10px); /* For Safari support */
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+`;
+
+const WarehouseReceiptsModal = ({ customerId }) => {
+    const listName = "not-invoiced-modal";
+    const { filters, updateFilter } = useFilter(listName, {
+        page: 0,
+        pageSize: 10,
+        sortBy: 'id',
+        order: 'asc',
+    });
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!getFilter("warehouseReceipts")){
-            createFilter("warehouseReceipts")
-        }
-        addFilterToSearch("warehouseReceipts", "notInvoiced", true);
-        addFilterToSearch("warehouseReceipts", "customerId", customerId);
-        setPagination("warehouseReceipts", 0 , filters[listName]?.pageSize);
+        updateFilter({ "customerId": customerId });
+        updateFilter({ notInvoiced: true });
         setShowModal(true);
     };
 
     const handleClose = () => {
-        const keys = Object.keys(filters[listName]?.search);
-        keys.forEach(key => {
-            if (key === "customerId") {
-                delete filters[listName]?.search[key];
-            }
-            if (key === "notInvoiced"){
-                delete filters[listName]?.search[key];
-            }
-        });
-        delete filters[listName]?.search["notInvoiced"];
-        setPagination(listName, 0 , filters[listName]?.pageSize);
+        updateFilter({ "customerId": null });
+        updateFilter({ notInvoiced: false });
         setShowModal(false);
     };
-
-    useEffect(() => {
-
-    })
 
     return (
         <>
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <Modal show={showModal} centered size={"xl"}>
-                <Modal.Body>
-                    <WarehouseReceipts customerId={customerId} shouldNotDisplayCustomerName={false}/> {/* Updated component */}
-                </Modal.Body>
+            <CustomModal show={showModal} centered onHide={handleClose}>
+                <ModalBody>
+                    <WarehouseReceipts customerId={customerId} shouldNotDisplayCustomerName={false} />
+                </ModalBody>
                 <Modal.Footer>
                     <Button $variant="warning" onClick={handleClose}>
                         بستن
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </CustomModal>
         </>
     );
 };
 
-export default WarehouseReceiptsModal; // Renamed export
+export default WarehouseReceiptsModal;

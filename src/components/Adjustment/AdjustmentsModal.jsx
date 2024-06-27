@@ -1,50 +1,74 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Adjustments from "./Adjustments";
 import useFilter from "../contexts/useFilter";
+import styled from 'styled-components';
 
+const ModalBody = styled(Modal.Body)`
+  max-height: 70vh; /* Adjust as needed */
+  overflow-y: auto;
+`;
 
+const CustomModal = styled(Modal)`
+  display: flex;
+  justify-content: center;
+  align-items: center;
 
-const AdjustmentsModal = ({customerId}) => {
-    const listName = "adjustments";
-    const { filter,updateFilter} = useFilter();
+  .modal-dialog {
+    width: auto;
+    max-width: 90%; /* Adjust as needed */
+  }
+
+  .modal-content {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(10px); /* This applies the glass effect */
+    -webkit-backdrop-filter: blur(10px); /* For Safari support */
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+`;
+
+const AdjustmentsModal = ({ customerId }) => {
+    const listName = "adjustments-modal";
+    const { filter, updateFilter } = useFilter(listName, {
+        customerId: customerId,
+        page: 0,
+        size: 10,
+        sortBy: 'id',
+        order: 'asc',
+    });
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filter[listName]?.search?.customerId || filter[listName]?.search?.customerId !== customerId){
-            const newSearch = {...filter[listName]?.search, customerId: customerId};
-            updateFilter(listName, "search",newSearch);
-        }
+        updateFilter(listName, {
+            customerId: customerId,
+        });
         setShowModal(true);
     };
 
     const handleClose = () => {
-        const keys = Object.keys(filter[listName]?.search);
-        keys.forEach(key => {
-            if (key === "customerId"){
-                delete filter[listName]?.search[key];
-            }
+        updateFilter(listName, {
+            customerId: '',
         });
-        const newSearch = {...filter[listName]?.search, page: 0};
-        updateFilter(listName, "search",newSearch);
         setShowModal(false);
     };
+
     return (
         <>
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <Modal show={showModal} centered size={"xl"}>
-                <Modal.Body>
+            <CustomModal show={showModal} centered onHide={handleClose}>
+                <ModalBody>
                     <Adjustments customerId={customerId} />
-                </Modal.Body>
+                </ModalBody>
                 <Modal.Footer>
                     <Button $variant="warning" onClick={handleClose}>
                         بستن
                     </Button>
                 </Modal.Footer>
-            </Modal>
+            </CustomModal>
         </>
     );
 };

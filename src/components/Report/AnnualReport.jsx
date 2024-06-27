@@ -3,15 +3,19 @@ import SalesTable from "./SalesTable";
 import {titleStyle} from "../styles/styles";
 import YearSelect from "../Year/YearSelect";
 import useFilter from "../contexts/useFilter";
+import getCurrentYear from "../../utils/functions/getCurrentYear";
 
 
 
 
 const AnnualReport = () => {
-    const { filter, updateFilter, getParams } = useFilter('annual');
+    const listName = "annual";
+    const { filter, updateFilter, getParams } = useFilter('annual',{
+        jalaliYear: getCurrentYear()
+    });
 
     const handleJalaliYearChange = (value,label) => {
-        updateFilter({ 'jalaliYear': Number(label) });
+        updateFilter(listName,{ 'jalaliYear': Number(label) });
     };
     return (
         <div className="container-fluid mt-4" style={{ fontFamily: "IRANSans",fontSize:"0.85rem" }}>
@@ -20,8 +24,12 @@ const AnnualReport = () => {
                 <strong style={{...titleStyle,color:"darkblue"}}>گزارش فروش تجمیعی</strong>
             </div>
             <div className="col-3">
-                <YearSelect  value={{label:filter?.jalaliYear,value:filter?.jalaliYear}}
+                <YearSelect
                              onChange={handleJalaliYearChange}
+                             updateFilter={updateFilter}
+                             filter={filter}
+                             listName={listName}
+                             value={filter?.jalaliYear || getCurrentYear()}
                 />
             </div>
             <div className="row">

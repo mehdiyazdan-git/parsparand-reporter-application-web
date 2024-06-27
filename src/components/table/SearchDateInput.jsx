@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {memo} from 'react';
 import moment from 'moment';
 import DatePicker from "react-multi-date-picker";
 import persian from "react-date-object/calendars/persian";
@@ -7,10 +7,10 @@ import "react-multi-date-picker/styles/layouts/prime.css";
 import "../../App.css";
 import "../../index.css";
 
-const SearchDateInput = ({ width, value, onChange, placeholder = "جستجو..." }) => {
+const SearchDateInput = memo(({width, value, onChange, placeholder = "جستجو..."}) => {
 
     return (
-        <th width={width} style={{ padding: '0px 0px', textAlign: 'center',margin:'0'}}>
+        <th width={width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
             <DatePicker
                 value={value}
                 format="YYYY/MM/DD"
@@ -18,13 +18,14 @@ const SearchDateInput = ({ width, value, onChange, placeholder = "جستجو..."
 
                 style={{
                     border: '1px solid #ccc',
-                    width: '100%',
+                    width: '15em',
+                    maxWidth: '100%',
                     boxSizing: 'border-box',
                     minHeight: '35px',
                     margin: '0',
                     backgroundColor: 'rgba(255, 255, 255, 1)',
-                    textIndent:"0.5rem",
-                    padding:"0 0.1rem",
+                    textIndent: "0.5rem",
+                    padding: "0px",
                     borderRadius: "0.25rem",
                     fontSize: "0.7rem",
                     lineHeight: "1.0rem",
@@ -39,7 +40,7 @@ const SearchDateInput = ({ width, value, onChange, placeholder = "جستجو..."
                     "&::placeholder": {
                         color: "#6b7280",
                         opacity: "1",
-                        textIndent:"0.5rem",
+                        textIndent: "0.5rem",
                     },
                     "&:-webkit-autofill": {
                         boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
@@ -67,6 +68,6 @@ const SearchDateInput = ({ width, value, onChange, placeholder = "جستجو..."
             />
         </th>
     );
-};
+});
 
 export default React.memo(SearchDateInput);
