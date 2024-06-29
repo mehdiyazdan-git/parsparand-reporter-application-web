@@ -10,12 +10,12 @@ import getCurrentYear from "../../utils/functions/getCurrentYear";
 
 const AnnualReport = () => {
     const listName = "annual";
-    const { filter, updateFilter, getParams } = useFilter('annual',{
+    const { filter, updateFilter} = useFilter('annual',{
         jalaliYear: getCurrentYear()
     });
 
     const handleJalaliYearChange = (value,label) => {
-        updateFilter(listName,{ 'jalaliYear': Number(label) });
+        updateFilter(listName,{ 'jalaliYear': value });
     };
     return (
         <div className="container-fluid mt-4" style={{ fontFamily: "IRANSans",fontSize:"0.85rem" }}>
@@ -26,10 +26,7 @@ const AnnualReport = () => {
             <div className="col-3">
                 <YearSelect
                              onChange={handleJalaliYearChange}
-                             updateFilter={updateFilter}
                              filter={filter}
-                             listName={listName}
-                             value={filter?.jalaliYear || getCurrentYear()}
                 />
             </div>
             <div className="row">

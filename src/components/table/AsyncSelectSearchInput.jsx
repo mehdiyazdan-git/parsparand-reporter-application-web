@@ -1,50 +1,69 @@
-import React, { useState, useEffect } from 'react';
-import Select from 'react-select';
-import axios from 'axios';
+import React, {useEffect, useState} from 'react';
+import AsyncSelect from "react-select/async";
+import {getCustomSelectStyles} from "../../utils/customStyles";
 
-const AsyncSelectSearchInput = ({ name, fetchFunction, defaultValue, onChange }) => {
+const AsyncSelectSearchInput = ({fetchFunction,defaultValue,value,onChange}) => {
     const [options, setOptions] = useState([]);
-    const [selectedOption, setSelectedOption] = useState(null);
+    const [_defaultValue,_setDefaultValue] = useState(defaultValue)
 
-    useEffect(() => {
-        if (defaultValue) {
-            fetchFunction('').then((response) => {
-                const formattedOptions = response.data.map((item) => ({
-                    value: item.id,
-                    label: item.name,
-                }));
-                setOptions(formattedOptions);
-                setSelectedOption(formattedOptions.find(option => option.value === defaultValue));
-            });
-        }
-    }, [defaultValue, fetchFunction]);
-
-    const loadOptions = async (inputValue) => {
+    const fetchAPI = async (inputValue) => {
+        return await fetchFunction(inputValue)
+    };
+    const promiseOptions = async (inputValue) => {
         try {
-            const response = await fetchFunction(inputValue);
-            const formattedOptions = response.data.map((item) => ({
-                value: item.id,
-                label: item.name,
+            const response = await fetchAPI(inputValue);
+            const data = response.data; // Make sure this is an array.
+            if (!Array.isArray(data)) {
+                throw new Error('Data is not an array');
+            }
+            const newOptions = data.map((record) => ({
+                label: record.name,
+                value: record.id,
             }));
-            setOptions(formattedOptions);
-            return formattedOptions;
+            setOptions(newOptions);
+            return newOptions;
         } catch (error) {
-            console.error('Error fetching data:', error);
+            console.error('There was an error fetching the options: ', error);
+            return []; // Return an empty array if there's an error.
         }
     };
 
+
+    useEffect(() => {
+        async function loadOptions() {
+            try {
+                const response = await fetchAPI();
+                const data = response.data; // Make sure this is an array.
+                if (!Array.isArray(data)) {
+                    throw new Error('Data is not an array');
+                }
+                const newOptions = data.map((record) => ({
+                    label: record.name,
+                    value: record.id,
+                }));
+                setOptions(newOptions);
+                _setDefaultValue(defaultValue ? options.find((o)=> o?.value === defaultValue) : null)
+            } catch (error) {
+                console.error('There was an error in the initial options load: ', error);
+                // You might want to handle this error state appropriately.
+            }
+        }
+        loadOptions();
+    }, []);
     return (
-        <Select
-            isSearchable
-            placeholder="Search..."
-            value={selectedOption}
-            loadOptions={loadOptions}
-            options={options}
-            onChange={(selectedOption) => {
-                setSelectedOption(selectedOption);
-                onChange(selectedOption ? selectedOption.value : null);
-            }}
-        />
+        <div>
+            <AsyncSelect
+
+                value={value ? options.find((o)=> o?.value === value) : null}
+                onChange={(option) =>
+                    onChange(option ? option.value : null)}
+                cacheOptions
+                loadOptions={promiseOptions}
+                defaultOptions
+                placeholder={"جستجو..."}
+                styles={getCustomSelectStyles()}
+            />
+        </div>
     );
 };
 

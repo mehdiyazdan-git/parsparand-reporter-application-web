@@ -11,6 +11,7 @@ import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import useHttp from "../../hooks/useHttp";
 import ReportItems from "./ReportItems";
+import CustomModal from "../../utils/CustomModal";
 
 
 const CreateReportForm = ({ onCreateReport, show, onHide }) => {
@@ -58,7 +59,7 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد گزارش جدید"}
@@ -103,7 +104,7 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

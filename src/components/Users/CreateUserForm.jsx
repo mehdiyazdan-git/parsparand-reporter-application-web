@@ -8,6 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateUserForm = ({ onCreateUser, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -28,7 +29,7 @@ const CreateUserForm = ({ onCreateUser, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد کاربر جدید"}
@@ -91,7 +92,7 @@ const CreateUserForm = ({ onCreateUser, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

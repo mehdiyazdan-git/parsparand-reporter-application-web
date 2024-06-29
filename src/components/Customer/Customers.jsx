@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import Table from "../table/Table";
 import Modal from "react-bootstrap/Modal";
 import useHttp from "../../hooks/useHttp";
@@ -10,7 +10,6 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import FileUpload from "../../utils/FileUpload";
 import CreateCustomerForm from "./CreateCustomerForm";
 import { saveAs } from 'file-saver';
-import useFilter from "../contexts/useFilter";
 
 
 const Customers = () => {

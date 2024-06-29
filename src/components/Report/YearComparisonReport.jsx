@@ -1,17 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import SalesTable from "./SalesTable";
 import useHttp from "../../hooks/useHttp";
 import YearSelect from "../Year/YearSelect";
 import {titleStyle, labelStyle} from "../styles/styles";
 import useFilter from "../contexts/useFilter";
 import ProductTypeSelect from "../../utils/ProductTypeSelect";
-import getCurrentYear from "../../utils/functions/getCurrentYear";
 import * as PropTypes from "prop-types";
 import { BarLoader } from 'react-spinners';
+import {FilterContext} from "../contexts/FilterContextProvider";
 
 function ErrorBoundary({ children }) {
     const [hasError, setHasError] = useState(false);
     const [errorInfo, setErrorInfo] = useState(null);
+
 
     useEffect(() => {
         const errorHandler = (error, errorInfo) => {
@@ -20,6 +21,7 @@ function ErrorBoundary({ children }) {
             // You can also log the error here if needed:
             console.error('Error caught by ErrorBoundary:', error, errorInfo);
         };
+
 
         window.addEventListener('error', errorHandler);
         return () => {
@@ -45,6 +47,7 @@ const LoadingIndicator = () => {
 
 ErrorBoundary.propTypes = {children: PropTypes.node};
 const YearComparisonReport = () => {
+
     const http = useHttp();
     const listName = "year-comparison-report";
     const { filter, updateFilter, getParams } = useFilter(listName, {
@@ -56,7 +59,7 @@ const YearComparisonReport = () => {
         productType: 2,
     });
 
-    const [year, setYear] = useState(filter.jalaliYear);
+
     const [productType, setProductType] = useState(filter.productType);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -67,18 +70,7 @@ const YearComparisonReport = () => {
         { value: 1, label: 'مواد اولیه', measurementIndex: 'کیلوگرم' },
     ];
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                await http.get(`/reports/sales-by-month-and-product-type?${getParams(listName)}`);
-                setIsLoading(false);
-            } catch (err) {
-                setError(err);
-                setIsLoading(false);
-            }
-        };
-        fetchData();
-    }, [filter.jalaliYear,filter.productType]);
+
 
     const handleProductTypeChange = (selectedOption) => {
         setProductType(selectedOption.value);
@@ -86,9 +78,9 @@ const YearComparisonReport = () => {
     };
 
     const handleYearChange = (selectedYear) => {
-        setYear(selectedYear.value);
-        updateFilter(listName, { jalaliYear: Number(selectedYear.value) });
+        updateFilter(listName,{ 'jalaliYear': selectedYear });
     };
+
 
     return (
         <div className="container-fluid mt-4">
@@ -106,14 +98,12 @@ const YearComparisonReport = () => {
                     </div>
                     <div className="col">
                         <YearSelect
-                            value={year}
+                            filter={filter}
                             onChange={handleYearChange}
                         />
                     </div>
                 </div>
-                {isLoading ? (
-                    <LoadingIndicator />
-                ) : (
+                (
                     <div className="container-fluid mt-2">
                         {filter.productType && (
                             <div>
@@ -121,19 +111,20 @@ const YearComparisonReport = () => {
                                 <SalesTable
                                     productType={filter.productType}
                                     measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
-                                    jalaliYear={Number(filter.jalaliYear)}
+                                    jalaliYear={filter?.jalaliYear}
+                                    //point :  The string representation of a year (e.g., "1402") isn't considered "Not a Number" by isNaN.
                                 />
                                 <div style={labelStyle}>سال قبل</div>
                                 <SalesTable
                                     productType={filter.productType}
                                     previousYear={1}
                                     measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
-                                    jalaliYear={Number(filter.jalaliYear)}
+                                    jalaliYear={filter?.jalaliYear}
                                 />
                             </div>
                         )}
                     </div>
-                )}
+                )
             </ErrorBoundary>
         </div>
     );

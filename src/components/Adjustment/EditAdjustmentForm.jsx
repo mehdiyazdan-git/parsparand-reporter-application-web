@@ -15,6 +15,7 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
 import useFilter from "../contexts/useFilter";
+import CustomModal from "../../utils/CustomModal";
 
 
 
@@ -48,7 +49,7 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
     };
 
     return (
-        <Modal size={"xl"} show={show} onHide={onHide}>
+        <CustomModal size={"xl"} show={show} onHide={onHide}>
             <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ویرایش تعدیل"}
@@ -120,7 +121,7 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

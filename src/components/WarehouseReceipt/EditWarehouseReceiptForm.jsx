@@ -14,30 +14,14 @@ import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import styled from 'styled-components';
+import CustomModal from "../../utils/CustomModal";
 
 const CustomModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
   overflow-y: auto;
 `;
 
-const CustomModal = styled(Modal)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
 
-  .modal-dialog {
-    width: auto;
-    max-width: 90%; /* Adjust as needed */
-  }
-
-  .modal-content {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px); /* This applies the glass effect */
-    -webkit-backdrop-filter: blur(10px); /* For Safari support */
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
-`;
 
 const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, show, onHide }) => {
     const http = useHttp();

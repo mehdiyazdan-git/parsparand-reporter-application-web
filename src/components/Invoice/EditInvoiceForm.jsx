@@ -14,6 +14,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
+import CustomModal from "../../utils/CustomModal";
 
 const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
     const http = useHttp();
@@ -60,7 +61,7 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ویرایش فاکتور"}
@@ -156,7 +157,7 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

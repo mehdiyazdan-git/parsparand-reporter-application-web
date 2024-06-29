@@ -13,6 +13,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import useHttp from "../../hooks/useHttp";
 import Subtotal from "../../utils/Subtotal";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
     const http = useHttp();
@@ -55,7 +56,7 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد مرجوعی جدید"}
@@ -115,7 +116,7 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

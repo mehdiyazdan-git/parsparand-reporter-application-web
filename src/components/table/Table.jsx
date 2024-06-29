@@ -8,7 +8,6 @@ import TableYear from "./TableYear";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import TableSearch from "./TableSearch";
 import getCurrentYear from "../../utils/functions/getCurrentYear";
-import useHttp from "../../hooks/useHttp";
 
 const Table = ({
                    columns,
@@ -24,15 +23,7 @@ const Table = ({
                }) => {
     const [data, setData] = useState([]);
     const [allData, setAllData] = useState([]);
-    const http = useHttp();
 
-    const years = async () => {
-        const response = await http.get(`/years/select`);
-        return response.data.map((year) => ({
-            value: year.id,
-            label: year.name,
-        }));
-    };
     const extractInitialFiltersFromColumns = (columns) => {
         const initialFilters = {};
         columns.forEach((column) => {

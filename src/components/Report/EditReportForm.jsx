@@ -13,6 +13,7 @@ import useHttp from "../../hooks/useHttp";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ReportItems from "./ReportItems";
 import "../../App.css";
+import CustomModal from "../../utils/CustomModal";
 
 const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
     const http = useHttp();
@@ -46,7 +47,7 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header  className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ویرایش گزارش"}
@@ -88,7 +89,7 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

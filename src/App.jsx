@@ -18,8 +18,10 @@ import Payments from "./components/Payment/Payments";
 import AnnualReport from "./components/Report/AnnualReport";
 import YearComparisonReport from "./components/Report/YearComparisonReport";
 import ClientSummary from "./components/Report/ClientSummary";
-import FilterProvider from "./components/contexts/FilterContext";
 import MonthlyReport from "./components/Report/MonthlyReportByProduct";
+import {FilterContextProvider} from "./components/contexts/FilterContextProvider";
+
+
 
 
 const queryClient = new QueryClient();
@@ -29,7 +31,7 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
             <Router>
                 <AuthProvider>
-                    <FilterProvider>
+                    <FilterContextProvider>
                         <Routes>
                             <Route path="/" element={<Dashboard />}>
                                 <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
@@ -50,7 +52,7 @@ const App = () => {
                                 <Route path="/years" element={<Years />} />
                             </Route>
                         </Routes>
-                    </FilterProvider>
+                    </FilterContextProvider>
                 </AuthProvider>
             </Router>
         </QueryClientProvider>

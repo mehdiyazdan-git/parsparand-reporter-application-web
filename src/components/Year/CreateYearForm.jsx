@@ -7,6 +7,7 @@ import { TextInput } from "../../utils/TextInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateYearForm = ({ onCreateYear, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -21,7 +22,7 @@ const CreateYearForm = ({ onCreateYear, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد سال جدید"}
@@ -50,7 +51,7 @@ const CreateYearForm = ({ onCreateYear, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

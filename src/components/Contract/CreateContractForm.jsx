@@ -13,6 +13,7 @@ import useHttp from "../../hooks/useHttp";
 import ContractItems from "./ContractItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateContractForm = ({ onCreateContract, show, onHide }) => {
     const http = useHttp();
@@ -58,7 +59,7 @@ const CreateContractForm = ({ onCreateContract, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header className="modal-header" style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد قرارداد جدید"}
@@ -135,7 +136,7 @@ const CreateContractForm = ({ onCreateContract, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

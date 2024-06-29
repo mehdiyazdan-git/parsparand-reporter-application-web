@@ -15,6 +15,7 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
 import useFilter from "../contexts/useFilter";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
     const http = useHttp();
@@ -54,7 +55,7 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header className="modal-header" style={headerStyle} >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد تعدیل جدید"}
@@ -125,7 +126,7 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

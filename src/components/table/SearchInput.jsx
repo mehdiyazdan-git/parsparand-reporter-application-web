@@ -14,7 +14,7 @@ const SearchInput = memo(({width, id, name, value, onChange, placeholder = "جس
                 onChange={onChange}
                 style={{
                     border: '1px solid #ccc',
-                    width: '50em',
+                    width: '100%',
                     maxWidth: '100%',
                     boxSizing: 'border-box',
                     minHeight: '35px',

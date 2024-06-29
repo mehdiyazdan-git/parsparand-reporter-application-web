@@ -8,6 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
+import CustomModal from "../../utils/CustomModal";
 
 const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -27,7 +28,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ویرایش مشتری"}
@@ -85,7 +86,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

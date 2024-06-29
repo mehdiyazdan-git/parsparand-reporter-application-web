@@ -1,7 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Table from "react-bootstrap/Table";
 import useHttp from "../../hooks/useHttp";
 import {formatNumber} from "../../utils/functions/formatNumber";
+import axios from "axios";
+import getCurrentYear from "../../utils/functions/getCurrentYear";
+
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -35,10 +38,21 @@ const footerStyle = {
     fontWeight: 'bold',
     width: '14.30%',
 }
+const getYearOptions = async () => {
+    return await axios.get(`http://localhost:9090/api/years/select`)
+      .then(res => res.data);
+}
 
-const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliYear,filter,listName }) => {
+const SalesTable = ({
+                        productType,
+                        label,
+                        previousYear,
+                        measurementIndex ,
+                        jalaliYear,
+                        filter,
+                    }) => {
     const http = useHttp();
-    const loadData = async () => await http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`);
+
     const [data, setData] = useState([
         {
             monthNumber: 1,
@@ -50,14 +64,45 @@ const SalesTable = ({ productType, label, previousYear,measurementIndex ,jalaliY
 
 
     useEffect(() => {
-        http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
+        let jalaliYear = '';
+        let productType = 2;
+
+        if (filter?.jalaliYear?.toString().length >= 1) {
+            jalaliYear = Number(filter.jalaliYear.toString());
+        }
+        if (filter?.productType?.toString().length === 1 ||
+            filter?.productType.toString().length === 2 ||
+            filter?.productType.toString().length === 6) {
+            productType = filter?.productType.toString();
+        }
+        const yearParams = jalaliYear + previousYear ? -1 : 0
+        // Construct URL with query parameters
+        const url = `/reports/sales-by-year?yearName=${yearParams}&productType=${productType}`;
+
+        http.get(url)
             .then(response => setData(response.data));
-    }, [jalaliYear,productType]);
+    }, [filter, previousYear]);
 
     useEffect(() => {
-         http.get(`/reports/sales-by-year/${(jalaliYear + (previousYear ? -1 : 0))}/${productType}`)
+        let jalaliYear = '';
+        let productType = 2;
+
+        if (filter?.jalaliYear && filter?.jalaliYear.toString().length === 4) {
+            jalaliYear = Number(filter?.jalaliYear.toString());
+        } else if (getYearOptions().length > 0) {
+            let year = getYearOptions().find(option => option.name === filter?.jalaliYear);
+            jalaliYear = Number(year);
+        } else {
+            jalaliYear = '';
+        }
+        const yearParam = jalaliYear + previousYear ? -1 : 0
+        // Construct URL with query parameters
+        const url = `/reports/sales-by-year?yearName=${yearParam}&productType=${productType}`;
+        console.log(url)
+        http.get(url)
             .then(response => setData(response.data));
-    },[])
+    }, [filter, previousYear]); // Assuming getYearOptions doesn't change
+
 
     const firstHalfData = data.slice(0, 6);
     const secondHalfData = data.slice(6, 12);

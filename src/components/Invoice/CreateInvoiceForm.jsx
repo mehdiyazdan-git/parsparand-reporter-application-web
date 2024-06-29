@@ -14,6 +14,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
     const http = useHttp();
@@ -76,7 +77,7 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد فاکتور جدید"}
@@ -188,7 +189,7 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

@@ -8,6 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import SelectInput from "../../utils/SelectInput";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateProductForm = ({ onCreateProduct, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -31,7 +32,7 @@ const CreateProductForm = ({ onCreateProduct, show, onHide }) => {
     ];
 
     return (
-        <Modal size={"xl"} show={show} >
+        <CustomModal size={"xl"} show={show} >
             <Modal.Header style={headerStyle} className="modal-header">
                 <Modal.Title style={titleStyle}>
                     {"ایجاد محصول جدید"}
@@ -78,7 +79,7 @@ const CreateProductForm = ({ onCreateProduct, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

@@ -13,6 +13,7 @@ import useHttp from "../../hooks/useHttp";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import CustomModal from "../../utils/CustomModal";
 
 const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) => {
     const http = useHttp();
@@ -60,7 +61,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ایجاد رسید انبار جدید"}
@@ -114,7 +115,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 

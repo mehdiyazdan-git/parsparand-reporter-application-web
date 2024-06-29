@@ -12,6 +12,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import useHttp from "../../hooks/useHttp";
+import CustomModal from "../../utils/CustomModal";
 
 const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
     const http = useHttp();
@@ -53,7 +54,7 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
     };
 
     return (
-        <Modal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show}>
             <Modal.Header style={headerStyle} className="modal-header" >
                 <Modal.Title style={titleStyle}>
                     {"ویرایش مرجوعی"}
@@ -111,7 +112,7 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
                     </Form>
                 </div>
             </Modal.Body>
-        </Modal>
+        </CustomModal>
     );
 };
 
