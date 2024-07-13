@@ -1,10 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Th = ({ columnKey, columnTitle, width, filter, updateFilter, listName }) => {
+const Th = ({ columnKey, columnTitle, width, filter, updateFilter, entityName }) => {
     const handleSort = () => {
         const isAsc = filter.sortBy === columnKey && filter.order === 'asc';
-        updateFilter(listName, {
+        updateFilter({
             sortBy: columnKey,
             order: isAsc ? 'desc' : 'asc'
         });

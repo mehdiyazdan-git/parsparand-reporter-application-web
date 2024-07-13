@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
@@ -6,6 +6,7 @@ import Button from "../../utils/Button";
 import Invoices from "./Invoices";
 import useFilter from "../contexts/useFilter";
 import styled from 'styled-components';
+import useHttp from "../../hooks/useHttp";
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -32,11 +33,30 @@ const CustomModal = styled(Modal)`
 `;
 
 const InvoicesModal = ({ contractNumber }) => {
+    const http = useHttp();
     const listName = "contract-invoice-modal";
     const { filter, updateFilter } = useFilter();
     const [showModal, setShowModal] = useState(false);
+    const [contracts, setContracts] = useState([]);
+    const getAllContracts = async () => {
+        try {
+            const response = await http.get(`/http://localhost:9090/api/contracts?page=0&size=1000`);
+            return response.data.content;
+        }catch (e) {
+            console.log(e)
+        }
+    }
+
+    useEffect(() => {
+        const fetchContracts = async () => {
+            const contracts = await getAllContracts();
+            setContracts(contracts);
+        };
+        fetchContracts();
+    }, []);
 
     const handleShow = () => {
+
         updateFilter(listName, {
             contractNumber: contractNumber,
             page: 0,
@@ -52,7 +72,7 @@ const InvoicesModal = ({ contractNumber }) => {
         updateFilter(listName, {
             contractNumber: '',
             page: 0,
-            size: 10,
+            size: 5,
             sortBy: 'id',
             order: 'asc',
         });
@@ -62,9 +82,12 @@ const InvoicesModal = ({ contractNumber }) => {
     return (
         <>
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <CustomModal show={showModal} centered onHide={handleClose}>
+            <CustomModal show={showModal} centered>
                 <ModalBody>
-                    <Invoices contractNumber={contractNumber} />
+                    <Invoices
+                        contractNumber={contractNumber}
+                        parent_list_name={listName}
+                    />
                 </ModalBody>
                 <Modal.Footer>
                     <Button $variant="warning" type={"button"} onClick={handleClose}>

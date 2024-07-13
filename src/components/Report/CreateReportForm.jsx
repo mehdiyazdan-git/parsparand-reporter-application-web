@@ -14,7 +14,7 @@ import ReportItems from "./ReportItems";
 import CustomModal from "../../utils/CustomModal";
 
 
-const CreateReportForm = ({ onCreateReport, show, onHide }) => {
+const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -54,7 +54,7 @@ const CreateReportForm = ({ onCreateReport, show, onHide }) => {
             const years = await yearSelect().then((res) => res.data);
             entity.yearId = years.find((item) => item.name === Number(moment(new Date(years.reportDate)).format('jYYYY'))).id;
         }
-        await onCreateReport(entity);
+        await onCreateEntity(entity);
         onHide();
     };
 

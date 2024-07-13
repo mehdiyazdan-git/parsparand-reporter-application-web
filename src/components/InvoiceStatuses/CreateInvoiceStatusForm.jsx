@@ -8,7 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 
-const CreateInvoiceStatusForm = ({ onCreateInvoiceStatus, show, onHide }) => {
+const CreateInvoiceStatusForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         name: Yup.string().required('نام وضعیت الزامیست.').max(255, 'نام وضعیت باید حداکثر 255 کاراکتر باشد.'),
     });
@@ -16,7 +16,7 @@ const CreateInvoiceStatusForm = ({ onCreateInvoiceStatus, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onCreateInvoiceStatus(data);
+        await onCreateEntity(data);
         onHide();
     };
 

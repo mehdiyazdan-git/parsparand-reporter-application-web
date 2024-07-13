@@ -7,6 +7,7 @@ import getCurrentYear from "../../utils/functions/getCurrentYear";
 import YearSelect from "../Year/YearSelect";
 import MonthYear from "./MonthYear";
 import PersianMonthSelect from "../../utils/PersianMonthSelect";
+import getYearOptions from "../../utils/functions/getYearOptions";
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -40,18 +41,9 @@ const footerStyle = {
     width: '14.30%',
 };
 
-
-
-const MonthlyReportByProduct = memo(({productType, listName}) => {
+const MonthlyReportByProduct = memo(({ getParams, listName, filter, productType }) => {
     const http = useHttp();
 
-    const {filter, getParams, updateFilter} = useFilter(listName, {
-        productType: productType,
-        jalaliYear: getCurrentYear(),
-        month: 1,
-    });
-    const [month, setMonth] = useState(filter.month);
-    const [year, setYear] = useState(filter.jalaliYear || getCurrentYear());
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,
@@ -60,83 +52,58 @@ const MonthlyReportByProduct = memo(({productType, listName}) => {
         amount: 0,
     });
 
-    const loadMonthlyReport = useCallback(async () => {
+    const loadMonthlyReport = async () => {
         try {
-            const params = getParams(listName);
-            // Convert year in the parameters to the format expected by your API (if needed)
-            const adjustedYear = params.get('jalaliYear');
-            if (adjustedYear) {
-                params.set('jalaliYear', adjustedYear); // Assuming your API uses the same 'jalaliYear' key
-            }
-            const response = await http.get(`/reports/sales-by-month-and-product-type?${params}`);
-            setMonthlyReport(response.data);
+            let productType = filter?.productType || 2;
+            let jalaliYear = filter?.jalaliYear || await getYearOptions().then(options => options[0].name);
+            let month = filter?.month || 1;
+            let params = new URLSearchParams({
+                productType,
+                jalaliYear,
+                month,
+            });
+            const response = await http.get(`/reports/sales-by-month-and-product-type?${params.toString()}`);
+            return response.data;
         } catch (error) {
             console.log(error);
+            return [];
         }
-    }, [getParams, listName]);
+    };
 
     useEffect(() => {
-        Object.keys(filter).map((key) => {
-            if (key === 'jalaliYear') {
-                setYear(filter.jalaliYear);
-            }
-            if (key === 'month') {
-                setMonth(filter.month);
-            }
-        })
-
-    }, []);
-
-    useEffect(() => {
-        loadMonthlyReport();
-    }, [filter.jalaliYear, filter.month]);
-
-    useEffect(() => {
-        if (!filter?.productType) {
-            updateFilter(listName, {productType: 2});
-        }
-    }, [filter.jalaliYear, filter.month]);
-
-
-    useEffect(() => {
-        const calculatedSubtotals = monthlyReport.reduce((acc, curr) => {
-            acc.quantity += curr.totalQuantity;
-            acc.cumulative_quantity += curr.cumulativeTotalQuantity;
-            acc.cumulative_amount += curr.cumulativeTotalAmount;
-            acc.amount += curr.totalAmount;
-            return acc;
-        }, {quantity: 0, cumulative_quantity: 0, cumulative_amount: 0, amount: 0});
-        setSubtotals(calculatedSubtotals);
-    }, [monthlyReport]);
+        loadMonthlyReport().then((data) => {
+            const subtotalAmount = data.reduce((acc, row) => acc + row.totalAmount, 0);
+            const monthlyReport = data.map((row) => ({
+                customerName: row.customerName,
+                month: row.month,
+                productType: row.productType,
+                totalQuantity: row.totalQuantity,
+                cumulativeTotalQuantity: row.cumulativeTotalQuantity,
+                averagePrice: !isNaN(row.totalAmount / row.totalQuantity) ? (row.totalAmount / row.totalQuantity).toFixed(0) : 0,
+                totalAmount: row.totalAmount,
+                percentage: subtotalAmount > 0 ? ((row.totalAmount / subtotalAmount) * 100).toFixed(2) : 0,
+            }));
+            setMonthlyReport(monthlyReport);
+            setSubtotals(monthlyReport.reduce((acc, curr) => ({
+                quantity: acc.quantity + curr.totalQuantity,
+                cumulative_quantity: acc.cumulative_quantity + curr.cumulativeTotalQuantity,
+                cumulative_amount: acc.cumulative_amount + curr.totalAmount,
+                amount: acc.amount + curr.totalAmount,
+            }), {
+                quantity: 0,
+                cumulative_quantity: 0,
+                cumulative_amount: 0,
+                amount: 0,
+            }));
+        });
+    }, [getParams, listName, filter]);
 
     const subtotal = useCallback(() => {
         return monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0);
     }, [monthlyReport]);
 
-    let handleYearChange = (selectedYear) => {
-        setYear(selectedYear.value);  // Use selectedYear.value
-        updateFilter(listName, { jalaliYear: selectedYear.value }); // Update the filter
-    };
-
-    let handleMonthChange = (month) => {
-        setMonth(month)
-        updateFilter(listName, {month: Number(month)});
-    };
-
     return (
         <div className="monthly-report" style={{fontFamily: "IRANSans", backgroundColor: 'rgba(220, 220, 220, 0.2)'}}>
-            <div className="row mt-3 mx-1 mb-3 ">
-                <div className="row mt-3 mx-1 mb-3 ">
-                    <div className="col-3">
-                        <YearSelect value={year} onChange={handleYearChange}/>
-                    </div>
-                    <div className="col-3">
-                        <PersianMonthSelect month={month} onChange={handleMonthChange}/>
-                    </div>
-                </div>
-            </div>
-
-
             <table style={{fontSize: "0.75rem", border: "1px #a5b6c9 solid"}}
                    className="table table-bordered table-responsive">
                 <thead>
@@ -151,15 +118,15 @@ const MonthlyReportByProduct = memo(({productType, listName}) => {
                 </tr>
                 </thead>
                 <tbody>
-                {monthlyReport.map((item, index) => (
+                {monthlyReport.map((row, index) => (
                     <tr key={index}>
                         <td style={rowStyle}>{index + 1}</td>
-                        <td style={rowStyle}>{item?.customerName}</td>
-                        <td style={rowStyle}>{formatNumber(item?.totalQuantity)}</td>
-                        <td style={rowStyle}>{formatNumber(item?.cumulativeTotalQuantity)}</td>
-                        <td style={rowStyle}>{formatNumber(item?.avgUnitPrice ? item.avgUnitPrice : 0)}</td>
-                        <td style={rowStyle}>{formatNumber(item?.totalAmount)}</td>
-                        <td style={rowStyle}>{formatNumber(((item.totalAmount / subtotal()) * 100).toFixed(2))}%</td>
+                        <td style={rowStyle}>{row.customerName}</td>
+                        <td style={rowStyle}>{formatNumber(row.totalQuantity)}</td>
+                        <td style={rowStyle}>{formatNumber(row.cumulativeTotalQuantity)}</td>
+                        <td style={rowStyle}>{formatNumber(row.averagePrice)}</td>
+                        <td style={rowStyle}>{formatNumber(row.totalAmount)}</td>
+                        <td style={rowStyle}>{`${formatNumber(row.percentage)} %`}</td>
                     </tr>
                 ))}
                 </tbody>
@@ -169,15 +136,15 @@ const MonthlyReportByProduct = memo(({productType, listName}) => {
                     <td style={footerStyle}>{formatNumber(subtotals?.quantity)}</td>
                     <td style={footerStyle}>{formatNumber(subtotals?.cumulative_quantity)}</td>
                     <td style={footerStyle}>{formatNumber(
-                        isNaN(subtotals?.cumulative_amount) || isNaN(subtotals?.cumulative_quantity) || subtotals?.cumulative_quantity === 0
+                        isNaN(subtotals?.amount) || isNaN(subtotals?.quantity) || subtotals?.quantity === 0
                             ? 0
-                            : (subtotals?.cumulative_amount / subtotals?.cumulative_quantity).toFixed(0)
+                            : ((subtotals?.amount) / subtotals?.quantity).toFixed(0)
                     )}</td>
                     <td style={footerStyle}>{formatNumber(subtotals?.amount)}</td>
                     <td style={footerStyle}>{formatNumber(
-                        isNaN(subtotals?.amount) || subtotal() === 0
-                            ? 0
-                            : ((subtotals?.amount) / subtotal()) * 100
+                        subtotal() > 0
+                            ? ((subtotals?.amount / subtotal()) * 100).toFixed(2)
+                            : 0
                     )}%
                     </td>
                 </tr>

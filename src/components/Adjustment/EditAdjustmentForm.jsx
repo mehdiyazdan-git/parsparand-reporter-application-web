@@ -19,7 +19,7 @@ import CustomModal from "../../utils/CustomModal";
 
 
 
-const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) => {
+const EditAdjustmentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const {filter} = useFilter();
@@ -44,7 +44,7 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
         if (data.adjustmentDate) {
             data.adjustmentDate = moment(new Date(data.adjustmentDate)).format('YYYY-MM-DD');
         }
-        await onUpdateAdjustment(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -59,14 +59,14 @@ const EditAdjustmentForm = ({ adjustment, onUpdateAdjustment, show, onHide }) =>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: adjustment.id,
-                            adjustmentType: adjustment.adjustmentType,
-                            description: adjustment.description,
-                            quantity: adjustment.quantity,
-                            unitPrice: adjustment.unitPrice,
-                            invoiceId: adjustment.invoiceId,
-                            adjustmentDate: adjustment.adjustmentDate,
-                            adjustmentNumber: adjustment.adjustmentNumber,
+                            id: editingEntity.id,
+                            adjustmentType: editingEntity.adjustmentType,
+                            description: editingEntity.description,
+                            quantity: editingEntity.quantity,
+                            unitPrice: editingEntity.unitPrice,
+                            invoiceId: editingEntity.invoiceId,
+                            adjustmentDate: editingEntity.adjustmentDate,
+                            adjustmentNumber: editingEntity.adjustmentNumber,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

@@ -10,7 +10,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
+const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         bigCustomer: Yup.boolean().required('نوع مشتری الزامیست.'),
         customerCode: Yup.string().required('کد مشتری الزامیست.'),
@@ -23,7 +23,7 @@ const CreateCustomerForm = ({ onCreateCustomer, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onCreateCustomer(data);
+        await onCreateEntity(data);
         onHide();
     };
 

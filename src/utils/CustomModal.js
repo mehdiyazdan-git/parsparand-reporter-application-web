@@ -1,13 +1,16 @@
 import styled from "styled-components";
 import {Modal} from "react-bootstrap";
 
-const CustomModal = styled(Modal)`
+const CustomModal = styled(Modal).attrs(props => ({
+  ...props,
+}))`
           display: flex;
           justify-content: center;
           align-items: center;
         
           .modal-dialog {
-            width: auto;
+            width: fit-content;
+            min-width: 700px;
             max-width: 90%; /* Adjust as needed */
           }
         

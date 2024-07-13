@@ -1,7 +1,7 @@
 import React from 'react';
 import Th from './Th';
 
-const TableHeader = ({ columns, filter, updateFilter, listName }) => {
+const TableHeader = ({ columns, filter, updateFilter, entityName }) => {
     return (
         <thead>
         <tr className="table-header-row p-0 m-0">
@@ -13,7 +13,7 @@ const TableHeader = ({ columns, filter, updateFilter, listName }) => {
                     width={column.width}
                     filter={filter}
                     updateFilter={updateFilter}
-                    listName={listName}
+                    entityName={entityName}
                 />
             ))}
             <th width="7%">ویرایش|حذف</th>

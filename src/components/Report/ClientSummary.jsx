@@ -90,7 +90,19 @@ function toPersianFormat(number) {
 }
 
 const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'long' }).format(new Date());
-
+/***
+ @title: Payments
+ @description: This component is responsible for displaying a list of payments and handling CRUD operations for them.
+ @author: mehdi yazdanparast
+ @version: 1.0
+ @lastUpdate: Saturday - 2024 29 June
+ @props:
+ @state:
+ @methods:
+ @dependencies:
+ @example:
+ @notes:
+ ***/
 const ClientSummary = () => {
     const http = useHttp();
     const listName = 'customerSummary';
@@ -306,7 +318,7 @@ const ClientSummary = () => {
                                 <Row>{toPersianFormat(item.salesAmount + item.vat)}</Row>
                                 <Row>
                                     <InvoicesModal
-                                        contractNumber={item.contractNumber.toString()}
+                                        contractNumber={item.contractNumber}
                                         showModal={showModal}
                                         handleShow={handleShow}
                                         handleClose={handleClose}

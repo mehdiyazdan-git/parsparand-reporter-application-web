@@ -10,7 +10,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
 import CustomModal from "../../utils/CustomModal";
 
-const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
+const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         bigCustomer: Yup.bool().required('گزارش ماهانه الزامیست.'),
         customerCode: Yup.string().required('کد مشتری الزامیست.'),
@@ -23,7 +23,7 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onUpdateCustomer(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -38,13 +38,13 @@ const EditCustomerForm = ({ customer, onUpdateCustomer, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: customer.id,
-                            bigCustomer: customer.bigCustomer,
-                            customerCode: customer.customerCode,
-                            economicCode: customer.economicCode,
-                            name: customer.name,
-                            nationalCode: customer.nationalCode,
-                            phone: customer.phone,
+                            id: editingEntity.id,
+                            bigCustomer: editingEntity.bigCustomer,
+                            customerCode: editingEntity.customerCode,
+                            economicCode: editingEntity.economicCode,
+                            name: editingEntity.name,
+                            nationalCode: editingEntity.nationalCode,
+                            phone: editingEntity.phone,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

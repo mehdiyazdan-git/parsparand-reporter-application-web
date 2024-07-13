@@ -16,7 +16,7 @@ import CustomModal from "../../utils/CustomModal";
 
 
 
-const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
+const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery = '') => {
@@ -43,7 +43,7 @@ const CreatePaymentForm = ({ onCreatePayment, show, onHide }) => {
            if (data.paymentDate) {
                data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
            }
-           await onCreatePayment(data);
+           await onCreateEntity(data);
            onHide();
            console.log(data)
        }catch (e){

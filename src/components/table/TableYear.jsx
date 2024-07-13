@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
 import useHttp from "../../hooks/useHttp";
 import {getCustomSelectStyles} from "../../utils/customStyles";
+import getYearOptions from "../../utils/functions/getYearOptions";
 
 
 const TableYear = ({ jalaliYear, onChange }) => {
@@ -13,7 +14,7 @@ const TableYear = ({ jalaliYear, onChange }) => {
             // Fetch year options and set the initial value based on jalaliYear
             loadOptions().then(options => {
                 const matchingOption = options.find(option => option.label === jalaliYear);
-                setSelectedYear(matchingOption);
+                setSelectedYear(matchingOption || options[0]);
             });
         }
     }, [jalaliYear]);

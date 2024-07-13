@@ -8,7 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 
-const EditInvoiceStatusForm = ({ invoiceStatus, onUpdateInvoiceStatus, show, onHide }) => {
+const EditInvoiceStatusForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         name: Yup.string().required('نام وضعیت الزامیست.').max(255, 'نام وضعیت باید حداکثر 255 کاراکتر باشد.'),
     });
@@ -16,7 +16,7 @@ const EditInvoiceStatusForm = ({ invoiceStatus, onUpdateInvoiceStatus, show, onH
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onUpdateInvoiceStatus(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -31,8 +31,8 @@ const EditInvoiceStatusForm = ({ invoiceStatus, onUpdateInvoiceStatus, show, onH
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: invoiceStatus.id,
-                            name: invoiceStatus.name,
+                            id: editingEntity.id,
+                            name: editingEntity.name,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

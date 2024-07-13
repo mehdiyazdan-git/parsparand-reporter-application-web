@@ -2,7 +2,7 @@ import React from 'react';
 
 const ButtonContainer = ({children, lastChild}) => {
     const style = {
-        backgroundColor: "rgba(255, 255, 255, 0.2)",
+        backgroundColor: "rgba(255, 255, 255, 0.1)",
         boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)", // Adjust shadow properties as needed
         border: "1px solid rgba(0, 0, 0, 0.1)",
         padding: "1em",

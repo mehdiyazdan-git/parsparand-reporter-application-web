@@ -1,14 +1,8 @@
-import { useEffect, useState } from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 
-/**
- * Custom hook to deeply compare an object and trigger a re-render
- * if the object changes.
- * @param obj - The object to watch for changes.
- * @returns The current state of the object.
- */
 const useDeepObjectComparator = (obj) => {
     // Deep comparison function
-    const deepEquals = (object1, object2) => {
+    const deepEquals = useCallback((object1, object2) => {
         // Identity
         if (object1 === object2) {
             return true;
@@ -23,15 +17,17 @@ const useDeepObjectComparator = (obj) => {
 
         // Compare primitives
         return object1 === object2;
-    };
+    },[])
 
     const [state, setState] = useState(obj);
+    const prevObjRef = useRef(obj);
 
     useEffect(() => {
-        if (!deepEquals(state, obj)) {
+        if (!deepEquals(prevObjRef.current, obj)) {
+            prevObjRef.current = obj;
             setState(obj);
         }
-    }, [obj, state]);
+    }, [obj, deepEquals]);
 
     return state;
 };

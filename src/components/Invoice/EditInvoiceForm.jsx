@@ -15,17 +15,19 @@ import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
+import {useOptions} from "../contexts/OptionsContext";
 
-const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
+const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
+    const {customerOptions} = useOptions();
 
     const yearSelect = async () => {
         return await http.get(`/years/select`);
     }
 
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
-    }
+    // const customerSelect = async (searchQuery = '') => {
+    //     return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+    // }
 
     const contractSelect = async (searchQuery = '') => {
         return await http.get(`/contracts/select?searchQuery=${searchQuery}`);
@@ -56,7 +58,7 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
         if (data.issuedDate) {
             data.issuedDate = moment(new Date(data.issuedDate)).format('YYYY-MM-DD');
         }
-        await onUpdateInvoice(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -71,21 +73,21 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: invoice.id,
-                            dueDate: invoice.dueDate,
-                            invoiceNumber: invoice.invoiceNumber,
-                            issuedDate: invoice.issuedDate,
-                            salesType: invoice.salesType,
-                            contractId: invoice.contractId,
-                            customerId: invoice.customerId,
-                            invoiceStatusId: invoice.invoiceStatusId,
-                            advancedPayment: invoice.advancedPayment,
-                            insuranceDeposit: invoice.insuranceDeposit,
-                            performanceBound: invoice.performanceBound,
+                            id: editingEntity.id,
+                            dueDate: editingEntity.dueDate,
+                            invoiceNumber: editingEntity.invoiceNumber,
+                            issuedDate: editingEntity.issuedDate,
+                            salesType: editingEntity.salesType,
+                            contractId: editingEntity.contractId,
+                            customerId: editingEntity.customerId,
+                            invoiceStatusId: editingEntity.invoiceStatusId,
+                            advancedPayment: editingEntity.advancedPayment,
+                            insuranceDeposit: editingEntity.insuranceDeposit,
+                            performanceBound: editingEntity.performanceBound,
                             yearId: async() => await yearSelect().then(r => {
                                 return r.find(y => y.name === moment.jYear());
                             }) ,
-                            invoiceItems: invoice.invoiceItems,
+                            invoiceItems: editingEntity.invoiceItems,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}
@@ -117,7 +119,7 @@ const EditInvoiceForm = ({ invoice, onUpdateInvoice, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerOptions} />
                                     </Col>
                                 </Row>
                                 <ContractFields>

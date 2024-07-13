@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import IconEdit from '../assets/icons/IconEdit';
@@ -12,6 +12,8 @@ const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword }) => {
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
+    sessionStorage.getItem('filter_data') && sessionStorage.removeItem('filter_data')
 
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {

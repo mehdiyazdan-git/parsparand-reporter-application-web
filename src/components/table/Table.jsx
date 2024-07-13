@@ -1,159 +1,130 @@
-import React, {useCallback, useState} from "react";
+import React, {useCallback} from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
-import Pagination from "../pagination/Pagination";
-import useFilter from "../contexts/useFilter";
-import TableYear from "./TableYear";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import TableSearch from "./TableSearch";
-import getCurrentYear from "../../utils/functions/getCurrentYear";
+import Pagination from '../pagination/Pagination';
+import TableSearch from './TableSearch';
+import PropTypes from 'prop-types';
+import YearSelect from '../Year/YearSelect';
+import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
+import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
+import yearSelectStyle from '../styles/yearSelectStyle';
+import useData from '../../hooks/useData';
 
 const Table = ({
+                   data,
                    columns,
-                   fetchData,
                    onEdit,
                    onDelete,
                    onResetPassword,
-                   refreshTrigger,
-                   listName,
+                   entityName,
                    downloadExcelFile,
-                   hasYearSelect = false,
-                   hasSubTotal = false,
+                   hasYearSelect,
+                   initialFilter,
+                   hasSubTotal,
+                   refreshTrigger
                }) => {
-    const [data, setData] = useState([]);
-    const [allData, setAllData] = useState([]);
+    const {
+        filter,
+        updateFilter,
+        handleSizeChange,
+        goToFirstPage,
+        goToPrevPage,
+        goToNextPage,
+        goToLastPage,
+    } = useData(entityName, initialFilter);
 
-    const extractInitialFiltersFromColumns = (columns) => {
-        const initialFilters = {};
-        columns.forEach((column) => {
-            if (column.searchable) {
-                initialFilters[column.key] = '';
-            }
-        });
-        return initialFilters;
-    };
-    const { filter, updateFilter, getParams} = useFilter(listName, {
-        page: 0,
-        size: 10,
-        order: 'asc',
-        sortBy: 'id',
-        ...extractInitialFiltersFromColumns(columns),
-        jalaliYear: getCurrentYear(),
-    });
+    const handleYearChange = useCallback((value) => {
+        updateFilter({ jalaliYear: value, page: 0 });
+    }, [updateFilter]);
 
-
-    const loadData = async (excludes = [], subtotal = false) => {
-        const params = getParams(listName, excludes, subtotal);
-        return await fetchData(params.toString());
-    };
-
-    useDeepCompareEffect(() => {
-        loadData(['page', 'pageNumber','totalPages','totalElements'], false).then(response => {
-            if (response?.data?.content && response?.data?.content?.length === 0) {
-               setData([])
-                updateFilter(listName, {
-                    ...filter,
-                    totalPages: 0,
-                    totalElements: 0,
-                });
-
-            }else {
-                setData(response.data?.content);
-                updateFilter(listName, {
-                    ...filter,
-                    size: response?.data?.pageable.pageSize ,
-                    page: response?.data?.pageable?.pageNumber,
-                    totalPages: response?.data?.totalPages || 0,
-                    totalElements: response?.data?.totalElements || 0,
-                });
-            }
-        }).catch((error) => {
-            console.error(error)
-        })
-
-        loadData([], true).then(response => {
-            if (response?.data?.content && response?.data?.content?.length === 0){
-                setAllData([])
-            }else {
-                if (response?.data?.content && response?.data?.content?.length > 0) {
-                    setAllData(response.data.content);
-                }
-            }
-        }).catch((error) => {
-            console.error(error)
-        })
-    }, [refreshTrigger]);
-
-
-    useDeepCompareEffect(() => {
-        loadData([], false).then(response => {
-            if (response?.data?.content && response?.data?.content?.length === 0) {
-                setData([])
-                updateFilter(listName, {
-                    ...filter,
-                    totalPages: 0,
-                    totalElements: 0,
-                });
-            }else {
-                setData(response?.data?.content);
-                updateFilter(listName, {
-                    ...filter,
-                    size: response?.data?.pageable.pageSize || 10,
-                    page: response?.data?.pageable?.pageNumber || 0,
-                    totalPages: response?.data?.totalPages || 0,
-                    totalElements: response?.data?.totalElements || 0,
-                });
-            }
-
-        });
-        loadData(['page', 'pageNumber','totalPages','totalElements'], true).then(response => {
-            if (response?.data?.content && response?.data?.content?.length === 0) {
-                setAllData([])
-            }else {
-                setAllData(response?.data?.content || 0);
-            }
-        });
-    }, [filter]);
-
-    const handleYearChange = useCallback((year) => {
-        updateFilter(listName, {
-            ...filter,
-            jalaliYear: year.label,
-        });
-    }, [filter]);
-
+    const resetFilter = useCallback(() => {
+        const columnsFilter = columns.reduce((acc, column) => {
+            acc[column.key] = '';
+            return acc;
+        }, {});
+        updateFilter({ ...columnsFilter, jalaliYear: '', page: 0 });
+    }, [columns, updateFilter]);
 
     return (
         <>
-            {hasYearSelect &&  <TableYear
-                jalaliYear={filter.jalaliYear}
-                onChange={handleYearChange}
-                listname={listName}
-            />}
+            {hasYearSelect && (
+                <div style={yearSelectStyle}>
+                    <label style={yearSelectLabelStyle}>انتخاب سال</label>
+                    <div style={yearSelectContainerStyle}>
+                        <YearSelect filter={filter} onChange={handleYearChange} />
+                    </div>
+                </div>
+            )}
             <table className="recipient-table table-fixed-height mt-3">
-                <TableHeader columns={columns} filter={filter} updateFilter={updateFilter} listName={listName} />
-                <TableSearch columns={columns} filter={filter} updateFilter={updateFilter} listName={listName} />
+                <TableHeader
+                    columns={columns}
+                    filter={filter}
+                    updateFilter={updateFilter}
+                    entityName={entityName}
+                />
+                <TableSearch
+                    columns={columns}
+                    filter={filter}
+                    updateFilter={updateFilter}
+                    entityName={entityName}
+                    resetFilter={resetFilter}
+                />
                 <TableBody
-                    data={data}
+                    refreshTrigger={refreshTrigger}
+                    data={data?.content || []}
                     columns={columns}
                     onEdit={onEdit}
                     onDelete={onDelete}
                     onResetPassword={onResetPassword}
                 />
                 <TableFooter
-                    allData={allData}
+                    allData={data?.content || []}
                     columns={columns}
                     downloadExcelFile={downloadExcelFile}
-                    listName={listName}
-                    getParams={getParams}
+                    entityName={entityName}
                     hasSubTotal={hasSubTotal}
-                    data={data}
+                    data={data?.content || []}
                 />
             </table>
-            <Pagination filter={filter} updateFilter={updateFilter} listName={listName} />
+                <Pagination
+                    data={data}
+                    filter={filter}
+                    handleSizeChange={handleSizeChange}
+                    goToFirstPage={goToFirstPage}
+                    goToPrevPage={goToPrevPage}
+                    goToNextPage={goToNextPage}
+                    goToLastPage={goToLastPage}
+                />
         </>
     );
+};
+
+Table.propTypes = {
+    columns: PropTypes.arrayOf(PropTypes.shape({
+        key: PropTypes.string.isRequired,
+        title: PropTypes.string.isRequired,
+        width: PropTypes.string,
+        sortable: PropTypes.bool,
+        searchable: PropTypes.bool,
+        type: PropTypes.string,
+        options: PropTypes.array,
+        fetchAPI: PropTypes.func,
+        render: PropTypes.func
+    })).isRequired,
+    url: PropTypes.string.isRequired,
+    onEdit: PropTypes.func,
+    onDelete: PropTypes.func,
+    onResetPassword: PropTypes.func,
+    downloadExcelFile: PropTypes.func,
+    initialFilter: PropTypes.object,
+    hasSubTotal: PropTypes.bool,
+    hasYearSelect: PropTypes.bool,
+    refreshTrigger: PropTypes.any
+};
+
+Table.defaultProps = {
+    initialFilter: { page: 0, size: 10 }
 };
 
 export default Table;

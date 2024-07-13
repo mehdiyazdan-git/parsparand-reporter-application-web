@@ -1,19 +1,19 @@
-import React from 'react';
+import React, {memo} from 'react';
 import SelectSearchInput from '../../utils/SelectSearchInput';
 import SearchCheckboxInput from './SearchCheckboxInput';
 import SearchNumberInput from './SearchNumberInput';
 import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
-import AsyncSelectSearchInput from "./AsyncSelectSearchInput";
+import IconBxRefresh from "../assets/icons/IconBxRefresh";
+import AsyncSelectSearch from "./AsyncSelectSearch";
 
-const TableSearch = ({ columns, filter,updateFilter,listName }) => {
+
+const TableSearch = function ({columns, filter, updateFilter, entityName, resetFilter}) {
 
     const handleSearchChange = (name, value) => {
-        updateFilter(listName, { [name]: value });
-    };
-
-
-  return  (
+        updateFilter({[name]: value, page: 0});
+    }
+    return (
         <tr className="table-header-row">
             {columns.map((column) =>
                 column.searchable ? (
@@ -23,25 +23,27 @@ const TableSearch = ({ columns, filter,updateFilter,listName }) => {
                             width={column.width}
                             name={column.key || ''}
                             value={filter[column.key] ? (column.render ? column.render(filter[column.key]) : filter[column.key]) : ''}
-                            onChange={(date) => handleSearchChange(column.key, date)}
-                        />
+                            onChange={(date) => handleSearchChange(column.key, date)}/>
                     ) : column.type === 'select' ? (
                         <SelectSearchInput
                             key={column.key}
                             width={column.width}
                             name={column?.key || ''}
                             options={column.options}
-                            value={filter[column?.key]}
+                            fetchAPI={column.fetchAPI}
+                            value={filter[column.key]?.value}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
-                        <AsyncSelectSearchInput
+                        <AsyncSelectSearch
                             key={column.key}
                             width={column.width}
                             name={column.key}
-                            apiFetchFunction={column.apiFetchFunction}
-                            defaultValue={filter[column.key]}
-                            onChange={(value) => handleSearchChange(column.key, value)}
+                            labelKey={'name'}
+                            valueKey={'id'}
+                            apiEndpoint={column.apiEndpoint}
+                            value={filter?.[column.searchKey]}
+                            onChange={(value) => handleSearchChange([column.searchKey], value)}
                         />
                     ) : column.type === 'checkbox' ? (
                         <SearchCheckboxInput
@@ -73,12 +75,17 @@ const TableSearch = ({ columns, filter,updateFilter,listName }) => {
                         />
                     )
                 ) : (
-                    <th key={column.key} style={{width: `${column.width}`}}></th>
+                    <th key={column.key} style={{width: `${column.width}`}}>
+
+                    </th>
                 )
             )}
-            <th width="5%"></th>
+            <th width="5%">
+                <IconBxRefresh id={'reset-filter'} onClick={() => resetFilter()} fontSize={'1.5rem'}/>
+
+            </th>
         </tr>
     );
 }
 
-export default TableSearch;
+export default memo(TableSearch)

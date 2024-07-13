@@ -17,7 +17,7 @@ import Subtotal from "../../utils/Subtotal";
 import useFilter from "../contexts/useFilter";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
+const CreateAdjustmentForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
     const {filter} = useFilter();
 
@@ -49,7 +49,7 @@ const CreateAdjustmentForm = ({ onCreateAdjustment, show, onHide }) => {
         if (data.adjustmentDate) {
             data.adjustmentDate = moment(new Date(data.adjustmentDate)).format('YYYY-MM-DD');
         }
-        await onCreateAdjustment(data);
+        await onCreateEntity(data);
         onHide();
 
     };

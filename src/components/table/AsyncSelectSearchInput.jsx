@@ -53,7 +53,6 @@ const AsyncSelectSearchInput = ({fetchFunction,defaultValue,value,onChange}) => 
     return (
         <div>
             <AsyncSelect
-
                 value={value ? options.find((o)=> o?.value === value) : null}
                 onChange={(option) =>
                     onChange(option ? option.value : null)}
@@ -62,6 +61,7 @@ const AsyncSelectSearchInput = ({fetchFunction,defaultValue,value,onChange}) => 
                 defaultOptions
                 placeholder={"جستجو..."}
                 styles={getCustomSelectStyles()}
+                isClearable
             />
         </div>
     );

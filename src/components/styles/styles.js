@@ -1,4 +1,8 @@
-const headerStyle = {fontFamily: 'IRANSansBold', fontSize: '0.8rem', color: '#fff',};
+const headerStyle = {
+    fontFamily: 'IRANSansBold',
+    fontSize: '0.8rem',
+    color: '#fff',
+};
 const titleStyle = {fontFamily: 'IRANSansBold', fontSize: '0.8rem', color: '#fff',};
 const bodyStyle = {
     backgroundColor: 'rgba(240,240,240,0.3)',

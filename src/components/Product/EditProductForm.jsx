@@ -10,7 +10,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
 
-const EditProductForm = ({ product, onUpdateProduct, show, onHide }) => {
+const EditProductForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         measurementIndex: Yup.string().required('شاخص اندازه‌گیری الزامیست.'),
         productCode: Yup.string().required('کد محصول الزامیست.'),
@@ -21,7 +21,7 @@ const EditProductForm = ({ product, onUpdateProduct, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onUpdateProduct(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -42,11 +42,11 @@ const EditProductForm = ({ product, onUpdateProduct, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: product.id,
-                            measurementIndex: product.measurementIndex,
-                            productCode: product.productCode,
-                            productName: product.productName,
-                            productType: product.productType,
+                            id: editingEntity.id,
+                            measurementIndex: editingEntity.measurementIndex,
+                            productCode: editingEntity.productCode,
+                            productName: editingEntity.productName,
+                            productType: editingEntity.productType,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

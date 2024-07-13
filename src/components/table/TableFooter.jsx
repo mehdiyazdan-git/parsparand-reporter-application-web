@@ -9,9 +9,8 @@ const TableFooter = ({
                          data,
                          allData,
                          downloadExcelFile,
-                         listName,
                          hasSubTotal,
-                         getParams,
+                         entityName
                      }) => {
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
@@ -56,7 +55,7 @@ const TableFooter = ({
                 <td>
                     <SiMicrosoftexcel
                         data-tooltip-id="export-current-page-to-excel-button"
-                        onClick={() => downloadExcelFile(getParams(listName), false)}
+                        onClick={downloadExcelFile}
                         size={"1.3rem"}
                         className={"mx-1"}
                         color={"#41941a"}
@@ -106,9 +105,8 @@ TableFooter.propTypes = {
     data: PropTypes.array.isRequired,
     allData: PropTypes.array.isRequired,
     downloadExcelFile: PropTypes.func.isRequired,
-    listName: PropTypes.string.isRequired,
+    entityName: PropTypes.string.isRequired,
     hasSubTotal: PropTypes.bool.isRequired,
-    getParams: PropTypes.func.isRequired,
 };
 
 export default TableFooter;

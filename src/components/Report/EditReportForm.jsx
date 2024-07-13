@@ -15,7 +15,7 @@ import ReportItems from "./ReportItems";
 import "../../App.css";
 import CustomModal from "../../utils/CustomModal";
 
-const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
+const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -42,7 +42,7 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
         if (data.reportDate) {
             data.reportDate = moment(new Date(data.reportDate)).format('YYYY-MM-DD');
         }
-        await onUpdateReport(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -57,11 +57,11 @@ const EditReportForm = ({ report, onUpdateReport, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: report.id,
-                            reportDate: report.reportDate,
-                            reportExplanation: report.reportExplanation,
-                            yearId: report.yearId,
-                            reportItems: report.reportItems,
+                            id: editingEntity.id,
+                            reportDate: editingEntity.reportDate,
+                            reportExplanation: editingEntity.reportExplanation,
+                            yearId: editingEntity.yearId,
+                            reportItems: editingEntity.reportItems,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

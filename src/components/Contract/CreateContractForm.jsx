@@ -15,7 +15,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateContractForm = ({ onCreateContract, show, onHide }) => {
+const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -54,7 +54,7 @@ const CreateContractForm = ({ onCreateContract, show, onHide }) => {
         if (data.endDate) {
             data.endDate = moment(new Date(data.endDate)).format('YYYY-MM-DD');
         }
-        await onCreateContract(data);
+        await onCreateEntity(data);
         onHide();
     };
 

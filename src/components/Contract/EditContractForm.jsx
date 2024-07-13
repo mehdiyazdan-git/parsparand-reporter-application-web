@@ -15,7 +15,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ContractItems from "./ContractItems";
 import CustomModal from "../../utils/CustomModal";
 
-const EditContractForm = ({ contract, onUpdateContract, show, onHide }) => {
+const EditContractForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -54,7 +54,7 @@ const EditContractForm = ({ contract, onUpdateContract, show, onHide }) => {
         if (data.endDate) {
             data.endDate = moment(new Date(data.endDate)).format('YYYY-MM-DD');
         }
-        await onUpdateContract(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -69,17 +69,17 @@ const EditContractForm = ({ contract, onUpdateContract, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: contract.id,
-                            contractNumber: contract.contractNumber,
-                            contractDescription: contract.contractDescription,
-                            startDate: contract.startDate,
-                            endDate: contract.endDate,
-                            customerId: contract.customerId,
-                            yearId: contract.yearId,
-                            advancePayment: contract.advancePayment,
-                            insuranceDeposit: contract.insuranceDeposit,
-                            performanceBond: contract.performanceBond,
-                            contractItems: contract.contractItems,
+                            id: editingEntity.id,
+                            contractNumber: editingEntity.contractNumber,
+                            contractDescription: editingEntity.contractDescription,
+                            startDate: editingEntity.startDate,
+                            endDate: editingEntity.endDate,
+                            customerId: editingEntity.customerId,
+                            yearId: editingEntity.yearId,
+                            advancePayment: editingEntity.advancePayment,
+                            insuranceDeposit: editingEntity.insuranceDeposit,
+                            performanceBond: editingEntity.performanceBond,
+                            contractItems: editingEntity.contractItems,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

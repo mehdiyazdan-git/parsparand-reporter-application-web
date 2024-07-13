@@ -15,7 +15,7 @@ import useHttp from "../../hooks/useHttp";
 import Subtotal from "../../utils/Subtotal";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
+const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery = '') => {
@@ -51,7 +51,7 @@ const CreateReturnedForm = ({ onCreateReturned, show, onHide }) => {
         if (data.returnedDate) {
             data.returnedDate = moment(new Date(data.returnedDate)).format('YYYY-MM-DD');
         }
-        await onCreateReturned(data);
+        await onCreateEntity(data);
         onHide();
     };
 

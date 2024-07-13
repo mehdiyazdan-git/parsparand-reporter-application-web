@@ -16,7 +16,7 @@ import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
+const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
     const [isContractualSales, setIsContractualSales] = useState(false);
 
@@ -67,7 +67,7 @@ const CreateInvoiceForm = ({ onCreateInvoice, show, onHide }) => {
         if (data.issuedDate) {
             data.issuedDate = moment(new Date(data.issuedDate)).format('YYYY-MM-DD');
         }
-        await onCreateInvoice(data);
+        await onCreateEntity(data);
         onHide();
     };
 

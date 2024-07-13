@@ -15,7 +15,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) => {
+const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery) => {
@@ -54,7 +54,7 @@ const CreateWarehouseReceiptForm = ({ onCreateWarehouseReceipt, show, onHide }) 
         if (data.warehouseReceiptDate) {
             data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
         }
-       await onCreateWarehouseReceipt(data);
+       await onCreateEntity(data);
         onHide();
         console.log(data);
 

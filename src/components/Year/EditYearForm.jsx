@@ -9,7 +9,7 @@ import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CustomModal from "../../utils/CustomModal";
 
-const EditYearForm = ({ year, onUpdateYear, show, onHide }) => {
+const EditYearForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         name: Yup.number().required('نام سال الزامیست.').typeError('نام سال باید عدد باشد.'),
     });
@@ -17,7 +17,7 @@ const EditYearForm = ({ year, onUpdateYear, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onUpdateYear(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -32,8 +32,8 @@ const EditYearForm = ({ year, onUpdateYear, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: year.id,
-                            name: year.name,
+                            id: editingEntity.id,
+                            name: editingEntity.name,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

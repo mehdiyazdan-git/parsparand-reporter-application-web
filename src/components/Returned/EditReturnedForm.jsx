@@ -14,7 +14,8 @@ import NumberInput from "../../utils/NumberInput";
 import useHttp from "../../hooks/useHttp";
 import CustomModal from "../../utils/CustomModal";
 
-const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
+
+const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery = '') => {
@@ -48,7 +49,7 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
         if (data.returnedDate) {
             data.returnedDate = moment(new Date(data.returnedDate)).format('YYYY-MM-DD');
         }
-        await onUpdateReturned(data);
+        await onUpdateEntity(data);
         onHide();
         console.log(data)
     };
@@ -64,13 +65,13 @@ const EditReturnedForm = ({ returned, onUpdateReturned, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: returned.id,
-                            quantity: returned.quantity,
-                            returnedDate: returned.returnedDate,
-                            returnedDescription: returned.returnedDescription,
-                            returnedNumber: returned.returnedNumber,
-                            unitPrice: returned.unitPrice,
-                            customerId: returned.customerId,
+                            id: editingEntity.id,
+                            quantity: editingEntity.quantity,
+                            returnedDate: editingEntity.returnedDate,
+                            returnedDescription: editingEntity.returnedDescription,
+                            returnedNumber: editingEntity.returnedNumber,
+                            unitPrice: editingEntity.unitPrice,
+                            customerId: editingEntity.customerId,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

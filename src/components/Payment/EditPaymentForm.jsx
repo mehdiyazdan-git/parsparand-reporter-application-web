@@ -15,7 +15,7 @@ import useHttp from "../../hooks/useHttp";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
 
-const EditPaymentForm = ({ payment, onUpdatePayment, show, onHide }) => {
+const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
 
@@ -37,9 +37,8 @@ const EditPaymentForm = ({ payment, onUpdatePayment, show, onHide }) => {
         if (data.paymentDate) {
             data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
         }
-        // await onUpdatePayment(data);
-        // onHide();
-        console.log(data);
+        await onUpdateEntity(data);
+        onHide();
     };
 
     return (
@@ -53,12 +52,12 @@ const EditPaymentForm = ({ payment, onUpdatePayment, show, onHide }) => {
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: payment.id,
-                            paymentDate: payment.paymentDate,
-                            paymentDescription: payment.paymentDescription,
-                            customerId: payment.customerId,
-                            paymentAmount: payment.paymentAmount,
-                            paymentSubject: payment.paymentSubject,
+                            id: editingEntity.id,
+                            paymentDate: editingEntity.paymentDate,
+                            paymentDescription: editingEntity.paymentDescription,
+                            customerId: editingEntity.customerId,
+                            paymentAmount: editingEntity.paymentAmount,
+                            paymentSubject: editingEntity.paymentSubject,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}

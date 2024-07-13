@@ -17,7 +17,7 @@ export const getCustomSelectStyles = (error) => ({
         fontSize: "0.7rem",
         lineHeight: "0.875rem",
         color: "#334155",
-        // boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+        textAlign:'right',
 
         "&:focus": {
             outline: "none",
@@ -26,10 +26,10 @@ export const getCustomSelectStyles = (error) => ({
         },
         "&::placeholder": {
             color: error ? "red" : "#686666",
-            fontSize: "0.6rem",
+            fontSize: "0.7rem",
             fontFamily: 'IRANSans',
             fontWeight: 'bold',
-            textAlign: 'right',
+            textAlign: 'rightContext',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
             textTransform: 'uppercase',
@@ -53,7 +53,7 @@ export const getCustomSelectStyles = (error) => ({
     }),
     option: (provided) => ({
         ...provided,
-        fontSize: '0.65rem',
+        fontSize: '0.75rem',
         color: "black",
         backgroundColor: "rgba(255, 255, 255, 0.5)",
         fontFamily: 'IRANSans',
@@ -71,28 +71,10 @@ export const getCustomSelectStyles = (error) => ({
     }),
     placeholder: (provided) => ({
         ...provided,
-        fontSize: "0.6rem",
-        color: error ? "red" : "#686666"
-    }),
-    clearIndicator: (provided) => ({
-        ...provided,
-        color: "#626262",
-        padding: "0px 1px",
-        margin: "0px 0px"
-
-    }),
-    dropdownIndicator: (provided) => ({
-        ...provided,
-        color: "#626262",
-        padding: "0px 1px",
-        margin: "0px 0px"
-    }),
-    devider: (provided) => ({
-        ...provided,
-        color: "#626262",
-        padding: "0px 0px",
-        margin: "0px 0px"
-
+        fontSize: "0.7rem",
+        color: error ? "red" : "#686666",
+        fontFamily: 'IRANSans',
+        textAlign:'right',
     }),
     input: (provided) => ({
         ...provided,
@@ -101,5 +83,6 @@ export const getCustomSelectStyles = (error) => ({
         margin: "0px 0px",
         padding: "0px 0px",
         width: "100%",
-    })
+        textAlign:'right',
+    }),
 });

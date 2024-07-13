@@ -3,7 +3,9 @@ import Table from "react-bootstrap/Table";
 import useHttp from "../../hooks/useHttp";
 import {formatNumber} from "../../utils/functions/formatNumber";
 import axios from "axios";
-import getCurrentYear from "../../utils/functions/getCurrentYear";
+import PropTypes from "prop-types";
+import {useDataContext} from "../contexts/DataContext";
+import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
 
 const headerStyle = {
@@ -16,7 +18,6 @@ const headerStyle = {
     padding: '0.5rem',
     border: '1px #a5b6c9 solid',
 };
-
 const rowStyle = {
     fontSize: '0.75rem',
     fontFamily:'IRANSans',
@@ -38,18 +39,18 @@ const footerStyle = {
     fontWeight: 'bold',
     width: '14.30%',
 }
+
 const getYearOptions = async () => {
     return await axios.get(`http://localhost:9090/api/years/select`)
       .then(res => res.data);
 }
 
 const SalesTable = ({
-                        productType,
                         label,
                         previousYear,
                         measurementIndex ,
-                        jalaliYear,
                         filter,
+                        productType
                     }) => {
     const http = useHttp();
 
@@ -62,47 +63,25 @@ const SalesTable = ({
         },
     ]);
 
-
     useEffect(() => {
-        let jalaliYear = '';
-        let productType = 2;
-
-        if (filter?.jalaliYear?.toString().length >= 1) {
-            jalaliYear = Number(filter.jalaliYear.toString());
-        }
-        if (filter?.productType?.toString().length === 1 ||
-            filter?.productType.toString().length === 2 ||
-            filter?.productType.toString().length === 6) {
-            productType = filter?.productType.toString();
-        }
-        const yearParams = jalaliYear + previousYear ? -1 : 0
-        // Construct URL with query parameters
-        const url = `/reports/sales-by-year?yearName=${yearParams}&productType=${productType}`;
-
-        http.get(url)
-            .then(response => setData(response.data));
-    }, [filter, previousYear]);
-
-    useEffect(() => {
-        let jalaliYear = '';
-        let productType = 2;
-
-        if (filter?.jalaliYear && filter?.jalaliYear.toString().length === 4) {
-            jalaliYear = Number(filter?.jalaliYear.toString());
-        } else if (getYearOptions().length > 0) {
-            let year = getYearOptions().find(option => option.name === filter?.jalaliYear);
-            jalaliYear = Number(year);
-        } else {
-            jalaliYear = '';
-        }
-        const yearParam = jalaliYear + previousYear ? -1 : 0
-        // Construct URL with query parameters
-        const url = `/reports/sales-by-year?yearName=${yearParam}&productType=${productType}`;
-        console.log(url)
-        http.get(url)
-            .then(response => setData(response.data));
-    }, [filter, previousYear]); // Assuming getYearOptions doesn't change
-
+        const fetchData = async () => {
+            try {
+                let yearName;
+                if (filter?.jalaliYear && filter?.jalaliYear.toString().length === 4) {
+                   yearName = filter.jalaliYear - previousYear;
+                }else {
+                    const years = await getYearOptions();
+                    yearName = years.find(y => y.name === filter.jalaliYear).value - previousYear;
+                }
+                const response = await http.get(`/reports/sales-by-year?yearName=${yearName}&productType=${productType}`);
+                setData(response.data);
+            } catch (error) {
+                console.error('Error fetching data:', error);
+                setData([]);
+            }
+        };
+        fetchData();
+        }, [previousYear, measurementIndex, filter]);
 
     const firstHalfData = data.slice(0, 6);
     const secondHalfData = data.slice(6, 12);
@@ -111,6 +90,11 @@ const SalesTable = ({
     const totalQuantitySecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalQuantity, 0);
     const totalAmountSecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalAmount, 0);
 
+    const {dataState} = useDataContext();
+
+    useDeepCompareEffect(() => {
+        console.log(dataState?.content)
+    }, [dataState]);
     return (
         <div style={{ fontSize: "0.7rem" }}>
             <div className="row mt-2">
@@ -187,6 +171,18 @@ const SalesTable = ({
             </div>
         </div>
     );
+};
+
+
+SalesTable.propTypes = {
+    label: PropTypes.string,
+    previousYear: PropTypes.number.isRequired,
+    measurementIndex: PropTypes.string.isRequired,
+    filter: PropTypes.shape({
+        jalaliYear: PropTypes.number,
+        productType: PropTypes.number
+    }),
+    productType: PropTypes.number.isRequired,
 };
 
 export default SalesTable;

@@ -10,7 +10,7 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
 
-const CreateProductForm = ({ onCreateProduct, show, onHide }) => {
+const CreateProductForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         measurementIndex: Yup.string().required('شاخص اندازه‌گیری الزامیست.'),
         productCode: Yup.string().required('کد محصول الزامیست.'),
@@ -21,7 +21,7 @@ const CreateProductForm = ({ onCreateProduct, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
-        await onCreateProduct(data);
+        await onCreateEntity(data);
         onHide();
     };
 

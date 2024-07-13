@@ -23,7 +23,7 @@ const CustomModalBody = styled(Modal.Body)`
 
 
 
-const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, show, onHide }) => {
+const EditWarehouseReceiptForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
@@ -55,7 +55,7 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
         if (data.warehouseReceiptDate) {
             data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
         }
-        await onUpdateWarehouseReceipt(data);
+        await onUpdateEntity(data);
         onHide();
     };
 
@@ -70,13 +70,13 @@ const EditWarehouseReceiptForm = ({ warehouseReceipt, onUpdateWarehouseReceipt, 
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
                         defaultValues={{
-                            id: warehouseReceipt.id,
-                            warehouseReceiptDate: warehouseReceipt.warehouseReceiptDate,
-                            warehouseReceiptDescription: warehouseReceipt.warehouseReceiptDescription,
-                            warehouseReceiptNumber: warehouseReceipt.warehouseReceiptNumber,
-                            customerId: warehouseReceipt.customerId,
-                            yearId: warehouseReceipt.yearId,
-                            warehouseReceiptItems: warehouseReceipt.warehouseReceiptItems,
+                            id: editingEntity?.id,
+                            warehouseReceiptDate: editingEntity?.warehouseReceiptDate,
+                            warehouseReceiptDescription: editingEntity?.warehouseReceiptDescription,
+                            warehouseReceiptNumber: editingEntity?.warehouseReceiptNumber,
+                            customerId: editingEntity?.customerId,
+                            yearId: editingEntity?.yearId,
+                            warehouseReceiptItems: editingEntity?.warehouseReceiptItems,
                         }}
                         onSubmit={onSubmit}
                         resolver={resolver}
