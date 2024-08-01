@@ -1,39 +1,66 @@
-import { useState, useCallback } from 'react'
 
-const useFetchData = (initialData = {}, method = 'GET') => {
-    const [data, setData] = useState(initialData)
-    const [hasError, setHasError] = useState(false)
-    const [isLoading, setIsLoading] = useState(false)
+import axios from 'axios';
+import { BASE_URL } from '../config/config';
 
-    const fetchData = useCallback(
-        async (url, body) => {
-            if (!url) return
-            setIsLoading(true)
-            hasError && setHasError(false)
 
-            const response = await fetch(url, {
-                method,
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body,
-            })
+const validateEntityName = (name) => {
+    if (name === undefined) throw new Error('Entity name is required');
+    if (typeof name !== 'string') throw new Error('Entity name must be a string');
+    if (name.trim() === '') throw new Error('Entity name cannot be empty');
+    if (!name.match(/^[a-zA-Z0-9_]+$/)) throw new Error('Entity name can only contain letters, numbers, and underscores');
+    if (name.length > 50) throw new Error('Entity name cannot be longer than 50 characters');
+    return true;
+};
 
-            if (response.ok) {
-                const result = await response.json()
-                setData(result['objects'])
-            } else {
-                setData(initialData)
-                !hasError && setHasError(true)
-            }
+const http = axios.create({ baseURL: BASE_URL });
 
-            setIsLoading(false)
-            return response
-        },
-        [hasError, initialData, method]
-    )
+http.interceptors.request.use(request => {
+    request.headers['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
+    request.headers['Content-Type'] = 'application/json';
+    return request;
+}, error => Promise.reject(error));
 
-    return { data, fetchData, isLoading, hasError }
+
+const useFetchData = (entityName) => {
+
+
+
+    const getUrl = (entityName) => {
+        if (entityName.endsWith('s')) {
+            return `${BASE_URL}/${entityName}`;
+        } else {
+            return `${BASE_URL}/${entityName}s`;
+        }
+    }
+
+
+    const fetchData = async (params) => {
+        const isValid = validateEntityName(entityName);
+
+    if (!isValid) throw new Error('Invalid entity name');
+       if (params) {
+            return await http.get(`${getUrl(entityName)}?${params}`);
+        } else {
+            return await http.get(getUrl(entityName))
+    }}
+
+    const create = async (data) => {
+        return await http.post(getUrl(entityName), data);
+    }
+    const update = async ( id, data) => {
+        await http.put(`${getUrl(entityName)}/${id}`, data);
+    }
+    const remove = async ( id) => {
+        await http.delete(`${getUrl(entityName)}/${id}`);
+    }
+
+
+    return {
+        fetchData,
+        useFetchData,
+        create,
+        update,
+        remove
+    }
 }
-
-export default useFetchData
+export default useFetchData;

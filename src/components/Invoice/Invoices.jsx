@@ -23,7 +23,7 @@ const Invoices = ({ contractNumber, parent_list_name }) => {
     return (
         <CrudComponent
             url={'/invoices'}
-            entityName={listName}
+            entityName={'invoices'}
             columns={invoiceColumns}
             createForm={<CreateInvoiceForm />}
             editForm={<EditInvoiceForm />}

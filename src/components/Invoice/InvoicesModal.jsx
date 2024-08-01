@@ -4,9 +4,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Invoices from "./Invoices";
-import useFilter from "../contexts/useFilter";
+
 import styled from 'styled-components';
 import useHttp from "../../hooks/useHttp";
+import {useFilter} from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -34,8 +35,8 @@ const CustomModal = styled(Modal)`
 
 const InvoicesModal = ({ contractNumber }) => {
     const http = useHttp();
-    const listName = "contract-invoice-modal";
-    const { filter, updateFilter } = useFilter();
+    const entityName = "contract-invoice-modal";
+    const {  updateFieldsFilter } = useFilter(entityName);
     const [showModal, setShowModal] = useState(false);
     const [contracts, setContracts] = useState([]);
     const getAllContracts = async () => {
@@ -57,24 +58,31 @@ const InvoicesModal = ({ contractNumber }) => {
 
     const handleShow = () => {
 
-        updateFilter(listName, {
-            contractNumber: contractNumber,
-            page: 0,
-            size: 10,
-            sortBy: 'id',
-            order: 'asc',
-            ...filter
+        updateFieldsFilter({
+            search : {contractNumber: contractNumber},
+            pageable : {
+                page: 0,
+                size: 10,
+            },
+           sort : {
+               sortBy: 'id',
+               order: 'asc',
+           },
         });
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFilter(listName, {
-            contractNumber: '',
-            page: 0,
-            size: 5,
-            sortBy: 'id',
-            order: 'asc',
+        updateFieldsFilter({
+            search : {contractNumber: ''},
+            pageable : {
+                page: 0,
+                size: 10,
+            },
+            sort : {
+                sortBy: 'id',
+                order: 'asc',
+            },
         });
         setShowModal(false);
     };
@@ -86,7 +94,7 @@ const InvoicesModal = ({ contractNumber }) => {
                 <ModalBody>
                     <Invoices
                         contractNumber={contractNumber}
-                        parent_list_name={listName}
+                        parent_list_name={entityName}
                     />
                 </ModalBody>
                 <Modal.Footer>

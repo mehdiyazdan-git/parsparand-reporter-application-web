@@ -1,10 +1,9 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import Table from "react-bootstrap/Table";
 import useHttp from "../../hooks/useHttp";
 import {formatNumber} from "../../utils/functions/formatNumber";
 import axios from "axios";
 import PropTypes from "prop-types";
-import {useDataContext} from "../contexts/DataContext";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
 
@@ -50,11 +49,12 @@ const SalesTable = ({
                         previousYear,
                         measurementIndex ,
                         filter,
-                        productType
+                        productType,
+    entityName
                     }) => {
     const http = useHttp();
 
-    const [data, setData] = useState([
+    const [reportData, setReportData] = useState([
         {
             monthNumber: 1,
             monthName: '',
@@ -74,27 +74,27 @@ const SalesTable = ({
                     yearName = years.find(y => y.name === filter.jalaliYear).value - previousYear;
                 }
                 const response = await http.get(`/reports/sales-by-year?yearName=${yearName}&productType=${productType}`);
-                setData(response.data);
+                setReportData(response.data);
             } catch (error) {
                 console.error('Error fetching data:', error);
-                setData([]);
+                setReportData([]);
             }
         };
         fetchData();
         }, [previousYear, measurementIndex, filter]);
 
-    const firstHalfData = data.slice(0, 6);
-    const secondHalfData = data.slice(6, 12);
+    const firstHalfData = reportData.slice(0, 6);
+    const secondHalfData = reportData.slice(6, 12);
     const totalQuantityFirstHalf = firstHalfData.reduce((acc, item) => acc + item.totalQuantity, 0);
     const totalAmountFirstHalf = firstHalfData.reduce((acc, item) => acc + item.totalAmount, 0);
     const totalQuantitySecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalQuantity, 0);
     const totalAmountSecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalAmount, 0);
 
-    const {dataState} = useDataContext();
+    const {data} = useContext(entityName);
 
     useDeepCompareEffect(() => {
-        console.log(dataState?.content)
-    }, [dataState]);
+        console.log(data?.content)
+    }, [data]);
     return (
         <div style={{ fontSize: "0.7rem" }}>
             <div className="row mt-2">

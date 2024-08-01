@@ -5,7 +5,7 @@ import {titleStyle, labelStyle} from "../styles/styles";
 import ProductTypeSelect from "../../utils/ProductTypeSelect";
 import axios from "axios";
 import PropTypes from "prop-types";
-import useData from "../../hooks/useData";
+import {useFilter} from "../contexts/useFilter";
 
 
 const getYearOptions = async () => {
@@ -16,13 +16,19 @@ const getYearOptions = async () => {
 const YearComparisonReport = () => {
 
     const entityName = "year-comparison-report";
-    const { filter, updateFilter} = useData(entityName, {
-        page: 0,
-        size: 10,
-        order: 'ASC',
-        sortBy: 'id',
-        jalaliYear: '',
-        productType: 2,
+    const { filter, updateFieldFilter,updateFieldsFilter} = useFilter(entityName, {
+        pageable : {
+            page: 0,
+            size: 10,
+        },
+        sort : {
+            order: 'ASC',
+            sortBy: 'id',
+        },
+        search : {
+            jalaliYear: '',
+            productType: 2,
+        }
     });
 
 
@@ -38,16 +44,16 @@ const YearComparisonReport = () => {
 
     const handleProductTypeChange = (selectedOption) => {
         setProductType(selectedOption.value);
-        updateFilter( { productType: selectedOption.value });
+        updateFieldFilter('productType', selectedOption.value);
     };
 
     const handleYearChange = (selectedYear) => {
-        updateFilter({ 'jalaliYear': selectedYear });
+        updateFieldFilter('jalaliYear', selectedYear);
     };
 
     useEffect(() => {
         getYearOptions().then(options => {
-            updateFilter({ jalaliYear: options[0].name, productType: 2 });
+            updateFieldsFilter({ 'jalaliYear': options[0].name, 'productType': 2 });
         });
     }, []);
 

@@ -7,7 +7,8 @@ import PaymentsModal from "../Payment/paymentsModal";
 import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
 import InvoicesModal from "../Invoice/InvoicesModal";
 import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
-import useFilter from "../contexts/useFilter";
+import {useFilter} from "../contexts/useFilter";
+
 
 
 const Container = styled.div`
@@ -106,7 +107,7 @@ const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'l
 const ClientSummary = () => {
     const http = useHttp();
     const listName = 'customerSummary';
-    const { filter, updateFilter } = useFilter(listName);
+    const { filter, updateFieldFilter } = useFilter(listName);
     const [customer, setCustomer] = useState(null);
     const [data, setData] = useState({
         clientSummaryList: [
@@ -264,7 +265,7 @@ const ClientSummary = () => {
             filter?.customerId === '' ||
             filter?.customerId === 'undefined') {
              customerSelect().then(res => {
-                updateFilter(listName,{customerId: res.data[0].id});
+                updateFieldFilter('customerId', res.data[0].id);
             });
         }
     },[])
@@ -280,7 +281,7 @@ const ClientSummary = () => {
             <div className="row mt-3">
                 <AsyncSelectSearchInput
                     fetchFunction={customerSelect}
-                    onChange={(value) => updateFilter(listName,{customerId: value})}
+                    onChange={(value) => updateFieldFilter('customerId', value)}
                     value={filter?.customerId}
                 />
             </div>

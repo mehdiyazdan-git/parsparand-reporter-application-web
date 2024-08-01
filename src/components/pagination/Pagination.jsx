@@ -1,58 +1,48 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import './Pagination.css';
 import PageSizeSelector from './PageSizeSelector';
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
-const Pagination = (
-                    { data,
-                        handleSizeChange,
-                        goToFirstPage,
-                        goToPrevPage,
-                        goToNextPage,
-                        goToLastPage,
-                    }) => {
-    const [totalPages, setTotalPages] = React.useState(0);
-    const [totalElements, setTotalElements] = React.useState(0);
-    const [startIndex, setStartIndex] = React.useState(0);
-    const [endIndex, setEndIndex] = React.useState(0);
 
-    useDeepCompareEffect(() => {
-        if (data) {
-            setTotalPages(data?.totalPages);
-            setTotalElements(data?.totalElements);
-            setStartIndex(data.first ? 1 : (data?.pageable?.pageNumber * data?.pageable?.pageSize) + 1);
-            setEndIndex(data.last ? data?.totalElements : (data.pageable?.pageNumber * data?.pageable?.pageSize) + data?.pageable?.pageSize);
-        }
-    }, [data]);
+const Pagination = ({ data,filter,updatePageable }) => {
+
+
+    const totalPages = data?.totalPages || 0;
+    const totalElements = data?.totalElements || 0;
+    const currentPage = filter?.pageable?.page || 0;
+    const pageSize = filter?.pageable?.size || 10; // Default page size
+
+    const startIndex = data?.first ? 1 : (currentPage * pageSize) + 1;
+    const endIndex = data?.last ? totalElements : (currentPage * pageSize) + pageSize;
+
+
+    const handleSizeChange = (newSize) => {
+        updatePageable({ page : 0 , size : newSize });
+    };
+
+    const goToPage = (pageNo) => {
+        updatePageable({ page : pageNo , size : pageSize });
+    };
 
     return (
         <div className="pagination">
-            <PageSizeSelector
-                size={data?.size}
-                handleSizeChange={handleSizeChange}
-            />
+            <PageSizeSelector size={pageSize} handleSizeChange={handleSizeChange} />
             <div className="page-info">
                 {`${startIndex} تا ${endIndex} از ${totalElements}`}
             </div>
             <div className="page-controls">
-                <button onClick={goToFirstPage} disabled={data?.pageable?.pageNumber === 0}>{'<<'}</button>
-                <button onClick={goToPrevPage} disabled={data?.pageable?.pageNumber === 0}>{'<'}</button>
-                صفحه {data?.pageable?.pageNumber + 1} از {totalPages}
-                <button onClick={goToNextPage} disabled={data?.pageable?.pageNumber + 1 >= data?.totalPages}>{'>'}</button>
-                <button onClick={goToLastPage} disabled={data?.pageable?.pageNumber + 1 >= data?.totalPages}>{'>>'}</button>
+                <button onClick={() => goToPage(0)} disabled={currentPage === 0}>{'<<'}</button>
+                <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 0}>{'<'}</button>
+                صفحه {currentPage + 1} از {totalPages}
+                <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage + 1 >= totalPages}>{'>'}</button>
+                <button onClick={() => goToPage(totalPages - 1)} disabled={currentPage + 1 >= totalPages}>{'>>'}</button>
             </div>
         </div>
     );
 };
 
 Pagination.propTypes = {
-    data: PropTypes.object.isRequired,
-    handleSizeChange: PropTypes.func.isRequired,
-    goToFirstPage: PropTypes.func.isRequired,
-    goToPrevPage: PropTypes.func.isRequired,
-    goToNextPage: PropTypes.func.isRequired,
-    goToLastPage: PropTypes.func.isRequired
+    entityName: PropTypes.string.isRequired,
 };
 
 export default Pagination;

@@ -3,20 +3,18 @@ import SalesTable from "./SalesTable";
 import {titleStyle} from "../styles/styles";
 import YearSelect from "../Year/YearSelect";
 import getYearOptions from "../../utils/functions/getYearOptions";
-import useData from "../../hooks/useData";
+import {useFilter} from "../contexts/useFilter";
 
 const AnnualReport = () => {
     const entityName = "annual";
-    const { filter, updateFilter} = useData(entityName,{
-        jalaliYear: getYearOptions().then(options => options[0].name)
-    });
+    const { filter, updateFieldFilter,updateFieldsFilter} = useFilter(entityName);
 
     const handleJalaliYearChange = (value,label) => {
-        updateFilter({ 'jalaliYear': value });
+        updateFieldFilter('jalaliYear', value);
     };
     useEffect(() => {
         getYearOptions().then(options => {
-            updateFilter({ jalaliYear: options[0].name, productType: 2 });
+            updateFieldsFilter({ 'jalaliYear': options[0].name, 'productType': 2 });
         });
     }, []);
     return (

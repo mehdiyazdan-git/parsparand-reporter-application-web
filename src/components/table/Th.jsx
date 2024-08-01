@@ -1,33 +1,38 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-const Th = ({ columnKey, columnTitle, width, filter, updateFilter, entityName }) => {
+//const filter ={
+//     search: {},
+//     pageable: {
+//         page: 0,
+//         size: 10
+//     },
+//     sort: {
+//         order: 'asc',
+//         sortBy: 'id',
+//     },
+//     subTotals: []
+// }
+
+//const updateFilter = (field, value) => {
+//         setFilter({ ...filter, [field]: value });
+//     };
+
+const Th = ({ columnKey, columnTitle, width, filter, updateSort }) => {
+
     const handleSort = () => {
-        const isAsc = filter.sortBy === columnKey && filter.order === 'asc';
-        updateFilter({
-            sortBy: columnKey,
-            order: isAsc ? 'desc' : 'asc'
-        });
+        const newOrder = filter?.sort?.order === 'asc' ? 'desc' : 'asc';
+        updateSort({ order: newOrder, sortBy: columnKey });
     };
 
     return (
         <th
-            onClick={handleSort}
+            onClick={handleSort} // Directly call handleSort
             style={{ cursor: 'pointer', width }}
         >
             {columnTitle}
-            {filter.sortBy === columnKey && (filter.order === 'asc' ? ' 🔼' : ' 🔽')}
+            {filter?.sort?.sortBy === columnKey && (filter?.sort?.order === 'asc' ? ' 🔼' : ' 🔽')}
         </th>
     );
 };
-
-Th.propTypes = {
-    columnKey: PropTypes.string.isRequired,
-    columnTitle: PropTypes.string.isRequired,
-    width: PropTypes.string,
-    filter: PropTypes.object.isRequired,
-    updateFilter: PropTypes.func.isRequired,
-    listName: PropTypes.string.isRequired,
-};
-
 export default Th;
+

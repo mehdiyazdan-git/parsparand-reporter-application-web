@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useEffect} from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
@@ -9,42 +9,19 @@ import YearSelect from '../Year/YearSelect';
 import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
 import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
 import yearSelectStyle from '../styles/yearSelectStyle';
-import useData from '../../hooks/useData';
+import {useFilter} from "../contexts/useFilter";
 
 const Table = ({
-                   data,
-                   columns,
-                   onEdit,
-                   onDelete,
-                   onResetPassword,
-                   entityName,
-                   downloadExcelFile,
-                   hasYearSelect,
-                   initialFilter,
-                   hasSubTotal,
-                   refreshTrigger
+                   data, columns, onEdit, onDelete, onResetPassword, entityName,
+                   downloadExcelFile, hasYearSelect,hasSubTotal,
+                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,getParams
                }) => {
-    const {
-        filter,
-        updateFilter,
-        handleSizeChange,
-        goToFirstPage,
-        goToPrevPage,
-        goToNextPage,
-        goToLastPage,
-    } = useData(entityName, initialFilter);
+
 
     const handleYearChange = useCallback((value) => {
-        updateFilter({ jalaliYear: value, page: 0 });
-    }, [updateFilter]);
+        updateSearch('jalaliYear', value);
+    }, [updateSearch]);
 
-    const resetFilter = useCallback(() => {
-        const columnsFilter = columns.reduce((acc, column) => {
-            acc[column.key] = '';
-            return acc;
-        }, {});
-        updateFilter({ ...columnsFilter, jalaliYear: '', page: 0 });
-    }, [columns, updateFilter]);
 
     return (
         <>
@@ -59,20 +36,21 @@ const Table = ({
             <table className="recipient-table table-fixed-height mt-3">
                 <TableHeader
                     columns={columns}
-                    filter={filter}
-                    updateFilter={updateFilter}
                     entityName={entityName}
+                    filter={filter}
+                    updateSort={updateSort}
                 />
                 <TableSearch
                     columns={columns}
-                    filter={filter}
-                    updateFilter={updateFilter}
                     entityName={entityName}
-                    resetFilter={resetFilter}
+                    updateSearch={updateSearch}
+                    updatePageable={updatePageable}
+                    filter={filter}
                 />
                 <TableBody
-                    refreshTrigger={refreshTrigger}
                     data={data?.content || []}
+                    refreshTrigger={refreshTrigger}
+                    entityName={entityName}
                     columns={columns}
                     onEdit={onEdit}
                     onDelete={onDelete}
@@ -88,13 +66,10 @@ const Table = ({
                 />
             </table>
                 <Pagination
-                    data={data}
+                    entityName={entityName}
                     filter={filter}
-                    handleSizeChange={handleSizeChange}
-                    goToFirstPage={goToFirstPage}
-                    goToPrevPage={goToPrevPage}
-                    goToNextPage={goToNextPage}
-                    goToLastPage={goToLastPage}
+                    updatePageable={updatePageable}
+                    data={data}
                 />
         </>
     );

@@ -6,12 +6,15 @@ import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
+import {useFilter} from "../contexts/useFilter";
 
-
-const TableSearch = function ({columns, filter, updateFilter, entityName, resetFilter}) {
+const TableSearch = function ({columns,updateSearch,updatePageable,filter}) {
 
     const handleSearchChange = (name, value) => {
-        updateFilter({[name]: value, page: 0});
+        updatePageable({page: 0});
+        updateSearch({name: value});
+    };
+    const handleReset = () => {
     }
     return (
         <tr className="table-header-row">
@@ -22,7 +25,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             key={column.key}
                             width={column.width}
                             name={column.key || ''}
-                            value={filter[column.key] ? (column.render ? column.render(filter[column.key]) : filter[column.key]) : ''}
+                            value={filter.search[column.key] ? (column.render ? column.render(filter.search[column.key]) : filter.search[column.key]) : ''}
                             onChange={(date) => handleSearchChange(column.key, date)}/>
                     ) : column.type === 'select' ? (
                         <SelectSearchInput
@@ -31,7 +34,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             name={column?.key || ''}
                             options={column.options}
                             fetchAPI={column.fetchAPI}
-                            value={filter[column.key]?.value}
+                            value={filter?.search[column.key]}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
@@ -42,7 +45,16 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             labelKey={'name'}
                             valueKey={'id'}
                             apiEndpoint={column.apiEndpoint}
-                            value={filter?.[column.searchKey]}
+                            value={filter?.search ? filter.search[column.key] : null}
+                            onChange={(value) => handleSearchChange(column.key, value)}
+                        />
+                    ) : column.type === 'text' ? (
+                        <SearchInput
+                            key={column.key}
+                            width={column.width}
+                            id={column.key}
+                            name={column?.key || ''}
+                            value={filter.search[column.key] ? (column.render ? column.render(filter.search[column.key]) : filter.search[column.key]) : ''}
                             onChange={(value) => handleSearchChange([column.searchKey], value)}
                         />
                     ) : column.type === 'checkbox' ? (
@@ -51,7 +63,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             width={column.width}
                             id={column.key}
                             name={column?.key || ''}
-                            checked={filter?.[column.key]}
+                            checked={filter.search?.[column.key]}
                             onChange={(event) => handleSearchChange(column.key, event.target.checked)}
                             label={column.title}
                         />
@@ -61,7 +73,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             width={column.width}
                             id={column.key}
                             name={column.key}
-                            value={filter[column.key]}
+                            value={filter.search[column.key]}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : (
@@ -70,7 +82,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                             width={column.width}
                             id={column.key}
                             name={column?.key || ''}
-                            value={filter?.[column.key]}
+                            value={filter.search?.[column.key]}
                             onChange={(event) => handleSearchChange(column.key, event.target.value)}
                         />
                     )
@@ -81,7 +93,7 @@ const TableSearch = function ({columns, filter, updateFilter, entityName, resetF
                 )
             )}
             <th width="5%">
-                <IconBxRefresh id={'reset-filter'} onClick={() => resetFilter()} fontSize={'1.5rem'}/>
+                <IconBxRefresh id={'reset-filter'} onClick={handleReset} fontSize={'1.5rem'}/>
 
             </th>
         </tr>

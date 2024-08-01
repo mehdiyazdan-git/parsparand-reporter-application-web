@@ -1,8 +1,5 @@
-import React from 'react';
-import { saveAs } from 'file-saver';
-import { useCrudService } from '../service/useCrudService';
+import React, {useEffect} from 'react';
 import useModalManager from '../hooks/useModalManager';
-import useData from '../hooks/useData';
 import ButtonContainer from './ButtonContainer';
 import FileUpload from './FileUpload';
 import Button from './Button';
@@ -10,7 +7,10 @@ import Table from '../components/table/Table';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import Modal from 'react-bootstrap/Modal';
 import PropTypes from 'prop-types';
-import {useDataContext} from "../components/contexts/DataContext";
+import {generateInitialFilters} from "../components/contexts/generateInitialFilters";
+import {useFilter} from "../components/contexts/useFilter";
+import {filterToSearchParams} from "../components/contexts/filterToSearchParams";
+import {useHttp} from "../components/contexts/useHttp";
 import useDeepCompareEffect from "../hooks/useDeepCompareEffect";
 
 
@@ -41,7 +41,6 @@ const CrudComponent = (
                             editForm,
                             hasYearSelect = false,
                             hasSubTotal = false,
-                            url
                         }) => {
 
     const {
@@ -58,80 +57,53 @@ const CrudComponent = (
         closeErrorModal
     } = useModalManager();
 
-    const initialFilter = (columns) => {
-        const filter = {};
-        columns.forEach((column) => {
-            if (column.searchable) {
-                filter[column.key] = '';
-            }
-        });
-        return filter;
-    }
+    const [data,setData] = React.useState(null);
+    const {filter, updateSearch,updatePageable,updateSort,getParams} = useFilter(entityName, {...generateInitialFilters(columns)});
 
-    const {
+    const params = filterToSearchParams(filter);
+    const { findAll, postEntity, updateEntity, deleteEntity } = useHttp(entityName);
 
-        loading,
-        error,
-        fetchData,
-        filter,
-        getParams,
-        refreshTrigger,
-        updateFilter,
-        handleSizeChange,
-        goToFirstPage,
-        goToPrevPage,
-        goToNextPage,
-        goToLastPage
-    } = useData(entityName, {...initialFilter(columns), page: 0, size: 10, sortBy: 'id', order: 'asc',});
 
-    const { create, update, remove, download } = useCrudService(entityName);
 
-    const handleAddEntity = async (newEntity) => {
-        try {
-            const response = await create(newEntity);
-            if (response.status === 201) {
-                 fetchData()
-                closeCreateModal();
-            }
-        } catch (error) {
-            openErrorModal(error.response.data);
-        }
-    }
-
-    const handleUpdateEntity =async (updatedEntity) => {
-        try {
-            const response = await update(updatedEntity.id, updatedEntity);
-            if (response.status === 200) {
-                 fetchData()
-                closeEditModal();
-            } else {
-                openErrorModal(response.data);
-            }
-        } catch (error) {
-            openErrorModal(error.response.data);
-        }
-    }
-
-    const handleDeleteEntity = async (id) => {
-        await remove(id);
-        fetchData()
-    }
-
-    const handleDownload = async (params, isTotal = false) => {
-        await download(params)
-            .then((response) => response.data)
-            .then((blobData) => {
-                saveAs(blobData, `${entityName}.xlsx`);
+    const handleDelete = (id) => {
+        deleteEntity(id).then(() => {
+            findAll(params).then((res) => {
+                setData(res.data);
             })
-            .catch((error) => {
-                console.error('Error downloading file:', error);
-            });
+        })
     };
-    const {dataState} = useDataContext();
+
+    const handleUpdate = (id, data) => {
+        updateEntity(id, data).then(() => {
+            findAll(params).then((res) => {
+                setData(res.data);
+            })
+        })
+    }
+    const handleCreate = (data) => {
+        postEntity(data).then(() => {
+            findAll(params).then((res) => {
+                setData(res.data);
+            })
+        })
+    }
+    const handleDownload = (params, isExport) => {
+        findAll(params, isExport).then((res) => {
+            setData(res.data);
+        })
+    }
 
     useDeepCompareEffect(() => {
-        console.log(dataState?.content)
-    }, [dataState]);
+        findAll(params).then((res) => {
+            setData(prevState => {
+                return {
+                    ...prevState,
+                    data: res.data
+                }
+            })
+            })
+        }, [filter,entityName])
+
 
     return (
         <div className="table-container">
@@ -139,7 +111,7 @@ const CrudComponent = (
                 lastChild={
                     <FileUpload
                         uploadUrl={`/${entityName}/import`}
-                        refreshTrigger={fetchData}
+                        refreshTrigger={null}
                     />
                 }
             >
@@ -150,43 +122,38 @@ const CrudComponent = (
                     جدید
                 </Button>
                 <SiMicrosoftexcel
-                    onClick={() => handleDownload(getParams(), false)}
+                    onClick={() => handleDownload(params, false)}
                     size={"2.2rem"}
                     className={"m-1"}
                     color={"#41941a"}
                     type="button"
                 />
                 {createForm && React.cloneElement(createForm, {
-                    onCreateEntity: handleAddEntity,
+                    onCreateEntity: handleCreate,
                     show: showModal,
                     onHide: closeCreateModal
                 })}
             </ButtonContainer>
 
             <Table
+                data={data}
                 columns={columns}
-                url={url}
-                data={dataState}
-                filter={filter}
-                updateFilter={updateFilter}
-                onEdit={openEditModal}
-                onDelete={handleDeleteEntity}
-                entityName={entityName}
-                downloadExcelFile={handleDownload}
-                refreshTrigger={refreshTrigger}
-                hasYearSelect={hasYearSelect}
                 hasSubTotal={hasSubTotal}
-                handleSizeChange={handleSizeChange}
-                goToFirstPage={goToFirstPage}
-                goToPrevPage={goToPrevPage}
-                goToNextPage={goToNextPage}
-                goToLastPage={goToLastPage}
+                hasYearSelect={hasYearSelect}
+                postEntity={postEntity}
+                updateEntity={updateEntity}
+                deleteEntity={handleDelete}
+                filter={filter}
+                updateSearch={updateSearch}
+                updatePageable={updatePageable}
+                updateSort={updateSort}
+                getParams={getParams}
             />
 
             {editingEntity && editForm && React.cloneElement(editForm, {
                 editingEntity: editingEntity,
                 show: showEditModal,
-                onUpdateEntity: handleUpdateEntity,
+                onUpdateEntity: handleUpdate,
                 onHide: closeEditModal
             })}
             <ErrorModal

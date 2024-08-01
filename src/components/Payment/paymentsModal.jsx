@@ -4,8 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Payments from "./Payments";
 import Button from "../../utils/Button";
-import useFilter from "../contexts/useFilter";
 import styled from 'styled-components';
+import {useFilter} from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -33,18 +33,18 @@ const CustomModal = styled(Modal)`
 
 const PaymentsModal = ({ customerId }) => {
     const listName = "payments-modal";
-    const { filter, updateFilter } = useFilter(listName);
+    const { filter, updateFieldFilter } = useFilter(listName);
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
         if (!filter?.customerId || filter?.customerId !== customerId) {
-            updateFilter({ customerId: customerId });
+            updateFieldFilter('customerId',customerId);
         }
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFilter({ customerId: null });
+        updateFieldFilter({ customerId: null });
         setShowModal(false);
     };
 

@@ -1,44 +1,60 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { SiMicrosoftexcel } from "react-icons/si";
 import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
+import {useData} from "../contexts/DataContext";
+import {useFilter} from "../contexts/useFilter";
+import {filterToSearchParams} from "../contexts/filterToSearchParams";
 
-const TableFooter = ({
-                         columns,
-                         data,
-                         allData,
-                         downloadExcelFile,
-                         hasSubTotal,
-                         entityName
-                     }) => {
+const response = {
+    content: [],
+    pageable: {
+        pageNumber: 0,
+        pageSize: 10,
+        sort: {
+            empty: false,
+            sorted: true,
+            unsorted: false
+        },
+        offset: 0,
+        unpaged: false,
+        paged: true
+    },
+    last: false,
+    subTotals : {
+        'totalPrice': {
+            'page_subtotal' : 0,
+            'overall_subtotal' : 0
+        },
+        'totalQuantity': {
+            'page_subtotal' : 0,
+            'overall_subtotal' : 0
+        }
+    },
+    size: 10,
+    number: 0,
+    numberOfElements: 0,
+    first: true,
+    empty: false
+};
+
+const TableFooter = ({columns, hasSubTotal, entityName}) => {
+
+   const {filter,filteredData} = useFilter(entityName);
+
+   const params = filterToSearchParams(filter);
+
+    const downloadExcelFile = async () => {
+       return;
+    };
+
+
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
         : columns.length;
 
-    const subtotals = useMemo(() => {
-        if (data && data?.length === 0) return 0;
-        return columns.reduce((acc, column) => {
-            if (column?.subtotal) {
-                if (data && data?.length > 0) {
-                    acc[column.key] = data.reduce((sum, item) => sum + (item[column.key] || 0), 0);
-                }
-            }
-            return acc;
-        }, {});
-    }, [data, columns]);
 
-    const overallSubtotals = useMemo(() => {
-        if(allData && allData?.length === 0) return 0;
-        return columns.reduce((acc, column) => {
-            if (column?.subtotal) {
-               if (allData && allData?.length > 0){
-                   acc[column.key] = allData.reduce((sum, item) => sum + (item[column.key] || 0), 0);
-               }
-            }
-            return acc;
-        }, {});
-    }, [allData, columns]);
 
     return (
         hasSubTotal && (
@@ -48,7 +64,7 @@ const TableFooter = ({
                 {columns.map((column) =>
                     column.subtotal ? (
                         <td className="subtotal-col" key={column.key}>
-                            {formatNumber(subtotals[column.key])}
+                            {formatNumber(filteredData?.subtotals?.pageSubtotal)}
                         </td>
                     ) : null
                 )}
@@ -68,7 +84,7 @@ const TableFooter = ({
                 {columns.map((column) =>
                     column.subtotal ? (
                         <td className="subtotal-col" key={column.key}>
-                            {formatNumber(overallSubtotals[column.key])}
+                            {formatNumber(filteredData?.subtotals?.overallSubtotal)}
                         </td>
                     ) : null
                 )}

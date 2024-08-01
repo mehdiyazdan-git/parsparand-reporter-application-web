@@ -2,10 +2,9 @@ import React, {useCallback, useEffect, useState} from 'react';
 import MonthlyReportByProduct from "./MonthlyReportByProduct";
 import Button from "../../utils/Button";
 import YearSelect from "../Year/YearSelect";
-import useFilter from "../contexts/useFilter";
 import getYearOptions from "../../utils/functions/getYearOptions";
 import PersianMonthSelect from "../../utils/PersianMonthSelect";
-import useData from "../../hooks/useData";
+import {useFilter} from "../contexts/useFilter";
 
 const type = {
     MAIN: 2,
@@ -16,7 +15,7 @@ const MonthlyReport = () => {
     const entityName = 'monthlyReport';
     const [loading,setLoading] = useState(false);
 
-    const { filter, updateFilter,getParams} = useData(entityName,{
+    const { filter, updateFilter,getParams} = useFilter(entityName,{
         jalaliYear: getYearOptions().then(options => options[0].name)
     });
 

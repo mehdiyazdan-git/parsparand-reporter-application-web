@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import PropTypes from 'prop-types';
 import { Modal } from 'react-bootstrap';
 import IconEdit from '../assets/icons/IconEdit';
@@ -6,8 +6,9 @@ import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import IconKey from '../assets/icons/IconKey';
 import ConfirmationModal from './ConfirmationModal';
 import LoadingDataErrorPage from '../../utils/LoadingDataErrorPage';
+import {useData} from "../contexts/DataContext";
 
-const TableBody = ({ columns, data, onEdit, onDelete, onResetPassword }) => {
+const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);

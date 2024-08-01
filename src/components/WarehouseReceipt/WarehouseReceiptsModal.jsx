@@ -4,8 +4,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import WarehouseReceipts from "./WarehouseReceipts";
-import useFilter from "../contexts/useFilter";
 import styled from 'styled-components';
+import {useFilter} from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
     max-height: 70vh; /* Adjust as needed */
@@ -32,8 +32,8 @@ const CustomModal = styled(Modal)`
 `;
 
 const WarehouseReceiptsModal = ({ customerId }) => {
-    const listName = "not-invoiced-modal";
-    const { filters, updateFilter } = useFilter(listName, {
+    const entityName = "not-invoiced-modal";
+    const { filter, updateFieldFilter } = useFilter(entityName, {
         page: 0,
         pageSize: 10,
         sortBy: 'id',
@@ -42,14 +42,14 @@ const WarehouseReceiptsModal = ({ customerId }) => {
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        updateFilter({ "customerId": customerId });
-        updateFilter({ notInvoiced: true });
+        updateFieldFilter("customerId", customerId);
+        updateFieldFilter('notInvoiced', true);
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFilter({ "customerId": null });
-        updateFilter({ notInvoiced: false });
+        updateFieldFilter("customerId", null);
+        updateFieldFilter('notInvoiced', false);
         setShowModal(false);
     };
 

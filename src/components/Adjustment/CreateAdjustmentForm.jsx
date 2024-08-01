@@ -14,12 +14,12 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
-import useFilter from "../contexts/useFilter";
 import CustomModal from "../../utils/CustomModal";
+import {useFilter} from "../contexts/useFilter";
 
-const CreateAdjustmentForm = ({ onCreateEntity, show, onHide }) => {
+const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
     const http = useHttp();
-    const {filter} = useFilter();
+    const {filter} = useFilter(entityName);
 
     const invoiceSelect = async (searchQuery) => {
         return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filter.years?.jalaliYear && filter.years.jalaliYear.label}`);

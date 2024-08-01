@@ -1,71 +1,62 @@
-import { useState } from 'react';
+import {createContext, useEffect, useState} from "react";
+import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
-const useFilter = (entityName, initialValues) => {
-    const defaultFilter = {
-        ...initialValues
-    };
+const FilterContext = createContext();
 
-    const [filter, setFilter] = useState(() => {} );
+const useFilter = (entityName,initialValues = {
+    search: {},
+    pageable: {
+        page: 0,
+        size: 10
+    },
+    sort: {
+        order: 'asc',
+        sortBy: 'id',
+    },
+    subTotals: []
+},
 
-    function deepMerge(obj1, obj2) {
-        const result = { ...obj1 };
+    storageKey = `filter-${entityName}`) => {
 
-        for (let key in obj2) {
-            if (obj2.hasOwnProperty(key)) {
-                if (obj2[key] instanceof Object && obj1[key] instanceof Object) {
-                    result[key] = deepMerge(obj1[key], obj2[key]);
-                } else {
-                    result[key] = obj2[key];
-                }
-            }
-        }
-        return result;
+    const [filter, setFilter] = useState(
+        JSON.parse(sessionStorage.getItem(storageKey)) || initialValues
+    );
+
+    useDeepCompareEffect(() => {
+        sessionStorage.setItem(storageKey, JSON.stringify(filter));
+    }, [filter, storageKey]);
+
+    const updateSearch = (newSearch) => {
+        setFilter({...filter, search: {...filter.search, ...newSearch}});
     }
 
-    const updateFilter = (newValues) => {
-        const storedFilter = JSON.parse(sessionStorage.getItem(`filter_${entityName}`)) || {};
-        const merged = deepMerge(storedFilter, newValues);
-        sessionStorage.setItem(`filter_${entityName}`, JSON.stringify(merged));
-        setFilter(merged);
-    };
+    const updatePageable = (newFilter) => {
+        setFilter({...filter, pageable: {...filter.pageable, ...newFilter}});
+    }
 
-    const getJalaliYear = () => {
-        return JSON.parse(sessionStorage.getItem(`filter_${entityName}`))?.jalaliYear || null;
-    };
+    const updateSort = (newSort) => {
+        setFilter({...filter, sort: {...filter.sort, ...newSort}});
+    }
 
-    const getParams = (excludes = [], subtotal = false) => {
+
+    const getParams = () => {
         const params = new URLSearchParams();
-        Object.entries(filter).forEach(([key, value]) => {
-            if (value !== null && value !== undefined && !excludes.includes(key)) {
-                if (Array.isArray(value)) {
-                    value.forEach(val => params.set(key, val));
-                } else {
-                    params.set(key, value);
-                }
-            }
+        filter.search && Object.keys(filter.search).forEach(key => {
+            params.append(key, filter.search[key])
         });
-        excludes.forEach((exclude) => {
-            params.delete(exclude);
-        });
-        if (subtotal) {
-            params.set('size', 1000000);
-            params.set('page', 0);
-        }
+        params.append('page', filter.pageable.page);
+        params.append('size', filter.pageable.size);
+        params.append('sort', `${filter.sort.sortBy},${filter.sort.order}`);
         return params;
-    };
-
-    const resetFilter = () => {
-        setFilter(defaultFilter);
-        sessionStorage.removeItem(`filter_${entityName}`);
-    };
+    }
 
     return {
         filter,
-        updateFilter,
-        getParams,
-        getJalaliYear,
-        resetFilter
+        updateSearch,
+        updatePageable,
+        updateSort,
+        getParams
     };
 };
 
-export default useFilter;
+export { useFilter, FilterContext };
