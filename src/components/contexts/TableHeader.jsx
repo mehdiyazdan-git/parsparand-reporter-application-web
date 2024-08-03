@@ -22,12 +22,14 @@ const TableHeader = ({ columns, filter, updateFilter }) => {
                 <th
                     key={column.key}
                     onClick={() => handleSort(column.key)}
-                    style={column.key === filter?.order?.sortBy ? { cursor: "pointer" } : null}
+                    style={column.key === filter?.order?.sortBy ? {cursor: "pointer"} : null}
                 >
                     {column.title}
-                    {column.key ===  filter?.order?.sortBy && <span>{filter?.sort?.order === "asc" ? "▲" : "▼"}</span>}
+                    {column.key === filter?.order?.sortBy && <span>{filter?.sort?.order === "asc" ? "▲" : "▼"}</span>}
                 </th>
+
             ))}
+            <th width="7%">ویرایش|حذف</th>
         </tr>
         </thead>
     );

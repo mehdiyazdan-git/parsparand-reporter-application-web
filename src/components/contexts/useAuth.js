@@ -1,5 +1,6 @@
 import {createContext, useContext, useState} from "react";
 import axios from "axios";
+import {BASE_URL} from "../../config/config";
 
 const AuthContext = createContext();
 
@@ -10,7 +11,7 @@ const useAuth = (
     const [userRole, setUserRole] = useState(null);
 
     const api = axios.create({
-        baseURL: "http://your-backend-url.com/api", // Replace with your backend URL
+        baseURL: BASE_URL, // Replace with your backend URL
     });
 
     const login = async (username, password) => {
@@ -29,13 +30,12 @@ const useAuth = (
         }
     };
 
-    const logout = (
-    ) => {
+    const logout = () => {
         setAccessToken(null);
         setUsername(null);
         setUserRole(null);
 
-        // Remove values from session storage
+        // Remove the values from session storage
         sessionStorage.removeItem("accessToken");
         sessionStorage.removeItem("username");
         sessionStorage.removeItem("userRole");

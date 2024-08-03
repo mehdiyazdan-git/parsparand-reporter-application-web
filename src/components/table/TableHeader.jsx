@@ -1,21 +1,33 @@
-import React from 'react';
-import Th from './Th';
-import {useFilter} from "../contexts/useFilter";
+import React from "react";
 
-const TableHeader = ({ columns, entityName,filter,updateSort  }) => {
+const TableHeader = ({ columns, filter, updateSort }) => {
+
+    const handleSort = (key) => {
+        if (key === filter?.sort?.sortBy) {
+
+            if (filter?.sort?.order === "desc") {
+                updateSort({ "sortBy": key, "order": "asc" });
+            } else {
+                updateSort({ "sortBy": key, "order": "desc" });
+            }
+        } else {
+            updateSort({ "sortBy": key, "order": "desc" });
+        }
+    };
+
     return (
         <thead>
-        <tr className="table-header-row p-0 m-0">
-            {columns.map((column, index) => (
-                <Th
-                    key={index}
-                    columnKey={column.key}
-                    columnTitle={column.title}
-                    width={column.width}
-                    entityName={entityName}
-                    filter={filter}
-                    updateSort={updateSort}
-                />
+        <tr>
+            {columns.map((column) => (
+                <th
+                    key={column.key}
+                    onClick={() => handleSort(column.key)}
+                    style={column.key === filter?.order?.sortBy ? {cursor: "pointer"} : null}
+                >
+                    {column.title}
+                    {column.key === filter?.order?.sortBy && <span>{filter?.sort?.order === "asc" ? "▲" : "▼"}</span>}
+                </th>
+
             ))}
             <th width="7%">ویرایش|حذف</th>
         </tr>

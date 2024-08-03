@@ -1,119 +1,114 @@
-import React, {createContext, useContext, useEffect, useState} from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import {BASE_URL} from "../../config/config";
+import { BASE_URL } from '../../config/config';
 
 const OptionsContext = createContext(null);
 
-const YEAR_OPTIONS_API = `${BASE_URL}/years/select`;
-const CUSTOMER_OPTIONS_API = `${BASE_URL}/customers/select`;
-const INVOICE_STATUS_OPTIONS_API = `${BASE_URL}/invoice-statuses/select`;
-const WAREHOUSE_RECEIPT_OPTIONS_API = `${BASE_URL}/warehouse-receipts/select`;
-const PRODUCT_OPTIONS_API = `${BASE_URL}/products/select`;
-const CONTRACT_OPTIONS_API = `${BASE_URL}/contracts/select`;
-
+const API_ENDPOINTS = {
+    YEARS: `${BASE_URL}/years/select`,
+    CUSTOMERS: `${BASE_URL}/customers/select`,
+    INVOICE_STATUSES: `${BASE_URL}/invoice-statuses/select`,
+    WAREHOUSE_RECEIPTS: `${BASE_URL}/warehouse-receipts/select`,
+    PRODUCTS: `${BASE_URL}/products/select`,
+    CONTRACTS: `${BASE_URL}/contracts/select`
+};
 
 const OptionsProvider = ({ children }) => {
-    const [yearOptions, setYearOptions] = useState([]);
-    const [customerOptions, setCustomerOptions] = useState([]);
-    const [invoiceStatusOptions, setInvoiceStatusOptions] = useState([]);
-    const [warehouseReceiptOptions, setWarehouseReceiptOptions] = useState([]);
-    const [productOptions, setProductOptions] = useState([]);
-    const [contractOptions, setContractOptions] = useState([]);
+    // State for Options
+    const [options, setOptions] = useState({
+        years: [],
+        customers: [],
+        invoiceStatuses: [],
+        warehouseReceipts: [],
+        products: [],
+        contracts: []
+    });
 
+    // State for Error Handling
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState(null);
 
-    //fixed length array options
+    // Fixed Options (No Fetching Required)
     const productTypes = [
         { value: "PRODUCT", label: 'محصول' },
         { value: "INSURANCEDEPOSIT", label: 'سپرده بیمه' },
         { value: "PERFORMANCEBOUND", label: 'حسن انجام کار' },
         { value: "ADVANCEDPAYMENT", label: 'پیش پرداخت' },
-    ]
+    ];
+
+    // Data Transformation Function
+    const changeFormat = (data) => data.map(item => ({ value: item.id, label: item.name }));
 
 
-    const changeFormat = (data) => {
-           return data.map(item => ({ value: item.id, label: item.name }));
-    }
-
+    // Fetch Options on Mount
     useEffect(() => {
         const fetchOptions = async () => {
-            try {
-                const years = await axios.get(YEAR_OPTIONS_API).then(response => changeFormat(response.data));
-                const customers = await axios.get(CUSTOMER_OPTIONS_API).then(response => changeFormat(response.data));
-                const invoiceStatuses = await axios.get(INVOICE_STATUS_OPTIONS_API).then(response => changeFormat(response.data));
-                const warehouseReceipts = await axios.get(WAREHOUSE_RECEIPT_OPTIONS_API).then(response => changeFormat(response.data));
-                const products = await axios.get(PRODUCT_OPTIONS_API).then(response => changeFormat(response.data));
-                const contracts = await axios.get(CONTRACT_OPTIONS_API).then(response => changeFormat(response.data));
+            setIsLoading(true);
 
-                setYearOptions(years);
-                setCustomerOptions(customers);
-                setInvoiceStatusOptions(invoiceStatuses);
-                setWarehouseReceiptOptions(warehouseReceipts);
-                setProductOptions(products);
-                setContractOptions(contracts);
+            try {
+                const optionPromises = Object.keys(API_ENDPOINTS).map(key =>
+                    axios.get(API_ENDPOINTS[key]).then(response => changeFormat(response.data))
+                );
+
+                const results = await Promise.all(optionPromises);
+
+                setOptions(prevOptions => ({
+                    ...prevOptions,
+                    years: results[0],
+                    customers: results[1],
+                    invoiceStatuses: results[2],
+                    warehouseReceipts: results[3],
+                    products: results[4],
+                    contracts: results[5],
+                }));
 
             } catch (error) {
                 console.error('Error fetching options:', error);
+                setError(error); // Store error for display in the UI
+            } finally {
+                setIsLoading(false);
             }
         };
+
         fetchOptions();
+    }, []); // Empty dependency array ensures this runs only once on mount
+
+
+
+    // Refresh Function
+    const refreshOptions = useCallback(async (optionKey) => {
+        setIsLoading(true);
+        try {
+            const response = await axios.get(API_ENDPOINTS[optionKey.toUpperCase()]);
+            setOptions(prevOptions => ({
+                ...prevOptions,
+                [optionKey]: changeFormat(response.data)
+            }));
+        } catch (error) {
+            console.error(`Error refreshing ${optionKey}:`, error);
+            setError(error);
+        } finally {
+            setIsLoading(false);
+        }
     }, []);
 
-    const refreshOptions = async (optionKey) => {
-        try {
-            let newOptions;
-            switch (optionKey) {
-                case 'year':
-                    newOptions = await axios.get(YEAR_OPTIONS_API).then(response => changeFormat(response.data));
-                    setYearOptions(newOptions);
-                    break;
-                case 'customer':
-                    newOptions = await axios.get(CUSTOMER_OPTIONS_API).then(response => changeFormat(response.data));
-                    setCustomerOptions(newOptions);
-                    break;
-                case 'invoiceStatus':
-                    newOptions = await axios.get(INVOICE_STATUS_OPTIONS_API).then(response => changeFormat(response.data));
-                    setInvoiceStatusOptions(newOptions);
-                    break;
+    // Context Value
+    const contextValue = {
+        ...options,
+        productTypes,
+        refreshOptions,
+        isLoading,
+        error // Provide the error state to consuming components
+    };
 
-                case 'warehouseReceipt':
-                    newOptions = await axios.get(WAREHOUSE_RECEIPT_OPTIONS_API).then(response => changeFormat(response.data));
-                    setWarehouseReceiptOptions(newOptions);
-                    break;
 
-                case 'product':
-                    newOptions = await axios.get(PRODUCT_OPTIONS_API).then(response => changeFormat(response.data));
-                    setProductOptions(newOptions);
-                    break;
+    return (
+        <OptionsContext.Provider value={contextValue}>
+            {children}
+        </OptionsContext.Provider>
+    );
+};
 
-                case 'contract':
-                    newOptions = await axios.get(CONTRACT_OPTIONS_API).then(response => changeFormat(response.data));
-                    setContractOptions(newOptions);
-                    break;
-
-                default:
-                    console.error('Invalid option key:', optionKey);
-                    break;
-            }
-        } catch (error) {
-            console.log('Error fetching options:', error)
-        }
-    }
-
-        return (
-            <OptionsContext.Provider value={{
-                yearOptions,
-                customerOptions,
-                invoiceStatusOptions,
-                warehouseReceiptOptions,
-                productOptions,
-                contractOptions,
-                refreshOptions,
-                productTypes
-            }}>
-                {children}
-            </OptionsContext.Provider>
-        );
-    }
 export default OptionsProvider;
 export const useOptions = () => useContext(OptionsContext);
 

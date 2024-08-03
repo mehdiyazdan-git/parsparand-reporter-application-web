@@ -1,7 +1,10 @@
+import getCurrentYear from "../../utils/functions/getCurrentYear";
 
 export const generateInitialFilters = (columns) => {
     const initialFilters = {
-        search: {},
+        search: {
+            jalaliYear : getCurrentYear()
+        },
         pageable: {
             page: 0,
             size: 10,
@@ -10,7 +13,7 @@ export const generateInitialFilters = (columns) => {
             order: 'asc',
             sortBy: 'id',
         },
-        subTotals: columns.filter(col => col.subtotal).map(col => col.key), // Extract subtotal keys
+        subTotals: columns.filter(col => col.subtotal).map(col => col.key),
     };
 
     columns.forEach(column => {

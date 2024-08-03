@@ -9,17 +9,17 @@ import YearSelect from '../Year/YearSelect';
 import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
 import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
 import yearSelectStyle from '../styles/yearSelectStyle';
-import {useFilter} from "../contexts/useFilter";
+
 
 const Table = ({
-                   data, columns, onEdit, onDelete, onResetPassword, entityName,
-                   downloadExcelFile, hasYearSelect,hasSubTotal,
-                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,getParams
+                   data, columns,  onDelete, onResetPassword, entityName,
+                   downloadExcelFile, hasYearSelect,hasSubTotal,resetFilter,
+                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,onUpdateEntity,onEdit
                }) => {
 
 
     const handleYearChange = useCallback((value) => {
-        updateSearch('jalaliYear', value);
+        updateSearch({'jalaliYear': value});
     }, [updateSearch]);
 
 
@@ -46,13 +46,14 @@ const Table = ({
                     updateSearch={updateSearch}
                     updatePageable={updatePageable}
                     filter={filter}
+                    resetFilter={resetFilter}
                 />
                 <TableBody
                     data={data?.content || []}
                     refreshTrigger={refreshTrigger}
                     entityName={entityName}
-                    columns={columns}
                     onEdit={onEdit}
+                    columns={columns}
                     onDelete={onDelete}
                     onResetPassword={onResetPassword}
                 />

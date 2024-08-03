@@ -8,13 +8,14 @@ import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
 import {useFilter} from "../contexts/useFilter";
 
-const TableSearch = function ({columns,updateSearch,updatePageable,filter}) {
+const TableSearch = function ({columns,updateSearch,filter,resetFilter}) {
 
     const handleSearchChange = (name, value) => {
-        updatePageable({page: 0});
-        updateSearch({name: value});
+        updateSearch({[name]: value});
+
     };
     const handleReset = () => {
+        resetFilter();
     }
     return (
         <tr className="table-header-row">
@@ -34,7 +35,7 @@ const TableSearch = function ({columns,updateSearch,updatePageable,filter}) {
                             name={column?.key || ''}
                             options={column.options}
                             fetchAPI={column.fetchAPI}
-                            value={filter?.search[column.key]}
+                            value={filter?.search ? filter.search[column.key] : null}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
@@ -100,4 +101,4 @@ const TableSearch = function ({columns,updateSearch,updatePageable,filter}) {
     );
 }
 
-export default memo(TableSearch)
+export default TableSearch

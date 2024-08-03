@@ -19,6 +19,7 @@ export const filterToSearchParams = (filter) => {
             searchParams.append('subTotals', value.join(','));
         }
     }
+    // console.log(searchParams.toString());
 
     return searchParams;
 };

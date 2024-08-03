@@ -1,21 +1,6 @@
 import React from 'react';
 
-//const filter ={
-//     search: {},
-//     pageable: {
-//         page: 0,
-//         size: 10
-//     },
-//     sort: {
-//         order: 'asc',
-//         sortBy: 'id',
-//     },
-//     subTotals: []
-// }
 
-//const updateFilter = (field, value) => {
-//         setFilter({ ...filter, [field]: value });
-//     };
 
 const Th = ({ columnKey, columnTitle, width, filter, updateSort }) => {
 
