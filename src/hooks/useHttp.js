@@ -1,54 +1,62 @@
+import { useState, useCallback } from 'react';
 import axios from 'axios';
-import { BASE_URL } from '../config/config';
-import { useAuth } from './useAuth';
-import {useLocation, useNavigate} from "react-router-dom";
+import { useAuth } from "./useAuth";
+import {BASE_URL} from "../config/config";
 
 const useHttp = () => {
-    const navigate = useNavigate()
-    const auth = useAuth();
-    const location = useLocation();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const { authState: { accessToken } } = useAuth();
 
+    const client = axios.create({ baseURL: BASE_URL });
 
-
-    const instance = axios.create({
-        baseURL: BASE_URL,
-    });
-
-    instance.interceptors.request.use(function (config) {
-        let queryParams = new URLSearchParams(location.search);
-        let paramsObject = {};
-        queryParams.forEach((value, key) => {
-            paramsObject[key] = value;
-        });
-        // Store query params in location.state
-        navigate(location.pathname, { state: paramsObject, replace: true });
-
-        config.headers.Authorization = `Bearer ${auth.accessToken}`;
-        if (config.headers['Content-Type'] === null){
-            config.headers['Content-Type'] = 'application/json';
-        }
-        if (config.headers['Accept'] === null){
-            config.headers['Accept'] = 'application/json';
-        }
-        return config;
-    }, function (error) {
-        return Promise.reject(error);
-    });
-
-
-    instance.interceptors.response.use(function (response) {
-        return response;
-    }, function (error) {
-        if (error.response){
-            if (error.response.status === 401 || error.response.status === 403) {
-                auth.logout();
-                navigate("/login");
+    // Request Interceptor for Authorization Header
+    client.interceptors.request.use(
+        config => {
+            if (accessToken) {
+                config.headers.Authorization = `Bearer ${accessToken}`;
             }
-        }
-        return Promise.reject(error);
-    });
+            return config;
+        },
+        error => Promise.reject(error)
+    );
 
-    return instance;
+    // Response Interceptor for Error Handling (Global)
+    client.interceptors.response.use(
+        response => response,
+        error => {
+            setError(error.response?.data || "An unexpected error occurred.");
+            return Promise.reject(error); // Propagate the error
+        }
+    );
+
+    // Generic Request Function
+    const request = useCallback(async (method, url, data = null, params = null) => {
+        setIsLoading(true);
+        try {
+            const response = await client({
+                method,
+                url,
+                data,
+                params
+            });
+            setIsLoading(false);
+            return response.data;
+        } catch (err) {
+            setIsLoading(false);
+            setError(err.response?.data || 'An unexpected error occurred.');
+            throw err; // Re-throw the error for more specific handling elsewhere
+        }
+    }, [accessToken]); // Dependency on accessToken
+
+
+    // CRUD Helper Methods
+    const get = useCallback(async (url, params) => request('GET', url, null, params), [request]);
+    const post = useCallback(async (url, data) => request('POST', url, data), [request]);
+    const put = useCallback(async (url, data) => request('PUT', url, data), [request]);
+    const del = useCallback(async (url) => request('DELETE', url), [request]);
+
+    return { get, post, put, del, error, setError, isLoading };
 };
 
 export default useHttp;
