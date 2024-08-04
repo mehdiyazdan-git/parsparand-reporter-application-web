@@ -9,17 +9,18 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
+
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery) => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,searchQuery);
     }
 
 

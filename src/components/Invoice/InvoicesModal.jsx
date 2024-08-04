@@ -6,8 +6,8 @@ import Button from "../../utils/Button";
 import Invoices from "./Invoices";
 
 import styled from 'styled-components';
-import useHttp from "../../hooks/useHttp";
 import {useFilter} from "../contexts/useFilter";
+import useHttp from "../contexts/useHttp";
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -41,7 +41,7 @@ const InvoicesModal = ({ contractNumber }) => {
     const [contracts, setContracts] = useState([]);
     const getAllContracts = async () => {
         try {
-            const response = await http.get(`/http://localhost:9090/api/contracts?page=0&size=1000`);
+            const response = await http.get(`/http://localhost:9090/api/contracts?page=0&size=1000`,'');
             return response.data.content;
         }catch (e) {
             console.log(e)

@@ -9,12 +9,13 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
+
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import styled from 'styled-components';
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 const CustomModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -27,11 +28,11 @@ const EditWarehouseReceiptForm = ({ editingEntity, onUpdateEntity, show, onHide 
     const http = useHttp();
 
     const yearSelect = async () => {
-        return await http.get(`/years/select`);
+        return await http.get(`/years/select`,'');
     }
 
     const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,searchQuery);
     }
 
     const validationSchema = Yup.object().shape({

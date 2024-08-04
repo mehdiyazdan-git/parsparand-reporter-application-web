@@ -8,29 +8,32 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
+
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
-import {useOptions} from "../contexts/OptionsContext";
+import useHttp from "../contexts/useHttp";
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
-    const {customerOptions} = useOptions();
 
     const yearSelect = async () => {
-        return await http.get(`/years/select`);
+        return await http.get(`/years/select`,'');
     }
 
-    // const customerSelect = async (searchQuery = '') => {
-    //     return await http.get(`/customers/select?searchQuery=${searchQuery}`);
-    // }
+    const customerSelect = async (searchQuery = '') => {
+        return await http.get(`/customers/select`,searchQuery);
+    }
 
     const contractSelect = async (searchQuery = '') => {
-        return await http.get(`/contracts/select?searchQuery=${searchQuery}`);
+        return await http.get(`/contracts/select`,searchQuery);
+    }
+
+    const invoiceStatusSelect = async (searchParam='') => {
+        return await http.get(`/invoice-statuses/select`,searchParam);
     }
 
     const validationSchema = Yup.object().shape({
@@ -119,7 +122,7 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerOptions} />
+                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
                                     </Col>
                                 </Row>
                                 <ContractFields>

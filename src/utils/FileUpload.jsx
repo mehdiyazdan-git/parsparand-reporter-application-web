@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import useHttp from "../hooks/useHttp";
+import useHttp from "../components/contexts/useHttp";
+
 
 const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
     const [file, setFile] = useState(null);
@@ -24,11 +25,7 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
         formData.append('file', file);
 
         try {
-            const response = await http.post(uploadUrl, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data',
-                },
-            });
+            const response = await http.post(uploadUrl, formData);
             if (response.status === 200) {
                 setUploadStatus('فایل با موفقیت آپلود شد.');
                 setRefreshTrigger(refreshTrigger + 1);

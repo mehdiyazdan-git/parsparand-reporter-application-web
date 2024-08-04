@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import useModalManager from '../hooks/useModalManager';
 import ButtonContainer from './ButtonContainer';
 import FileUpload from './FileUpload';
@@ -11,6 +11,8 @@ import useDeepCompareEffect from "../hooks/useDeepCompareEffect";
 import { generateInitialFilters } from "../components/contexts/generateInitialFilters";
 import {BASE_URL} from "../config/config";
 import useHttp from "../components/contexts/useHttp";
+import AsyncSelectSearch from "../components/table/AsyncSelectSearch";
+
 
 const ErrorModal = ({ show, handleClose, errorMessage }) => (
     <Modal show={show} onHide={handleClose} centered>
@@ -153,6 +155,12 @@ const CrudComponent = ({
         },
         [del, entityName, findAll, getParams, openErrorModal]
     );
+    const [selectedCustomer, setSelectedCustomer] = useState('');
+
+    const handleCustomerChange = (newValue) => {
+        setSelectedCustomer(newValue);
+        // Do something with the selected customer (e.g., update state)
+    };
 
     const handleDownload = useCallback(
         (params, isExport) => {
@@ -183,6 +191,11 @@ const CrudComponent = ({
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
+                <AsyncSelectSearch
+                    url="customers/select"
+                    value={selectedCustomer}
+                    onChange={handleCustomerChange}
+                />
                 <SiMicrosoftexcel
                     onClick={() => handleDownload(getParams(), false)}
                     size={"2.2rem"}
@@ -190,6 +203,7 @@ const CrudComponent = ({
                     color={"#41941a"}
                     type="button"
                 />
+
                 {createForm &&
                     React.cloneElement(createForm, {
                         onCreateEntity: handleCreate,

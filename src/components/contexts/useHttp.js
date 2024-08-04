@@ -16,6 +16,7 @@ const useHttp = () => {
     http.interceptors.request.use(
         config => {
             if (accessToken) {
+
                 config.headers['Authorization'] = `Bearer ${accessToken}`;
                 }
             config.headers['Content-Type'] = 'application/json';
@@ -34,17 +35,29 @@ const useHttp = () => {
             }
             return Promise.reject(error);
             }
-            );
+    );
 
     const get = useCallback(async (url, params) => {
         try {
-            const response = await axios.get(`${BASE_URL}/${url}?${params.toString()}`);
+            let queryString = '';
+            if (params) {
+                if (typeof params === 'string') {
+                    queryString = `?${params}`;
+                } else if (params instanceof URLSearchParams) {
+                    queryString = `?${params.toString()}`;
+                } else if (typeof params === 'object') {
+                    queryString = `?${new URLSearchParams(params).toString()}`;
+                }
+            }
+            const response = await axios.get(`${BASE_URL}/${url}${queryString}`);
             return response.data;
         } catch (err) {
-            setError(err.response?.data || 'An unexpected error occurred.');
+            setError(err.response?.data || 'خطا در بارگذاری.');
             throw err;
         }
     }, []);
+
+
 
     const post = useCallback(async (url, data) => {
         try {
@@ -55,7 +68,7 @@ const useHttp = () => {
             });
             return response.data;
         } catch (err) {
-            setError(err.response?.data || 'An unexpected error occurred.');
+            setError(err.response?.data || 'خطا در ایجاد.');
             throw err;
         }
     }, []);
@@ -69,7 +82,7 @@ const useHttp = () => {
             });
             return response.data;
         } catch (err) {
-            setError(err.response?.data || 'An unexpected error occurred.');
+            setError(err.response?.data || 'خطا در بروز رسانی.');
             throw err;
         }
     }, []);
@@ -78,7 +91,7 @@ const useHttp = () => {
         try {
             await axios.delete(`${BASE_URL}/${url}/${id}`);
         } catch (err) {
-            setError(err.response?.data || 'An unexpected error occurred.');
+            setError(err.response?.data || 'خطا در حذف.');
             throw err;
         }
     }, []);

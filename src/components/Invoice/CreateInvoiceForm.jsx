@@ -8,32 +8,32 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
 import InvoiceItems from "./InvoiceItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
     const [isContractualSales, setIsContractualSales] = useState(false);
 
     const yearSelect = async () => {
-        return await http.get(`/years/select`);
+        return await http.get(`/years/select`,'');
     }
 
     const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,searchQuery);
     }
 
     const contractSelect = async (searchQuery = '') => {
-        return await http.get(`/contracts/select?searchQuery=${searchQuery}`);
+        return await http.get(`/contracts/select`,searchQuery);
     }
 
     const invoiceStatusSelect = async (searchParam='') => {
-        return await http.get(`/invoice-statuses/select?searchParam=${searchParam}`);
+        return await http.get(`/invoice-statuses/select`,searchParam);
     }
 
     const validationSchema = Yup.object().shape({

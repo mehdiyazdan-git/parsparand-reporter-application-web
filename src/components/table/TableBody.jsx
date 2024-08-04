@@ -6,7 +6,6 @@ import IconDeleteOutline from '../assets/icons/IconDeleteOutline';
 import IconKey from '../assets/icons/IconKey';
 import ConfirmationModal from './ConfirmationModal';
 import LoadingDataErrorPage from '../../utils/LoadingDataErrorPage';
-import {useData} from "../contexts/DataContext";
 
 const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
     const [selectedItem, setSelectedItem] = useState(null);

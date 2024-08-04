@@ -1,4 +1,4 @@
-import React, {memo} from 'react';
+import React from 'react';
 import SelectSearchInput from '../../utils/SelectSearchInput';
 import SearchCheckboxInput from './SearchCheckboxInput';
 import SearchNumberInput from './SearchNumberInput';
@@ -6,7 +6,6 @@ import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
-import {useFilter} from "../contexts/useFilter";
 
 const TableSearch = function ({columns,updateSearch,filter,resetFilter}) {
 
@@ -40,14 +39,10 @@ const TableSearch = function ({columns,updateSearch,filter,resetFilter}) {
                         />
                     ) : column.type === 'async-select' ? (
                         <AsyncSelectSearch
-                            key={column.key}
                             width={column.width}
-                            name={column.key}
-                            labelKey={'name'}
-                            valueKey={'id'}
-                            apiEndpoint={column.apiEndpoint}
-                            value={filter?.search ? filter.search[column.key] : null}
-                            onChange={(value) => handleSearchChange(column.key, value)}
+                            url={column.url}
+                            value={filter?.search ? filter?.search[column.key] : null}
+                            onChange={(value) => handleSearchChange(column.searchKey, value?.value ? value.value : '')}
                         />
                     ) : column.type === 'text' ? (
                         <SearchInput

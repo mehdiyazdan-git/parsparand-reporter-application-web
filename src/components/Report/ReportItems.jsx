@@ -1,12 +1,12 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import useHttp from '../../hooks/useHttp';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
+import useHttp from "../contexts/useHttp";
 
 const ReportItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -19,11 +19,11 @@ const ReportItems = () => {
 
     const http = useHttp();
     const customerSelect = useCallback(async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,searchQuery);
     }, [http]);
 
     const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '') => {
-        return await http.get(`/warehouse-receipts/select?searchQuery=${searchQuery}&yearId=${yearId.toString()}`);
+        return await http.get(`/warehouse-receipts/select`,{searchQuery, yearId});
     }, [http]);
 
     const watchedFields = useWatch({

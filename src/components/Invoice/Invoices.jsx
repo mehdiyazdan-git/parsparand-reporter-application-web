@@ -9,13 +9,13 @@ import PropTypes from 'prop-types';
 
 const Invoices = ({ contractNumber, parent_list_name }) => {
     const listName = parent_list_name && parent_list_name.length > 0 ? parent_list_name : 'invoices';
-    const apiEndpoint = "http://localhost:9090/api/customers/select";
+
 
     const invoiceColumns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'invoiceNumber', title: 'شماره فاکتور', width: '5%', sortable: true, searchable: true },
         { key: 'issuedDate', title: 'تاریخ صدور', width: '5%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.issuedDate) },
-        { key: 'customerName', title: 'نام مشتری', width: '20%', sortable: true, searchable: true, type: 'async-select', apiEndpoint: apiEndpoint, searchKey: 'customerId' },
+        { key: 'customerName', title: 'نام مشتری', width: '20%', sortable: true, searchable: true, type: 'async-select', url: '/customers/select', searchKey: 'customerId' },
         { key: 'totalQuantity', title: 'تعداد کل', width: '7%', sortable: true, searchable: true, type: 'number', subtotal: true, render: (item) => formatNumber(item.totalQuantity) },
         { key: 'totalPrice', title: 'مبلغ کل', width: '10%', sortable: true, searchable: true, type: 'number', subtotal: true, render: (item) => formatNumber(item.totalPrice) },
     ];

@@ -11,15 +11,15 @@ import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
-import useHttp from "../../hooks/useHttp";
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 
 const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
     const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,searchQuery);
     }
 
     const validationSchema = Yup.object().shape({

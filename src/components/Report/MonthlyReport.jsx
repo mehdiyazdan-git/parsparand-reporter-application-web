@@ -1,75 +1,96 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import MonthlyReportByProduct from "./MonthlyReportByProduct";
 import Button from "../../utils/Button";
-import YearSelect from "../Year/YearSelect";
-import getYearOptions from "../../utils/functions/getYearOptions";
 import PersianMonthSelect from "../../utils/PersianMonthSelect";
 import {useFilter} from "../contexts/useFilter";
+import useHttp from "../contexts/useHttp";
+import AsyncSelectSearch from "../table/AsyncSelectSearch";
+
+
 
 const type = {
     MAIN: 2,
     SCRAPT: 6,
     RAWMATERIAL: 1,
-}
+};
+
 const MonthlyReport = () => {
-    const entityName = 'monthlyReport';
-    const [loading,setLoading] = useState(false);
+    const http = useHttp();
 
-    const { filter, updateFilter,getParams} = useFilter(entityName,{
-        jalaliYear: getYearOptions().then(options => options[0].name)
+   const [filter,setFilter] = useState({
+        search: {
+            jalaliYear: '',
+            month: '',
+        },
     });
+    const handleChange = (search) => {
+        setFilter((prev) => ({
+            ...prev,
+            search: {
+                ...prev.search,
+                ...search,
+            },
+        }));
+        };
 
-    const handleYearChange = useCallback((selectedYear) => {
-        updateFilter({'jalaliYear': selectedYear});
-    }, [updateFilter]);
 
-    const handleMonthChange = useCallback((selectedMonth) => {
-        updateFilter({'month': selectedMonth});
-    }, [updateFilter]);
+
+
+    const [years, setYears] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchYears = useCallback(async () => {
+       return await http.get("years/select",'')
+            .then((data) => {
+                    return data.map((item) => {
+                        return {
+                            value: item.id,
+                            label: item.name,
+                        };
+                    });
+                })
+            .catch((err) => {
+                console.log(err);
+            })
+    }, []);
 
     useEffect(() => {
-        setLoading(true);
-
-        getYearOptions().then(options => {
-            updateFilter({ jalaliYear: options[0].name, productType: 2,month: 1 });
+        fetchYears().then((data) => {
+            setYears(data);
+            setLoading(false);
         });
-        setLoading(false);
-    }, [updateFilter]);
+    }, [fetchYears]);
 
-    return loading
-        ? <p>{`loading...`}</p>
-        : <>
-            <div
-                className="monthly-report row mb-2"
-                style={{fontFamily: "IRANSans"}}
-            >
-                <div className="col-2">
-                    <YearSelect
-                        filter={filter}
-                        onChange={handleYearChange}
-                    />
-                </div>
-                <div className="col-2">
-                    <PersianMonthSelect
-                        month={filter?.month}
-                        onChange={handleMonthChange}
-                    />
-                </div>
-                <div>
-                    <div className="mt-2">
-                        <MonthlyReportByProduct
-                            productType={type.MAIN}
-                            filter={filter}
-                            getParams={getParams}
-                        />
-                    </div>
-                    <Button variant={"warning"}>
-                        برگشت
-                    </Button>
-                </div>
+
+
+    return loading ? (
+        <p>{`loading...`}</p> // Loading indicator
+    ) : (
+        <div className="monthly-report row mb-2" style={{ fontFamily: "IRANSans" }}>
+            <div className="col-6">
+                <AsyncSelectSearch
+                    url={'years/select'}
+                    value={years.find((item) => item.value === filter?.search?.jalaliYear)}
+                    onChange={handleChange}
+                />
             </div>
-        </>
-        ;
+            <div className="col-6">
+                <PersianMonthSelect
+                    month={filter?.search?.month}
+                    onChange={handleChange}
+                />
+            </div>
+            <div>
+                <div className="mt-2">
+                    <MonthlyReportByProduct
+                        filter={filter}
+                    />
+                </div>
+                <Button variant="warning">برگشت</Button>
+            </div>
+        </div>
+    );
 };
 
 export default MonthlyReport;
+

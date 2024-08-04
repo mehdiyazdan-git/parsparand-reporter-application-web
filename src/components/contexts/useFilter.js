@@ -1,7 +1,9 @@
-import {createContext, useEffect, useState} from "react";
+import {createContext, useState} from "react";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
 const FilterContext = createContext();
+
+
 
 const useFilter = (entityName,initialValues = {
     search: {},
