@@ -9,21 +9,22 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
-import useHttp from "../../hooks/useHttp";
+
 import ContractItems from "./ContractItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
     const http = useHttp();
 
     const yearSelect = async () => {
-        return await http.get(`/years/select`);
+        return await http.get(`/years/select`,{});
     }
 
     const customerSelect = async (searchQuery) => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+        return await http.get(`/customers/select`,{searchQuery});
     }
 
     const validationSchema = Yup.object().shape({

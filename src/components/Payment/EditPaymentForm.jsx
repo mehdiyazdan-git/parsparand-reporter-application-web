@@ -11,17 +11,28 @@ import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
-import useHttp from "../../hooks/useHttp";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
+import useHttp from "../contexts/useHttp";
 
 const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
 
     const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
-    }
+        try {
+            const response = await http.get(`/customers/select`, {
+                params: { searchQuery }
+            });
+            return response.data.map(item => ({
+                value: item.id,
+                label: item.name
+            }));
+        } catch (err) {
+            console.error("Error fetching customer options:", err.message);
+            throw err;
+        }
+    };
 
     const validationSchema = Yup.object().shape({
         paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),

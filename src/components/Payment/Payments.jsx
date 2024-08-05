@@ -23,7 +23,7 @@ const Payments = ({ customerId }) => {
         }
     };
 
-    const apiEndpoint = "http://localhost:9090/api/customers/select";
+
 
     const paymentColumns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
@@ -45,7 +45,7 @@ const Payments = ({ customerId }) => {
             ]
         },
         { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true, subtotal: true, type: 'number', render: item => formatNumber(item.paymentAmount) },
-        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true, type: 'async-select', apiEndpoint: apiEndpoint, searchKey: 'customerId' },
+        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true, type: 'async-select', url: 'customers/select', searchKey: 'customerId' },
     ];
 
     return (

@@ -1,6 +1,5 @@
-import React, {useEffect, useMemo, useState} from 'react';
-import useHttp from "../../hooks/useHttp";
-import AsyncSelectSearchInput from "../table/AsyncSelectSearchInput";
+import React, { useEffect, useMemo, useState} from 'react';
+
 
 import styled from 'styled-components';
 import PaymentsModal from "../Payment/paymentsModal";
@@ -8,11 +7,15 @@ import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
 import InvoicesModal from "../Invoice/InvoicesModal";
 import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
 import {useFilter} from "../contexts/useFilter";
+import useHttp from "../contexts/useHttp";
+import AsyncSelectSearch from "../table/AsyncSelectSearch";
+
+
 
 
 
 const Container = styled.div`
-    font-family: IRANSans;
+    font-family: IRANSans,sans-serif;
     font-size: 0.75rem;
     width: 100%;
     height: calc(100vh - 100px);
@@ -38,7 +41,7 @@ const Row = styled.td`
     text-align: center;
     padding: 0.5rem;
     border: 1px #95a3b3 solid;
-    font-family: IRANSans;
+    font-family: IRANSans,sans-serif;
     width: 14.30%; /* Adjust the width to ensure alignment */
     background-color: rgba(240, 240, 240, 0.9);
 `;
@@ -50,7 +53,7 @@ const Footer = styled.td`
     text-align: center;
     padding: 0.5rem;
     border: 1px #95a3b3 solid;
-    font-family: IRANSans;
+    font-family: IRANSans,sans-serif;
     font-weight: bold;
     width: 14.30%; /* Adjust the width to ensure alignment */
 `;
@@ -81,7 +84,7 @@ const Tfoot = styled.tfoot`
 `;
 
 function toPersianFormat(number) {
-    if (isNaN(parseFloat(number)) || number == null || number === 'undifined') {
+    if (isNaN(parseFloat(number)) || number == null || number === 'undefined') {
         number = 0;
     }
     const isNegative = number < 0;
@@ -91,24 +94,56 @@ function toPersianFormat(number) {
 }
 
 const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'long' }).format(new Date());
-/***
- @title: Payments
- @description: This component is responsible for displaying a list of payments and handling CRUD operations for them.
- @author: mehdi yazdanparast
- @version: 1.0
- @lastUpdate: Saturday - 2024 29 June
- @props:
- @state:
- @methods:
- @dependencies:
- @example:
- @notes:
- ***/
+
 const ClientSummary = () => {
     const http = useHttp();
-    const listName = 'customerSummary';
-    const { filter, updateFieldFilter } = useFilter(listName);
-    const [customer, setCustomer] = useState(null);
+    const entityName = 'customerSummary';
+    const {filter,updateSearch} = useFilter(entityName,{
+    search : {
+        customerId : ''
+    }
+    })
+    const [customers, setCustomers] = useState([{value:'',label:''}]);
+    const [customer,setCustomer] = useState(()=> {
+        if(filter.search && filter.search.customerId) {
+            return customers.find((item) => item.value === filter.search.customerId) || '';
+        } else {
+            return customers[0] || '';
+        }
+    });
+
+    useEffect(() => {
+        http.get(`customers/select`,'').then((data) => {
+            data.map((item) => {
+                item.label = item.name;
+                item.value = item.id;
+            });
+            setCustomers(data);
+            if(filter.search && filter.search.customerId) {
+                setCustomer(customers.find((item) => item.value === filter.search.customerId))
+            }else {
+                setCustomer(customers[0]);
+                updateSearch({customerId: customers[0].value});
+            }
+        });
+    },[]);
+
+
+    useEffect(() => {
+        if (!filter?.search?.customerId){
+            updateSearch({
+                customerId: customers[0].value
+            })
+        }
+        http.get(`customers/summary`,{
+            'customerId': filter.search.customerId || customers[0].value,
+        }).then((data) => {
+            setData(data);
+        });
+        setCustomer(customers.find((item) => item.value === filter.search.customerId));
+    },[customer,filter]);
+
+
     const [data, setData] = useState({
         clientSummaryList: [
             {
@@ -251,43 +286,22 @@ const ClientSummary = () => {
         data.totalPaymentByCustomerId.insuranceDepositPayment
     );
 
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select?searchQuery=${searchQuery}`);
+    if (!data) {
+        return <div>در حال بارگذاری...</div>;
     }
-
-    const loadData = async () => {
-
-        await http.get(`/customers/${filter?.customerId}/summary`).then(response => setData(response.data));
-        await customerSelect().then(res => setCustomer(res.data.find(item => item.id === filter?.customerId)));
-    }
-    useEffect(() => {
-        if (!filter?.customerId ||
-            filter?.customerId === '' ||
-            filter?.customerId === 'undefined') {
-             customerSelect().then(res => {
-                updateFieldFilter('customerId', res.data[0].id);
-            });
-        }
-    },[])
-
-    useEffect(() => {
-        if (filter?.customerId) {
-            loadData()
-        }
-    }, [filter?.customerId]);
 
     return (
         <Container>
             <div className="row mt-3">
-                <AsyncSelectSearchInput
-                    fetchFunction={customerSelect}
-                    onChange={(value) => updateFieldFilter('customerId', value)}
-                    value={filter?.customerId}
-                />
+                <AsyncSelectSearch
+                        url={'customers/select'}
+                        value={customers.find(customer => customer.value === filter.search['customerId'])}
+                        onChange={value => updateSearch( value?.value ? {'customerId':value.value} : {customerId: ''})}
+                    />
             </div>
 
             <div className="row mt-5">
-                <span><strong>{`خلاصه وضعیت مشتری : ${customer?.name} در تاریخ : ${date}`}</strong></span>
+                <span><strong>{`خلاصه وضعیت مشتری : ${customer?.label || '----'} در تاریخ : ${date}`}</strong></span>
             </div>
             <TableContainer>
                 <Table>

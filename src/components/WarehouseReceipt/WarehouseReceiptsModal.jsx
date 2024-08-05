@@ -33,7 +33,7 @@ const CustomModal = styled(Modal)`
 
 const WarehouseReceiptsModal = ({ customerId }) => {
     const entityName = "not-invoiced-modal";
-    const { filter, updateFieldFilter } = useFilter(entityName, {
+    const { filter, updateSearch } = useFilter(entityName, {
         page: 0,
         pageSize: 10,
         sortBy: 'id',
@@ -42,14 +42,14 @@ const WarehouseReceiptsModal = ({ customerId }) => {
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        updateFieldFilter("customerId", customerId);
-        updateFieldFilter('notInvoiced', true);
+        updateSearch("customerId", customerId);
+        updateSearch('notInvoiced', true);
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFieldFilter("customerId", null);
-        updateFieldFilter('notInvoiced', false);
+        updateSearch("customerId", null);
+        updateSearch('notInvoiced', false);
         setShowModal(false);
     };
 

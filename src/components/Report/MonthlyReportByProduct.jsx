@@ -1,13 +1,8 @@
 import React, {useEffect, useState, useCallback, memo} from 'react';
 import "./monthlyReport.css";
-import useHttp from "../../hooks/useHttp";
+
 import {formatNumber} from "../../utils/functions/formatNumber";
-import useFilter from "../contexts/useFilter";
-import getCurrentYear from "../../utils/functions/getCurrentYear";
-import YearSelect from "../Year/YearSelect";
-import MonthYear from "./MonthYear";
-import PersianMonthSelect from "../../utils/PersianMonthSelect";
-import getYearOptions from "../../utils/functions/getYearOptions";
+import useHttp from "../contexts/useHttp";
 
 const headerStyle = {
     backgroundColor: 'rgba(220, 220, 220, 0.1)',
@@ -41,9 +36,8 @@ const footerStyle = {
     width: '14.30%',
 };
 
-const MonthlyReportByProduct = memo(({ getParams, listName, filter, productType }) => {
+const MonthlyReportByProduct = memo(({ filter }) => {
     const http = useHttp();
-
     const [monthlyReport, setMonthlyReport] = useState([]);
     const [subtotals, setSubtotals] = useState({
         quantity: 0,
@@ -51,56 +45,47 @@ const MonthlyReportByProduct = memo(({ getParams, listName, filter, productType 
         cumulative_amount: 0,
         amount: 0,
     });
-
-    const loadMonthlyReport = async () => {
-        try {
-            let productType = filter?.productType || 2;
-            let jalaliYear = filter?.jalaliYear || await getYearOptions().then(options => options[0].name);
-            let month = filter?.month || 1;
-            let params = new URLSearchParams({
-                productType,
-                jalaliYear,
-                month,
-            });
-            const response = await http.get(`/reports/sales-by-month-and-product-type?${params.toString()}`);
-            return response.data;
-        } catch (error) {
-            console.log(error);
-            return [];
-        }
-    };
+    const { jalaliYear, month, productType } = filter;
 
     useEffect(() => {
-        loadMonthlyReport().then((data) => {
-            const subtotalAmount = data.reduce((acc, row) => acc + row.totalAmount, 0);
-            const monthlyReport = data.map((row) => ({
-                customerName: row.customerName,
-                month: row.month,
-                productType: row.productType,
-                totalQuantity: row.totalQuantity,
-                cumulativeTotalQuantity: row.cumulativeTotalQuantity,
-                averagePrice: !isNaN(row.totalAmount / row.totalQuantity) ? (row.totalAmount / row.totalQuantity).toFixed(0) : 0,
-                totalAmount: row.totalAmount,
-                percentage: subtotalAmount > 0 ? ((row.totalAmount / subtotalAmount) * 100).toFixed(2) : 0,
-            }));
-            setMonthlyReport(monthlyReport);
-            setSubtotals(monthlyReport.reduce((acc, curr) => ({
-                quantity: acc.quantity + curr.totalQuantity,
-                cumulative_quantity: acc.cumulative_quantity + curr.cumulativeTotalQuantity,
-                cumulative_amount: acc.cumulative_amount + curr.totalAmount,
-                amount: acc.amount + curr.totalAmount,
-            }), {
-                quantity: 0,
-                cumulative_quantity: 0,
-                cumulative_amount: 0,
-                amount: 0,
-            }));
-        });
-    }, [getParams, listName, filter]);
+        const url = "sales-by-month-and-product-type";
+        const params = { jalaliYear, month, productType };
 
-    const subtotal = useCallback(() => {
-        return monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0);
-    }, [monthlyReport]);
+        http.get(url, { params })
+            .then((result) => {
+                // Calculate subtotalAmount directly
+                const subtotalAmount = result.reduce((acc, row) => acc + row.totalAmount, 0);
+
+                // Process data and update state in one go
+                setMonthlyReport(
+                    result.map((row) => ({
+                        ...row,  // Include original properties for flexibility
+                        averagePrice: (row.totalAmount / row.totalQuantity).toFixed(0) || 0,
+                        percentage: ((row.totalAmount / subtotalAmount) * 100).toFixed(2) || 0,
+                    }))
+                );
+
+                // Calculate subtotals more efficiently
+                const newSubtotals = result.reduce(
+                    (acc, row) => ({
+                        quantity: acc.quantity + row.totalQuantity,
+                        cumulative_quantity: acc.cumulative_quantity + row.cumulativeTotalQuantity,
+                        cumulative_amount: acc.cumulative_amount + row.totalAmount,
+                        amount: acc.amount + row.totalAmount,
+                    }),
+                    { ...subtotals } // Start with current subtotals
+                );
+                setSubtotals(newSubtotals);
+            })
+            .catch(console.error); // Handle errors
+    }, [http, jalaliYear, month, productType]); // Proper dependency array
+
+    // Remove unused loadMonthlyReport function
+
+    const subtotal = useCallback(
+        () => monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0),
+        [monthlyReport]
+    );
 
     return (
         <div className="monthly-report" style={{fontFamily: "IRANSans", backgroundColor: 'rgba(220, 220, 220, 0.2)'}}>

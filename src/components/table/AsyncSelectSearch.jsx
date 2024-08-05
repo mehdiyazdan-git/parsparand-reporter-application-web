@@ -1,91 +1,65 @@
-import React, {useEffect, useState} from "react";
-import AsyncSelect from "react-select/async";
-import axios from "axios";
-import useAsync from "../../hooks/useAsync";
-import {useOptions} from "../contexts/OptionsContext";
-import PropTypes from "prop-types";
+import React, { useState, useEffect } from 'react';
+import AsyncSelect from 'react-select/async';
 import {getCustomSelectStyles} from "../../utils/customStyles";
+import useHttp from "../contexts/useHttp";
 
+const AsyncSelectSearch = ({ url, value, onChange, width }) => {
+    const [selectedValue, setSelectedValue] = useState(null);
+    const http = useHttp();
 
-const AsyncSelectSearch = (props) => {
-    const { noOptionMessages, loadOptions } = useAsync(loadOptionsFn);
-    const [selectedOption, setSelectedOption] = useState(null);
-    const {customerOptions} = useOptions();
-
-    async function loadOptionsFn(inputValue) {
-        if (inputValue.trim() === '') {
-            return [];
+    useEffect(() => {
+        if (value) {
+            loadOptions(value.label) // Fetch options using the label
+                .then((options) => {
+                    const matchingOption = options.find((option) => option.value === value.value);
+                    setSelectedValue(matchingOption);
+                });
         }
+    }, [value]);
+
+
+    const loadOptions = async (inputValue) => {
         try {
-            const response = await axios.get(`${props.apiEndpoint}?searchQuery=${inputValue}`);
-            return response.data.map((i) => ({
-                label: i.name,
-                value: i.id,
+            const data = await http.get(url,`searchQuery=${inputValue}`);
+            return data.map((item) => ({
+                value: item.id,
+                label: item.name,
             }));
         } catch (error) {
-            console.error("خطا در واکشی اطلاعات...:", error);
-            throw error;
+            console.error('Error fetching data:', error);
+            return [];
         }
-    }
+    };
 
-    useEffect(() => {
-        if (props.value === null || props.value === undefined) {
-            setSelectedOption(null);
-        }else if (props.value) {
-            if (typeof props.value === 'number') {
-                setSelectedOption(customerOptions.find(option => option.value === props.value));
-            }else if (typeof props.value === 'string'){
-                setSelectedOption(customerOptions.find(option => option.label === Number(props.value)));
-            } else
-            setSelectedOption(null);
-        }
-    }, [customerOptions, props.value]);
+    const handleChange = (newValue) => {
+        setSelectedValue(newValue);
+        onChange(newValue);
+    };
 
-    useEffect(() => {
-        const loadInitialItem = async () => {
-            if (props.value === null || props.value === undefined) return;
-            if (props.value) {
-                try {
-                    const response = await axios.get(props.apiEndpoint, {
-                        params: {
-                            [props.searchQueryParam || 'searchQuery']: props.value
-                        },
-                    });
-                    setSelectedOption(response.data.map(item => ({
-                        label: item[props.labelKey || 'name'],
-                        value: item[props.valueKey || 'id'],
-                    }))[0]);
-                } catch (error) {
-                    console.error(`Error fetching from ${props.apiEndpoint}:`, error);
-                }
-            }
-        };
-
-        loadInitialItem();
-    }, [props.value, props.labelKey, props.valueKey, props.searchQueryParam]);
+    const handleClear = () => {
+        setSelectedValue(null);
+    };
 
     return (
-        <AsyncSelect
-            {...props}
-            placeholder={"انتخاب..."}
-            onChange={(selected) => props.onChange?.(selected?.value)}
-            value={selectedOption}
-            noOptionsMessage={noOptionMessages}
-            loadOptions={loadOptions} // useAsync handles initial loading
-            cacheOptions
-            defaultOptions={customerOptions}
-            isClearable
-            styles={getCustomSelectStyles()}
-        />
+        <div>
+            <AsyncSelect
+                cacheOptions
+                defaultOptions
+                value={selectedValue ? [selectedValue] : []}
+                onChange={handleChange}
+                loadOptions={loadOptions}
+                placeholder="Search..."
+                styles={getCustomSelectStyles()} // Enable clear button styling
+                isClearable
+                onClear={handleClear}
+                width={width}
+                className="col-3"
+                classNamePrefix="react-select"
+                noOptionsMessage={() => "موردی یافت نشد"}
+                loadingMessage={() => "در حال بارگذاری"}
+            />
+        </div>
     );
-};
-AsyncSelectSearch.propsTypes = {
-    value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-    onChange: PropTypes.func,
-    labelKey: PropTypes.string,
-    valueKey: PropTypes.string,
-    searchQueryParam: PropTypes.string,
-    apiEndpoint: PropTypes.string.isRequired,
 };
 
 export default AsyncSelectSearch;

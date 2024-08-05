@@ -3,7 +3,6 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
-import {useData} from "../contexts/DataContext";
 import {useFilter} from "../contexts/useFilter";
 import {filterToSearchParams} from "../contexts/filterToSearchParams";
 

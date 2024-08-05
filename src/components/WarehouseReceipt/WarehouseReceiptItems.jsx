@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
-import useHttp from '../../hooks/useHttp';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, thStyle} from "../styles/styles";
+import useHttp from "../contexts/useHttp";
 
 const WarehouseReceiptItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -19,7 +19,7 @@ const WarehouseReceiptItems = () => {
 
     const http = useHttp();
     const productSelect = async (searchQuery = '') => {
-        return await http.get(`/products/select?searchQuery=${searchQuery}`);
+        return await http.get(`/products/select`,searchQuery);
     }
 
     const watchedFields = useWatch({

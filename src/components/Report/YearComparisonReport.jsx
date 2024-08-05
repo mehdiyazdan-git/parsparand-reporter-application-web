@@ -16,19 +16,9 @@ const getYearOptions = async () => {
 const YearComparisonReport = () => {
 
     const entityName = "year-comparison-report";
-    const { filter, updateFieldFilter,updateFieldsFilter} = useFilter(entityName, {
-        pageable : {
-            page: 0,
-            size: 10,
-        },
-        sort : {
-            order: 'ASC',
-            sortBy: 'id',
-        },
-        search : {
-            jalaliYear: '',
-            productType: 2,
-        }
+    const { filter, updateSearch} = useFilter(entityName, {
+        jalaliYear: null,
+        productType: null,
     });
 
 
@@ -44,16 +34,16 @@ const YearComparisonReport = () => {
 
     const handleProductTypeChange = (selectedOption) => {
         setProductType(selectedOption.value);
-        updateFieldFilter('productType', selectedOption.value);
+        updateSearch({'productType': selectedOption.value});
     };
 
     const handleYearChange = (selectedYear) => {
-        updateFieldFilter('jalaliYear', selectedYear);
+        updateSearch({'jalaliYear': selectedYear});
     };
 
     useEffect(() => {
         getYearOptions().then(options => {
-            updateFieldsFilter({ 'jalaliYear': options[0].name, 'productType': 2 });
+            updateSearch({ 'jalaliYear': options[0].name, 'productType': 2 });
         });
     }, []);
 
