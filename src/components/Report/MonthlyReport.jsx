@@ -2,8 +2,6 @@ import React, {useCallback, useEffect, useState} from 'react';
 import MonthlyReportByProduct from "./MonthlyReportByProduct";
 import Button from "../../utils/Button";
 import PersianMonthSelect from "../../utils/PersianMonthSelect";
-import {useFilter} from "../contexts/useFilter";
-import useHttp from "../contexts/useHttp";
 import AsyncSelectSearch from "../table/AsyncSelectSearch";
 
 
@@ -15,51 +13,46 @@ const type = {
 };
 
 const MonthlyReport = () => {
-    const http = useHttp();
+    const [years, setYears] = useState([]);
 
    const [filter,setFilter] = useState({
         search: {
-            jalaliYear: '',
-            month: '',
+            jalaliYear: 1402,
+            month: 1,
+            productType : type.MAIN,
         },
     });
-    const handleChange = (search) => {
-        setFilter((prev) => ({
-            ...prev,
+    const handleChange = (newSearch) => {
+            setFilter({
+            ...filter,
             search: {
-                ...prev.search,
-                ...search,
+                ...filter.search,
+                ...newSearch,
             },
-        }));
+        });
         };
-
-
-
-
-    const [years, setYears] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    const fetchYears = useCallback(async () => {
-       return await http.get("years/select",'')
-            .then((data) => {
-                    return data.map((item) => {
-                        return {
-                            value: item.id,
-                            label: item.name,
-                        };
-                    });
-                })
-            .catch((err) => {
-                console.log(err);
+    const loadYears = useCallback(async () => {
+        const requestOptions = {
+            method: "GET",
+            redirect: "follow"
+        };// Load years from API
+       await fetch("http://localhost:9090/api/years/select", requestOptions)
+            .then((response) => response.text())
+            .then((result) => JSON.parse(result))
+            .then((result) => {
+                return result.map((item) => ({ label: item.name, value: item.id }))
             })
+            .then((result) => setYears(result))
+            .catch((error) => console.error(error));
     }, []);
 
     useEffect(() => {
-        fetchYears().then((data) => {
-            setYears(data);
-            setLoading(false);
-        });
-    }, [fetchYears]);
+        setLoading(true);
+        loadYears()
+        setLoading(false);
+    }, []);
 
 
 
@@ -70,14 +63,14 @@ const MonthlyReport = () => {
             <div className="col-6">
                 <AsyncSelectSearch
                     url={'years/select'}
-                    value={years.find((item) => item.value === filter?.search?.jalaliYear)}
-                    onChange={handleChange}
+                    value={filter?.search?.jalaliYear}
+                    onChange={value => handleChange({ 'jalaliYear' : value})}
                 />
             </div>
             <div className="col-6">
                 <PersianMonthSelect
                     month={filter?.search?.month}
-                    onChange={handleChange}
+                    onChange={value => handleChange({ 'month' : value})}
                 />
             </div>
             <div>

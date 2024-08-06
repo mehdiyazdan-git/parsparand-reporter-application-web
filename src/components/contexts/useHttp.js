@@ -19,7 +19,6 @@ const useHttp = () => {
 
                 config.headers['Authorization'] = `Bearer ${accessToken}`;
                 }
-            config.headers['Content-Type'] = 'application/json';
             return config;
             },
         error => {
@@ -39,17 +38,26 @@ const useHttp = () => {
 
     const get = useCallback(async (url, params) => {
         try {
-            let queryString = '';
             if (params) {
                 if (typeof params === 'string') {
-                    queryString = `?${params}`;
+                    url = `${url}?${params.trim()}`;
                 } else if (params instanceof URLSearchParams) {
-                    queryString = `?${params.toString()}`;
+                    url = `${url}?${params.toString()}`;
                 } else if (typeof params === 'object') {
-                    queryString = `?${new URLSearchParams(params).toString()}`;
+                    const _params = new URLSearchParams();
+                    Object.entries(params).forEach(([key, value]) => {
+                        if (value !== undefined) {
+                            if (typeof value ===  'string'){
+                                _params.append(key, value.trim())
+                            }else {
+                                _params.append(key, value)
+                            }
+                        }
+                    })
+                    url = `${url}?${_params.toString()}`;
                 }
             }
-            const response = await axios.get(`${BASE_URL}/${url}${queryString}`);
+            const response = await axios.get(`${BASE_URL}/${url}`);
             return response.data;
         } catch (err) {
             setError(err.response?.data || 'خطا در بارگذاری.');

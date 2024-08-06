@@ -41,19 +41,18 @@ const AsyncSelectSearch = ({ url, value, onChange, width }) => {
     };
 
     return (
-        <div>
+        <div width={width}>
             <AsyncSelect
                 cacheOptions
                 defaultOptions
                 value={selectedValue ? [selectedValue] : []}
                 onChange={handleChange}
                 loadOptions={loadOptions}
-                placeholder="Search..."
+                placeholder="جستجو..."
                 styles={getCustomSelectStyles()} // Enable clear button styling
                 isClearable
                 onClear={handleClear}
-                width={width}
-                className="col-3"
+                className="select-input"
                 classNamePrefix="react-select"
                 noOptionsMessage={() => "موردی یافت نشد"}
                 loadingMessage={() => "در حال بارگذاری"}
