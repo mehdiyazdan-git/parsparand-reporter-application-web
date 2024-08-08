@@ -35,6 +35,8 @@ ErrorModal.propTypes = {
     errorMessage: PropTypes.string.isRequired,
 };
 
+
+
 // CrudComponent
 const CrudComponent = ({
                            entityName,
@@ -63,19 +65,19 @@ const CrudComponent = ({
     const [data, setData] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
     const [yearsData, setYearsData] = useState([]);
-    const [filter, setFilter] = useState(initializeFilter);
+    ;
 
 
 
-    // // Initialize filter with stored values or defaults
-    // function initializeFilter() {
-    //     const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
-    //     return storedFilter ?? {
-    //         ...generateInitialFilters(columns),
-    //         jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
-    //     };
-    // }
-
+    // Initialize filter with stored values or defaults
+    function initializeFilter() {
+        const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
+        return storedFilter ?? {
+            ...generateInitialFilters(columns),
+            jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
+        };
+    }
+    const [filter, setFilter] = useState(initializeFilter)
     // Event handlers for filter updates
     const updateSearch = (newSearch) => {
         setFilter((prev) => ({
@@ -97,7 +99,7 @@ const CrudComponent = ({
         setFilter(generateInitialFilters(columns));
     };
 
-    const getParams = useCallback(() => {
+    const getParams = () => {
         const params = new URLSearchParams();
         Object.keys(filter.search).forEach((key) => {
             params.append(key, filter.search[key]);
@@ -107,7 +109,7 @@ const CrudComponent = ({
         params.append('sortBy', filter.sort.sortBy);
         params.append('order', filter.sort.order);
         return params;
-    }, []);
+    }
 
     // CRUD operations
     const findAll = useCallback(
@@ -181,7 +183,7 @@ const CrudComponent = ({
 
 
     useEffect(() => {
-        const fetchYears = useCallback(async () => {
+        const fetchYears =async () => {
             setIsLoading(true);
             try {
                 const [yearsResponse] = await Promise.all([
@@ -195,7 +197,7 @@ const CrudComponent = ({
             } finally {
                 setIsLoading(false);
             }
-        }, [getParams, findAll, openErrorModal]);
+        }
         const fetchPageData = async (params) => {
             return await get(`${entityName}`, params);
         };

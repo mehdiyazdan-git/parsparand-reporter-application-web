@@ -60,66 +60,20 @@ const useHttp = () => {
 
 
     const get = async (url, params = {}) => {
-        try {
-            const response = await httpRef.current.get(url, {
-                params: params,
-                paramsSerializer: serializeParams, // Use the separate function
-            });
-
-            console.log("http get response", response.data);
-            return response.data;
-        } catch (error) {
-            console.error("http get error", error.response?.data || error.message);
-
-            const errorMessage =
-                error.response?.data?.message || error.message || "خطا در بارگذاری.";
-            setError(errorMessage);
-
-            if (error.response && error.response.status === 401) {
-                navigate("/login");
-            }
-
-            throw error;
-        }
-    }
-
-
-
+           return await httpRef.current.get(`${BASE_URL}/${url}?${serializeParams(params)}`);
+     }
 
     const post = useCallback(async (url, data) => {
-        try {
-            const response = await httpRef.current.post(url, data, { // Use httpRef.current
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response.data;
-        } catch (err) {
-            // ... error handling
-        }
+      return  await httpRef.current.post(`${BASE_URL}/${url}`, data);
+
     }, []);
 
-    const put = useCallback(async (url, data) => {
-        try {
-            const response = await httpRef.current.put(`${BASE_URL}/${url}/${data.id}`, data, {
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-            });
-            return response.data;
-        } catch (err) {
-            setError(err.response?.data || 'خطا در بروز رسانی.');
-            throw err;
-        }
-    }, []);
+    const put = async (url, data) => {
+        return await httpRef.current.put(`${BASE_URL}/${url}/${data.id}`, data);
+    }
 
     const del = useCallback(async (url, id) => {
-        try {
-            await axios.delete(`${BASE_URL}/${url}/${id}`);
-        } catch (err) {
-            setError(err.response?.data || 'خطا در حذف.');
-            throw err;
-        }
+        await httpRef.current.delete(`${BASE_URL}/${url}/${id}`);
     }, []);
 
     return { get, post, put, del, error, setError };
