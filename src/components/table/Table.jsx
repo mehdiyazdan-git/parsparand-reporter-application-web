@@ -19,7 +19,7 @@ const Table = ({
 
 
     const handleYearChange = useCallback((value) => {
-        updateSearch({'jalaliYear': value});
+        updateSearch({'jalaliYear': parseInt(value,10)});
     }, [updateSearch]);
 
 
@@ -29,7 +29,10 @@ const Table = ({
                 <div style={yearSelectStyle}>
                     <label style={yearSelectLabelStyle}>انتخاب سال</label>
                     <div style={yearSelectContainerStyle}>
-                        <YearSelect filter={filter} onChange={handleYearChange} />
+                        <YearSelect
+                            value={filter?.search?.jalaliYear}
+                            onChange={handleYearChange}
+                        />
                     </div>
                 </div>
             )}

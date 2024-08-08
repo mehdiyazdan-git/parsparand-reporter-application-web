@@ -13,7 +13,7 @@ const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
-    sessionStorage.getItem('filter_data') && sessionStorage.removeItem('filter_data')
+    // sessionStorage.getItem('filter_data') && sessionStorage.removeItem('filter_data')
 
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {

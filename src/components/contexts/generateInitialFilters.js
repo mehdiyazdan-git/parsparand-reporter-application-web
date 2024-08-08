@@ -3,7 +3,7 @@ import getCurrentYear from "../../utils/functions/getCurrentYear";
 export const generateInitialFilters = (columns) => {
     const initialFilters = {
         search: {
-            jalaliYear : getCurrentYear()
+            jalaliYear: ''
         },
         pageable: {
             page: 0,
@@ -21,6 +21,5 @@ export const generateInitialFilters = (columns) => {
             initialFilters.search[column.key] = '';
         }
     });
-
     return initialFilters;
 };

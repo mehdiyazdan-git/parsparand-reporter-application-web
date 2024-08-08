@@ -1,9 +1,8 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React from 'react';
 import Table from "react-bootstrap/Table";
 import {formatNumber} from "../../utils/functions/formatNumber";
-import axios from "axios";
-import PropTypes from "prop-types";
-import useHttp from "../contexts/useHttp";
+
+
 
 
 const headerStyle = {
@@ -40,54 +39,19 @@ const footerStyle = {
 
 
 
-const SalesTable = ({
-                        label,
-                        previousYear,
-                        measurementIndex ,
-                        filter,
-                        productType,
-                        years,
-                        entityName
-                    }) => {
-    const http = useHttp();
+const SalesTable = ({data = [], measurementIndex , label }) => {
 
-    const [reportData, setReportData] = useState([
-        {
-            monthNumber: 1,
-            monthName: '',
-            totalAmount: 0,
-            totalQuantity: 0,
-        },
-    ]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                let yearName;
-                if (filter?.jalaliYear && filter?.jalaliYear.toString().length === 4) {
-                   yearName = filter.jalaliYear - previousYear;
-                }else {
-                    yearName = years.find(y => y.name === filter.jalaliYear).value - previousYear;
-                }
-                const data = await http.get(`reports/sales-by-year`,{yearName,productType});
-                setReportData(data);
-            } catch (error) {
-                console.error('Error fetching data:', error);
-                setReportData([]);
-            }
-        };
-        fetchData();
-        }, [previousYear, measurementIndex, filter]);
-
-    const firstHalfData = reportData.slice(0, 6);
-    const secondHalfData = reportData.slice(6, 12);
-    const totalQuantityFirstHalf = firstHalfData.reduce((acc, item) => acc + item.totalQuantity, 0);
-    const totalAmountFirstHalf = firstHalfData.reduce((acc, item) => acc + item.totalAmount, 0);
-    const totalQuantitySecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalQuantity, 0);
-    const totalAmountSecondHalf = secondHalfData.reduce((acc, item) => acc + item.totalAmount, 0);
+    const firstHalfData =  data?.slice(0, 6) ;
+    const secondHalfData =  data?.slice(6, 12);
+    const totalQuantityFirstHalf = firstHalfData?.reduce((acc, item) => acc + item?.totalQuantity, 0);
+    const totalAmountFirstHalf = firstHalfData?.reduce((acc, item) => acc + item?.totalAmount, 0);
+    const totalQuantitySecondHalf = secondHalfData?.reduce((acc, item) => acc + item?.totalQuantity, 0);
+    const totalAmountSecondHalf = secondHalfData?.reduce((acc, item) => acc + item?.totalAmount, 0);
 
 
     return (
+
         <div style={{ fontSize: "0.7rem" }}>
             <div className="row mt-2">
                 {label && <label style={{ fontSize: "0.9rem", fontWeight: "bold", color: "darkblue" }}>{label}</label>}
@@ -122,41 +86,41 @@ const SalesTable = ({
                         </tr>
                         <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)' }}>
                             <td style={headerStyle}>شش ماهه دوم</td>
-                            {secondHalfData.map((item, index) => (
-                                <td style={headerStyle} key={index}>
-                                    {item.monthName}
-                                </td>
-                            ))}
+                                {secondHalfData.map((item, index) => (
+                                    <td style={headerStyle} key={index}>
+                                        {item.monthName}
+                                    </td>
+                                ))}
                             <td style={headerStyle}>{formatNumber(totalAmountSecondHalf)}</td>
                         </tr>
                         <tr>
                             <td style={rowStyle}>مبلغ (ریال)</td>
                             {secondHalfData.map((item, index) => (
-                                <td style={rowStyle} key={index}>{formatNumber(item.totalAmount)}</td>
+                                <td style={rowStyle} key={index}>{formatNumber(item?.totalAmount)}</td>
                             ))}
                             <td style={{ fontWeight: 'bold',...rowStyle }}>{formatNumber(totalAmountSecondHalf)}</td>
                         </tr>
                         <tr>
                             <td style={rowStyle}>{measurementIndex}</td>
                             {secondHalfData.map((item, index) => (
-                                <td style={rowStyle} key={index}>{formatNumber(item.totalQuantity)}</td>
+                                <td style={rowStyle} key={index}>{formatNumber(item?.totalQuantity)}</td>
                             ))}
                             <td style={{ fontWeight: 'bold',...rowStyle }}>{formatNumber(totalQuantitySecondHalf)}</td>
                         </tr>
                         </tbody>
                         <tfoot>
-                        <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', border: '1px #ccc solid' }}>
-                            <td style={footerStyle} colSpan={7}>
-                                {`جمع کل (${measurementIndex})`}
-                            </td>
-                            <td style={footerStyle}>{formatNumber(totalQuantityFirstHalf + totalQuantitySecondHalf)}</td>
-                        </tr>
-                        <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', border: '1px #ccc solid' }}>
-                            <td style={footerStyle} colSpan={7}>
-                                جمع کل (ریالی)
-                            </td>
-                            <td style={footerStyle}>{formatNumber(totalAmountFirstHalf + totalAmountSecondHalf)}</td>
-                        </tr>
+                            <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', border: '1px #ccc solid' }}>
+                                <td style={footerStyle} colSpan={7}>
+                                    {`جمع کل (${measurementIndex})`}
+                                </td>
+                                <td style={footerStyle}>{formatNumber(totalQuantityFirstHalf + totalQuantitySecondHalf)}</td>
+                            </tr>
+                            <tr style={{ backgroundColor: 'rgba(255, 255, 255, 0.5)', border: '1px #ccc solid' }}>
+                                <td style={footerStyle} colSpan={7}>
+                                    جمع کل (ریالی)
+                                </td>
+                                <td style={footerStyle}>{formatNumber(totalAmountFirstHalf + totalAmountSecondHalf)}</td>
+                            </tr>
                         </tfoot>
                     </Table>
                 </div>
@@ -164,17 +128,4 @@ const SalesTable = ({
         </div>
     );
 };
-
-
-SalesTable.propTypes = {
-    label: PropTypes.string,
-    previousYear: PropTypes.number.isRequired,
-    measurementIndex: PropTypes.string.isRequired,
-    filter: PropTypes.shape({
-        jalaliYear: PropTypes.number,
-        productType: PropTypes.number
-    }),
-    productType: PropTypes.number.isRequired,
-};
-
 export default SalesTable;

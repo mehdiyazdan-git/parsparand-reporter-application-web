@@ -1,4 +1,4 @@
 
 export default function getCurrentYear() {
-    return new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0,4);
+    return parseInt(new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4), 10);
 }

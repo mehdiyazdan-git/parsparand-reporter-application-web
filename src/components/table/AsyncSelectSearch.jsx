@@ -20,7 +20,9 @@ const AsyncSelectSearch = ({ url, value, onChange, width }) => {
 
     const loadOptions = async (inputValue) => {
         try {
-            const data = await http.get(url,`searchQuery=${inputValue}`);
+            const data = await http.get(url,{
+                'searchQuery' : inputValue
+            });
             return data.map((item) => ({
                 value: item.id,
                 label: item.name,

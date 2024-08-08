@@ -1,19 +1,20 @@
-import React, { useState, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
+import { SiMicrosoftexcel } from 'react-icons/si';
+import Modal from 'react-bootstrap/Modal';
+
 import useModalManager from '../hooks/useModalManager';
+import useDeepCompareEffect from '../hooks/useDeepCompareEffect';
+import useHttp from '../components/contexts/useHttp';
 import ButtonContainer from './ButtonContainer';
 import FileUpload from './FileUpload';
 import Button from './Button';
 import Table from '../components/table/Table';
-import { SiMicrosoftexcel } from 'react-icons/si';
-import Modal from 'react-bootstrap/Modal';
-import PropTypes from 'prop-types';
-import useDeepCompareEffect from "../hooks/useDeepCompareEffect";
-import { generateInitialFilters } from "../components/contexts/generateInitialFilters";
-import {BASE_URL} from "../config/config";
-import useHttp from "../components/contexts/useHttp";
-import AsyncSelectSearch from "../components/table/AsyncSelectSearch";
+import YearSelect from '../components/Year/YearSelect';
+import { generateInitialFilters } from '../components/contexts/generateInitialFilters';
+import { BASE_URL } from '../config/config';
 
-
+// ErrorModal Component
 const ErrorModal = ({ show, handleClose, errorMessage }) => (
     <Modal show={show} onHide={handleClose} centered>
         <Modal.Body
@@ -34,6 +35,7 @@ ErrorModal.propTypes = {
     errorMessage: PropTypes.string.isRequired,
 };
 
+// CrudComponent
 const CrudComponent = ({
                            entityName,
                            columns,
@@ -56,39 +58,39 @@ const CrudComponent = ({
         closeErrorModal,
     } = useModalManager();
 
-    const { get, post, put, del, error, setError } = useHttp();
-    const [data, setData] = useState(null);
+    const { get, post, put, del } = useHttp();
     const storageKey = `filter-${entityName}`;
+    const [data, setData] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const [yearsData, setYearsData] = useState([]);
+    const [filter, setFilter] = useState(initializeFilter);
 
-    const [filter, setFilter] = useState(() => {
-        const initialFilter = generateInitialFilters(columns);
-        const storedFilter = sessionStorage.getItem(storageKey);
-        return storedFilter ? JSON.parse(storedFilter) : initialFilter;
-    });
 
-    const onEdit = (entity) => {
-        openEditModal(entity);
-    };
 
-    useDeepCompareEffect(() => {
-        sessionStorage.setItem(storageKey, JSON.stringify(filter));
-        findAll(getParams());
-    }, [filter]);
+    // Initialize filter with stored values or defaults
+    function initializeFilter() {
+        const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
+        return storedFilter ?? {
+            ...generateInitialFilters(columns),
+            jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
+        };
+    }
 
+    // Event handlers for filter updates
     const updateSearch = (newSearch) => {
-        setFilter({
-            ...filter,
-            search: { ...filter.search, ...newSearch },
-            pageable: { ...filter.pageable, page: 0 },
-        });
+        setFilter((prev) => ({
+            ...prev,
+            search: { ...prev.search, ...newSearch },
+            pageable: { ...prev.pageable, page: 0 },
+        }));
     };
 
-    const updatePageable = (newFilter) => {
-        setFilter({ ...filter, pageable: { ...filter.pageable, ...newFilter } });
+    const updatePageable = (newPageable) => {
+        setFilter((prev) => ({ ...prev, pageable: { ...prev.pageable, ...newPageable } }));
     };
 
     const updateSort = (newSort) => {
-        setFilter({ ...filter, sort: { ...filter.sort, ...newSort } });
+        setFilter((prev) => ({ ...prev, sort: { ...prev.sort, ...newSort } }));
     };
 
     const resetFilter = () => {
@@ -97,22 +99,22 @@ const CrudComponent = ({
 
     const getParams = useCallback(() => {
         const params = new URLSearchParams();
-        filter.search &&
         Object.keys(filter.search).forEach((key) => {
             params.append(key, filter.search[key]);
         });
         params.append('page', filter.pageable.page);
         params.append('size', filter.pageable.size);
-        params.append('sortBy', `${filter.sort.sortBy}`);
-        params.append('order', `${filter.sort.order}`);
+        params.append('sortBy', filter.sort.sortBy);
+        params.append('order', filter.sort.order);
         return params;
     }, [filter]);
 
+    // CRUD operations
     const findAll = useCallback(
         async (params) => {
             try {
-                const data = await get(`${entityName}`, params);
-                setData(data);
+                const result = await get(entityName, params);
+                setData(result);
             } catch (error) {
                 openErrorModal(error.message);
             }
@@ -121,9 +123,9 @@ const CrudComponent = ({
     );
 
     const handleCreate = useCallback(
-        async (data) => {
+        async (newData) => {
             try {
-                await post(`${entityName}`, data);
+                await post(entityName, newData);
                 await findAll(getParams());
             } catch (error) {
                 openErrorModal(error.message);
@@ -133,9 +135,9 @@ const CrudComponent = ({
     );
 
     const handleUpdate = useCallback(
-        async (data) => {
+        async (updatedData) => {
             try {
-                await put(`${entityName}`, data);
+                await put(entityName, updatedData);
                 await findAll(getParams());
             } catch (error) {
                 openErrorModal(error.message);
@@ -147,7 +149,7 @@ const CrudComponent = ({
     const handleDelete = useCallback(
         async (id) => {
             try {
-                await del(`${entityName}`, id);
+                await del(entityName, id);
                 await findAll(getParams());
             } catch (error) {
                 openErrorModal(error.message);
@@ -155,61 +157,91 @@ const CrudComponent = ({
         },
         [del, entityName, findAll, getParams, openErrorModal]
     );
-    const [selectedCustomer, setSelectedCustomer] = useState('');
-
-    const handleCustomerChange = (newValue) => {
-        setSelectedCustomer(newValue);
-        // Do something with the selected customer (e.g., update state)
-    };
 
     const handleDownload = useCallback(
-        (params, isExport) => {
-            fetch(`${BASE_URL}/${entityName}/export?${params.toString()}`, {
-                method: 'GET',
-                redirect: 'follow',
-            })
-                .then((response) => response.blob())
-                .then((blob) => {
-                    const url = window.URL.createObjectURL(new Blob([blob]));
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.setAttribute('download', `${entityName}.xlsx`);
-                    document.body.appendChild(link);
-                    link.click();
-                });
+        async (params) => {
+            try {
+                const response = await fetch(`${BASE_URL}/${entityName}/export?${params.toString()}`);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(new Blob([blob]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `${entityName}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+            } catch (error) {
+                openErrorModal(error.message);
+            }
         },
-        [entityName]
+        [entityName, openErrorModal]
     );
+
+    const fetchYears = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const [yearsResponse] = await Promise.all([
+                fetch(`${BASE_URL}/${entityName}/select`),
+                findAll(getParams()),
+            ]);
+            const years = await yearsResponse.json();
+            setYearsData(years.map((year) => ({ value: year.name.toString(), label: year.name.toString() })));
+        } catch (error) {
+            openErrorModal("An error occurred while fetching data.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, [getParams, findAll, openErrorModal]);
+
+
+
+    useEffect(() => {
+        const fetchPageData = async (params) => {
+            return await get(`${entityName}`, params);
+        };
+         if (sessionStorage.getItem(storageKey)) {
+             const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
+              setFilter(storedFilter || {...generateInitialFilters(columns)});
+         }
+        fetchYears().then(() => {});
+        fetchPageData(getParams()).then((data) => setData(data))
+    }, []);
+
+
+
+    useDeepCompareEffect(() => {
+        sessionStorage.setItem(storageKey, JSON.stringify(filter));
+        const fetchPageData = async (params) => {
+            return await get(entityName, params);
+        };
+        fetchPageData(getParams()).then((data) => setData(data));
+    }, [filter]);
 
     return (
         <div className="table-container">
             <ButtonContainer
-                lastChild={
-                    <FileUpload uploadUrl={`/${entityName}/import`} refreshTrigger={null} />
-                }
+                lastChild={<FileUpload uploadUrl={`/${entityName}/import`} />}
             >
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
-                <AsyncSelectSearch
-                    url="customers/select"
-                    value={selectedCustomer}
-                    onChange={handleCustomerChange}
-                />
+                {hasYearSelect && (
+                    <YearSelect
+                        value={filter.search.jalaliYear}
+                        onChange={(value) => updateSearch({ 'jalaliYear': parseInt(value,10) })}
+                    />
+                )}
                 <SiMicrosoftexcel
-                    onClick={() => handleDownload(getParams(), false)}
-                    size={"2.2rem"}
-                    className={"m-1"}
-                    color={"#41941a"}
+                    onClick={() => handleDownload(getParams())}
+                    size="2.2rem"
+                    className="m-1"
+                    color="#41941a"
                     type="button"
                 />
-
-                {createForm &&
-                    React.cloneElement(createForm, {
-                        onCreateEntity: handleCreate,
-                        show: showModal,
-                        onHide: closeCreateModal,
-                    })}
+                {createForm && React.cloneElement(createForm, {
+                    onCreateEntity: handleCreate,
+                    show: showModal,
+                    onHide: closeCreateModal,
+                })}
             </ButtonContainer>
 
             <Table
@@ -219,7 +251,7 @@ const CrudComponent = ({
                 hasYearSelect={hasYearSelect}
                 postEntity={handleCreate}
                 onUpdateEntity={handleUpdate}
-                onEdit={onEdit}
+                onEdit={openEditModal}
                 onDelete={handleDelete}
                 filter={filter}
                 resetFilter={resetFilter}
@@ -229,14 +261,13 @@ const CrudComponent = ({
                 getParams={getParams}
             />
 
-            {editingEntity &&
-                editForm &&
-                React.cloneElement(editForm, {
-                    editingEntity: editingEntity,
-                    show: showEditModal,
-                    onUpdateEntity: handleUpdate,
-                    onHide: closeEditModal,
-                })}
+            {editingEntity && editForm && React.cloneElement(editForm, {
+                editingEntity,
+                show: showEditModal,
+                onUpdateEntity: handleUpdate,
+                onHide: closeEditModal,
+            })}
+
             <ErrorModal
                 show={showErrorModal}
                 handleClose={closeErrorModal}
@@ -244,6 +275,15 @@ const CrudComponent = ({
             />
         </div>
     );
+};
+
+CrudComponent.propTypes = {
+    entityName: PropTypes.string.isRequired,
+    columns: PropTypes.array.isRequired,
+    createForm: PropTypes.element,
+    editForm: PropTypes.element,
+    hasYearSelect: PropTypes.bool,
+    hasSubTotal: PropTypes.bool,
 };
 
 export default CrudComponent;

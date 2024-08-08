@@ -1,102 +1,109 @@
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import SalesTable from "./SalesTable";
 import YearSelect from "../Year/YearSelect";
-import {titleStyle, labelStyle} from "../styles/styles";
+import {titleStyle} from "../styles/styles";
 import ProductTypeSelect from "../../utils/ProductTypeSelect";
-import axios from "axios";
-import PropTypes from "prop-types";
-import {useFilter} from "../contexts/useFilter";
+import useHttp from "../contexts/useHttp";
+import {toast} from "react-toastify";
 
 
-const getYearOptions = async () => {
-    return await axios.get(`http://localhost:9090/api/years/select`)
-        .then(res => res.data);
-}
+const productTypeOptions = [
+    {value: 2, label: 'بشکه', measurementIndex: 'عدد'},
+    {value: 6, label: 'ضایعات', measurementIndex: 'کیلوگرم'},
+    {value: 1, label: 'مواد اولیه', measurementIndex: 'کیلوگرم'},
+];
+
 
 const YearComparisonReport = () => {
+    const [currentYearData, setCurrentYearData] = useState([]);
+    const [previousYearData, setPreviousYearData] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const http = useHttp();
 
-    const entityName = "year-comparison-report";
-    const { filter, updateSearch} = useFilter(entityName, {
-        jalaliYear: null,
-        productType: null,
+    const [filter, setFilter] = useState(() => {
+        const storedFilter = JSON.parse(sessionStorage.getItem("filter_year_comparison_report"));
+        return storedFilter ?? {
+            currentYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
+            previousYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4) - 1,
+            productType: 2,
+        };
     });
 
-
-    const [productType, setProductType] = useState(filter.productType);
-
-    const productTypeOptions = [
-        { value: 2, label: 'بشکه', measurementIndex: 'عدد' },
-        { value: 6, label: 'ضایعات', measurementIndex: 'کیلوگرم' },
-        { value: 1, label: 'مواد اولیه', measurementIndex: 'کیلوگرم' },
-    ];
-
-
-
-    const handleProductTypeChange = (selectedOption) => {
-        setProductType(selectedOption.value);
-        updateSearch({'productType': selectedOption.value});
-    };
-
-    const handleYearChange = (selectedYear) => {
-        updateSearch({'jalaliYear': selectedYear});
-    };
-
-    useEffect(() => {
-        getYearOptions().then(options => {
-            updateSearch({ 'jalaliYear': options[0].name, 'productType': 2 });
+    const handleFilterChange = useCallback((newFilter) => {
+        setFilter((prevFilter) => {
+            const updatedFilter = {
+                ...prevFilter,
+                ...newFilter,
+            };
+            sessionStorage.setItem("filter_year_comparison_report", JSON.stringify(updatedFilter)); // Save to session storage
+            return updatedFilter;
         });
     }, []);
 
+    useEffect(() => {
+
+        const fetchData = async () => {
+            setIsLoading(true);
+
+            try {
+                const [currentYearResponse, previousYearResponse] = await Promise.all([
+                    http.get('reports/sales-by-year', { yearName: filter.currentYear, productType: filter.productType }),
+                    http.get('reports/sales-by-year', { yearName: filter.previousYear, productType: filter.productType })
+                ]);
+                setCurrentYearData(currentYearResponse);
+                setPreviousYearData(previousYearResponse);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+                toast.error("خطا در دریافت اطلاعات. لطفا مجددا تلاش کنید.", { autoClose: 3000 });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+        fetchData(); // Fetch data whenever the filter changes
+    }, [filter]);
 
     return (
         <div className="container-fluid mt-4">
+            <div className="row">
+                <strong style={{ ...titleStyle, color: "darkblue" }}>گزارش مقایسه ای سالیانه</strong>
+            </div>
 
-                <div className="row">
-                    <strong style={{ ...titleStyle, color: "darkblue" }}>گزارش مقایسه ای سالیانه</strong>
+            <div className="row" style={{ width: "30%", marginTop: "0.5rem" }}>
+                <div className="col">
+                    <ProductTypeSelect
+                        value={filter.productType}
+                        onChange={(value) => handleFilterChange({ productType: value })}
+                        options={productTypeOptions}
+                    />
                 </div>
-                <div className="row" style={{ width: "30%", marginTop: "0.5rem" }}>
-                    <div className="col">
-                        <ProductTypeSelect
-                            value={productType}
-                            onProductTypeChange={handleProductTypeChange}
-                            options={productTypeOptions}
-                        />
-                    </div>
-                    <div className="col">
-                        <YearSelect
-                            filter={filter}
-                            onChange={handleYearChange}
-                        />
-                    </div>
+                <div className="col">
+                    <YearSelect
+                        value={filter.currentYear}
+                        onChange={(value) => handleFilterChange({ currentYear: value, previousYear: parseInt(value, 10) - 1 })}
+                    />
                 </div>
-                    <div className="container-fluid mt-2">
-                        {filter.productType && (
-                            <div>
-                                <div style={labelStyle}>سال جاری</div>
-                                <SalesTable
-                                    productType={filter.productType}
-                                    previousYear={0}
-                                    measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
-                                    filter={filter}
-                                />
-                                <div style={labelStyle}>سال قبل</div>
-                                <SalesTable
-                                    productType={filter.productType}
-                                    previousYear={1}
-                                    measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
-                                    filter={filter}
-                                />
-                            </div>
-                        )}
-                    </div>
+            </div>
+
+            <div className="container-fluid mt-2">
+                {!isLoading && (
+                    <>
+                        <div>سال جاری ({filter.currentYear})</div>
+                        <SalesTable
+                            data={currentYearData}
+                            measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
+                        />
+
+                        <div>سال قبل ({filter.previousYear})</div>
+                        <SalesTable
+                            data={previousYearData}
+                            measurementIndex={productTypeOptions.find(o => o.value === filter.productType)?.measurementIndex || ''}
+                        />
+                    </>
+                )}
+            </div>
         </div>
     );
 };
-SalesTable.propTypes = {
-    productType: PropTypes.number.isRequired,
-    previousYear: PropTypes.number.isRequired,
-    measurementIndex: PropTypes.string.isRequired,
-    filter: PropTypes.object.isRequired
-};
 
 export default YearComparisonReport;
+

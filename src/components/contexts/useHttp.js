@@ -1,5 +1,5 @@
 // src/hooks/useHttp.js
-import { useState, useCallback } from 'react';
+import {useState, useCallback, useRef, useEffect} from 'react';
 import axios from 'axios';
 import {BASE_URL} from "../../config/config";
 import {useAuth} from "./useAuth";
@@ -10,60 +10,71 @@ const useHttp = () => {
     const {accessToken} = useAuth();
     const navigate = useNavigate();
 
-    const http = axios.create({
-        baseURL: BASE_URL,
-    });
-    http.interceptors.request.use(
-        config => {
-            if (accessToken) {
+    const httpRef = useRef(axios.create({ baseURL: BASE_URL }));
 
-                config.headers['Authorization'] = `Bearer ${accessToken}`;
+    useEffect(() => {
+        // Add interceptors to the stored Axios instance
+        httpRef.current.interceptors.request.use(
+            config => {
+                if (accessToken) {
+                    config.headers['Authorization'] = `Bearer ${accessToken}`;
                 }
-            return config;
+                return config;
             },
-        error => {
-            if (error.response) {
-                if (error.response.status === 401) {
-                    console.log(error.response.data);
+            error => {
+                if (error.response) {
+                    if (error.response.status === 401) {
+                        console.log(error.response.data);
+                        navigate('/login');
+                    }
+                }
+                if (!error.response && error.request){
+                    console.log(error.request);
                     navigate('/login');
                 }
+                return Promise.reject(error);
             }
-            if (!error.response && error.request){
-                console.log(error.request);
-                navigate('/login');
-            }
-            return Promise.reject(error);
-            }
-    );
+        );
+        // Cleanup function to remove interceptors (optional, but good practice)
+        return () => {
+            // eslint-disable-next-line react-hooks/exhaustive-deps
+            httpRef.current.interceptors.request.eject(0); // Remove the first interceptor
+        };
+    }, [accessToken, navigate]);
 
-    const get = useCallback(async (url, params) => {
+    const get = useCallback(async (url, params = {}) => {
         try {
-            if (params) {
-                if (typeof params === 'string') {
-                    url = `${url}?${params.trim()}`;
-                } else if (params instanceof URLSearchParams) {
-                    url = `${url}?${params.toString()}`;
-                } else if (typeof params === 'object') {
-                    const _params = new URLSearchParams();
-                    Object.entries(params).forEach(([key, value]) => {
+            const response = await httpRef.current.get(url, {
+                params: params, // Automatically handles params as an object or URLSearchParams
+                paramsSerializer: (params) => {
+                    // Custom serializer for undefined values
+                    const searchParams = new URLSearchParams();
+                    for (const [key, value] of Object.entries(params)) {
                         if (value !== undefined) {
-                            if (typeof value ===  'string'){
-                                _params.append(key, value.trim())
-                            }else {
-                                _params.append(key, value)
-                            }
+                            searchParams.append(key, value.toString().trim());
                         }
-                    })
-                    url = `${url}?${_params.toString()}`;
+                    }
+                    return searchParams.toString();
                 }
-            }
-            const response = await axios.get(`${BASE_URL}/${url}`);
+            });
+
+            console.log('http get response', response.data);
             return response.data;
-        } catch (err) {
-            setError(err.response?.data || 'خطا در بارگذاری.');
-            throw err;
+
+        } catch (error) {
+            console.error('http get error', error.response?.data || error.message);
+
+            const errorMessage = error.response?.data?.message || error.message || 'خطا در بارگذاری.';
+            setError(errorMessage); // Set a user-friendly error message
+
+            if (error.response && error.response.status === 401) {
+                navigate('/login'); // Handle 401 (Unauthorized) errors globally
+            }
+
+            throw error; // Rethrow the error to allow the calling component to handle it if needed
         }
-    }, []);
+    },[navigate]);
+
 
 
 

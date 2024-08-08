@@ -18,6 +18,7 @@ const WarehouseReceiptItems = () => {
     });
 
     const http = useHttp();
+
     const productSelect = async (searchQuery = '') => {
         return await http.get(`/products/select`,searchQuery);
     }
