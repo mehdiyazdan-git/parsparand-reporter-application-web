@@ -67,14 +67,14 @@ const CrudComponent = ({
 
 
 
-    // Initialize filter with stored values or defaults
-    function initializeFilter() {
-        const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
-        return storedFilter ?? {
-            ...generateInitialFilters(columns),
-            jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
-        };
-    }
+    // // Initialize filter with stored values or defaults
+    // function initializeFilter() {
+    //     const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
+    //     return storedFilter ?? {
+    //         ...generateInitialFilters(columns),
+    //         jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
+    //     };
+    // }
 
     // Event handlers for filter updates
     const updateSearch = (newSearch) => {
@@ -107,7 +107,7 @@ const CrudComponent = ({
         params.append('sortBy', filter.sort.sortBy);
         params.append('order', filter.sort.order);
         return params;
-    }, [filter]);
+    }, []);
 
     // CRUD operations
     const findAll = useCallback(
@@ -176,25 +176,26 @@ const CrudComponent = ({
         [entityName, openErrorModal]
     );
 
-    const fetchYears = useCallback(async () => {
-        setIsLoading(true);
-        try {
-            const [yearsResponse] = await Promise.all([
-                fetch(`${BASE_URL}/${entityName}/select`),
-                findAll(getParams()),
-            ]);
-            const years = await yearsResponse.json();
-            setYearsData(years.map((year) => ({ value: year.name.toString(), label: year.name.toString() })));
-        } catch (error) {
-            openErrorModal("An error occurred while fetching data.");
-        } finally {
-            setIsLoading(false);
-        }
-    }, [getParams, findAll, openErrorModal]);
+
 
 
 
     useEffect(() => {
+        const fetchYears = useCallback(async () => {
+            setIsLoading(true);
+            try {
+                const [yearsResponse] = await Promise.all([
+                    fetch(`${BASE_URL}/${entityName}/select`),
+                    findAll(getParams()),
+                ]);
+                const years = await yearsResponse.json();
+                setYearsData(years.map((year) => ({ value: year.name.toString(), label: year.name.toString() })));
+            } catch (error) {
+                openErrorModal("An error occurred while fetching data.");
+            } finally {
+                setIsLoading(false);
+            }
+        }, [getParams, findAll, openErrorModal]);
         const fetchPageData = async (params) => {
             return await get(`${entityName}`, params);
         };

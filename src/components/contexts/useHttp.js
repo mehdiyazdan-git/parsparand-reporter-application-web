@@ -40,61 +40,68 @@ const useHttp = () => {
             // eslint-disable-next-line react-hooks/exhaustive-deps
             httpRef.current.interceptors.request.eject(0); // Remove the first interceptor
         };
-    }, [accessToken, navigate]);
+    }, [accessToken, navigate, httpRef]);
 
-    const get = useCallback(async (url, params = {}) => {
+    const serializeParams = (params) => {
+        const searchParams = new URLSearchParams();
+        for (const [key, value] of Object.entries(params)) {
+            if (value !== undefined) {
+                if (Array.isArray(value)) {
+                    value.forEach((item) => {
+                        searchParams.append(key, item.toString().trim());
+                    });
+                } else {
+                    searchParams.append(key, value.toString().trim());
+                }
+            }
+        }
+        return searchParams.toString();
+    }
+
+
+    const get = async (url, params = {}) => {
         try {
             const response = await httpRef.current.get(url, {
-                params: params, // Automatically handles params as an object or URLSearchParams
-                paramsSerializer: (params) => {
-                    // Custom serializer for undefined values
-                    const searchParams = new URLSearchParams();
-                    for (const [key, value] of Object.entries(params)) {
-                        if (value !== undefined) {
-                            searchParams.append(key, value.toString().trim());
-                        }
-                    }
-                    return searchParams.toString();
-                }
+                params: params,
+                paramsSerializer: serializeParams, // Use the separate function
             });
 
-            console.log('http get response', response.data);
+            console.log("http get response", response.data);
             return response.data;
-
         } catch (error) {
-            console.error('http get error', error.response?.data || error.message);
+            console.error("http get error", error.response?.data || error.message);
 
-            const errorMessage = error.response?.data?.message || error.message || 'خطا در بارگذاری.';
-            setError(errorMessage); // Set a user-friendly error message
+            const errorMessage =
+                error.response?.data?.message || error.message || "خطا در بارگذاری.";
+            setError(errorMessage);
 
             if (error.response && error.response.status === 401) {
-                navigate('/login'); // Handle 401 (Unauthorized) errors globally
+                navigate("/login");
             }
 
-            throw error; // Rethrow the error to allow the calling component to handle it if needed
+            throw error;
         }
-    },[navigate]);
+    }
 
 
 
 
     const post = useCallback(async (url, data) => {
         try {
-            const response = await axios.post(`${BASE_URL}/${url}`, data, {
+            const response = await httpRef.current.post(url, data, { // Use httpRef.current
                 headers: {
                     'Content-Type': 'application/json',
                 },
             });
             return response.data;
         } catch (err) {
-            setError(err.response?.data || 'خطا در ایجاد.');
-            throw err;
+            // ... error handling
         }
     }, []);
 
     const put = useCallback(async (url, data) => {
         try {
-            const response = await axios.put(`${BASE_URL}/${url}/${data.id}`, data, {
+            const response = await httpRef.current.put(`${BASE_URL}/${url}/${data.id}`, data, {
                 headers: {
                     'Content-Type': 'application/json',
                 },

@@ -109,7 +109,7 @@ const YearSelect = ({ value, onChange }) => {
         };
 
         fetchYears();
-    }, [onChange]);
+    }, []);
 
     // ... (isLoading conditional rendering)
 
