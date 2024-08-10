@@ -17,14 +17,23 @@ const ReportItems = () => {
         name: 'reportItems',
     });
 
-    const http = useHttp();
-    const customerSelect = useCallback(async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }, [http]);
+    const {methods} = useHttp();
 
-    const warehouseReceiptSelect = useCallback(async (searchQuery = '', yearId = '') => {
-        return await http.get(`/warehouse-receipts/select`,{searchQuery, yearId});
-    }, [http]);
+    const customerSelect = useCallback( async (inputValue) => {
+        return await methods.get({
+            'url' : 'customers/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
+
+    const warehouseReceiptSelect = useCallback(async (inputValue = '', yearId = '') => {
+        return await methods.get({
+            'url' : 'warehouse-receipts/select',
+            'params' : { 'searchQuery' : inputValue , 'yearId' : yearId},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    }, [methods]);
 
     const watchedFields = useWatch({
         name: 'reportItems',

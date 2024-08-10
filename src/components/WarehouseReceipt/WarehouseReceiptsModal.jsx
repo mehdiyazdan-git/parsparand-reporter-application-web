@@ -9,7 +9,6 @@ import {useFilter} from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
     max-height: 70vh; /* Adjust as needed */
-    overflow-y: auto;
 `;
 
 const CustomModal = styled(Modal)`
@@ -20,6 +19,7 @@ const CustomModal = styled(Modal)`
     .modal-dialog {
         width: auto;
         max-width: 90%; /* Adjust as needed */
+       
     }
 
     .modal-content {
@@ -28,6 +28,7 @@ const CustomModal = styled(Modal)`
         -webkit-backdrop-filter: blur(10px); /* For Safari support */
         border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.3);
+        
     }
 `;
 

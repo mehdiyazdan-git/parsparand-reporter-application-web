@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -17,11 +17,14 @@ const WarehouseReceiptItems = () => {
         name: 'warehouseReceiptItems',
     });
 
-    const http = useHttp();
-
-    const productSelect = async (searchQuery = '') => {
-        return await http.get(`/products/select`,searchQuery);
-    }
+    const {methods} = useHttp();
+    const productSelect = useCallback( async (inputValue) => {
+        return await methods.get({
+            'url' : 'products/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
 
     const watchedFields = useWatch({
         name: 'warehouseReceiptItems',

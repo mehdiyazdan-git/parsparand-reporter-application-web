@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CrudComponent from '../../utils/CrudComponent';
+import CrudComponent from '../contexts/CrudComponent';
 import CreatePaymentForm from './CreatePaymentForm';
 import EditPaymentForm from './EditPaymentForm';
 import { formatNumber } from '../../utils/functions/formatNumber';
@@ -22,8 +22,6 @@ const Payments = ({ customerId }) => {
                 return subject;
         }
     };
-
-
 
     const paymentColumns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
@@ -50,8 +48,8 @@ const Payments = ({ customerId }) => {
 
     return (
         <CrudComponent
-            url={'/payments'}
-            entityName="payments"
+            url={'payments'}
+            entityName={"payments"}
             columns={paymentColumns}
             createForm={<CreatePaymentForm />}
             editForm={<EditPaymentForm />}

@@ -47,7 +47,7 @@ const footerStyle = {
 };
 
 const MonthlyReport = () => {
-    const http = useHttp();
+    const {methods} = useHttp();
     const [years, setYears] = useState([]);
     const [filter, setFilter] = useState({
         search: {
@@ -108,11 +108,11 @@ const MonthlyReport = () => {
 
     useDeepCompareEffect(() => {
         const url = "reports/sales-by-month-and-product-type";
-        http.get(url, {...filter.search})
-            .then((data) => {
-                if (Array.isArray(data)) {
-                    const totalAmount = data.reduce((acc, row) => acc + row.totalAmount, 0);
-                    const updatedData = data.map(row => ({
+        methods.get({'url': url, params: {...filter.search}, headers: {}})
+            .then((res) => {
+                if (Array.isArray(res.data)) {
+                    const totalAmount = res.data.reduce((acc, row) => acc + row.totalAmount, 0);
+                    const updatedData = res.data.map(row => ({
                         customerName: row.customerName,
                         totalAmount: row.totalAmount,
                         totalQuantity: row.totalQuantity,
@@ -130,13 +130,13 @@ const MonthlyReport = () => {
                     }), {quantity: 0, cumulative_quantity: 0, amount: 0, cumulative_amount: 0});
                     setSubtotals(newSubtotals);
                 } else {
-                    console.error("Unexpected data format from API:", data);
+                    console.error("Unexpected data format from API:", res);
                 }
             })
             .catch((error) => {
                 console.error("Error fetching monthly report:", error);
             });
-    }, [filter, http]);
+    }, [filter, methods]);
 
     const subtotal = useCallback(
         () => monthlyReport.reduce((acc, curr) => acc + curr.totalAmount, 0),

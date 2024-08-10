@@ -3,7 +3,7 @@ import React from 'react';
 import EditProductForm from "./EditProductForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CreateProductForm from "./CreateProductForm";
-import CrudComponent from "../../utils/CrudComponent";
+import CrudComponent from "../contexts/CrudComponent";
 
 
 

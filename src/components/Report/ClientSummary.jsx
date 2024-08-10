@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 
 
 import styled from 'styled-components';
@@ -9,6 +9,7 @@ import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
 import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 import AsyncSelectSearch from "../table/AsyncSelectSearch";
+import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 
 
 
@@ -95,91 +96,56 @@ function toPersianFormat(number) {
 
 const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'long' }).format(new Date());
 
+const defaultData = {
+    clientSummaryList: [
+        {
+            contractNumber: '',
+            advancedPayment: '',
+            performanceBound: '',
+            insuranceDeposit: '',
+            salesAmount: '',
+            salesQuantity: '',
+            vat: ''
+        }
+    ],
+    notInvoicedReportDto: {
+        amount: '',
+        vat: '',
+        insurance: '',
+        performance: ''
+    },
+    returnedByCustomerId: '',
+    adjustmentReportDto: {
+        amount: '',
+        vat: '',
+        insurance: '',
+        performance: ''
+    },
+    totalPaymentByCustomerId: {
+        productPayment: '',
+        insuranceDepositPayment: '',
+        performanceBoundPayment: '',
+        advancedPayment: ''
+    },
+    remainingInsuranceDeposit: '',
+    remainingPerformanceBound: '',
+}
+
 const ClientSummary = () => {
-    const http = useHttp();
+    const {methods} = useHttp();
     const entityName = 'customerSummary';
     const {filter,updateSearch} = useFilter(entityName,{
     search : {
         customerId : ''
     }
     })
-    const [customers, setCustomers] = useState([{value:'',label:''}]);
-    const [customer,setCustomer] = useState(()=> {
-        if(filter.search && filter.search.customerId) {
-            return customers.find((item) => item.value === filter.search.customerId) || '';
-        } else {
-            return customers[0] || '';
-        }
+    const [customers,setCustomers] = useState([{'label' : '','value' : ''}]);
+    const [customer,setCustomer] = useState(() => {
+            return  (filter.search.customerId) ? customers.find(item => item.value === filter.search.customerId) : customers[0]
     });
-
-    useEffect(() => {
-        http.get(`customers/select`,'').then((data) => {
-            data.map((item) => {
-                item.label = item.name;
-                item.value = item.id;
-            });
-            setCustomers(data);
-            if(filter.search && filter.search.customerId) {
-                setCustomer(customers.find((item) => item.value === filter.search.customerId))
-            }else {
-                setCustomer(customers[0]);
-                updateSearch({customerId: customers[0].value});
-            }
-        });
-    },[]);
-
-
-    useEffect(() => {
-        if (!filter?.search?.customerId){
-            updateSearch({
-                customerId: customers[0].value
-            })
-        }
-        http.get(`customers/summary`,{
-            'customerId': filter.search.customerId || customers[0].value,
-        }).then((data) => {
-            setData(data);
-        });
-        setCustomer(customers.find((item) => item.value === filter.search.customerId));
-    },[customer,filter]);
-
-
-    const [data, setData] = useState({
-        clientSummaryList: [
-            {
-                contractNumber: '',
-                advancedPayment: '',
-                performanceBound: '',
-                insuranceDeposit: '',
-                salesAmount: '',
-                salesQuantity: '',
-                vat: ''
-            }
-        ],
-        notInvoicedReportDto: {
-            amount: '',
-            vat: '',
-            insurance: '',
-            performance: ''
-        },
-        returnedByCustomerId: '',
-        adjustmentReportDto: {
-            amount: '',
-            vat: '',
-            insurance: '',
-            performance: ''
-        },
-        totalPaymentByCustomerId: {
-            productPayment: '',
-            insuranceDepositPayment: '',
-            performanceBoundPayment: '',
-            advancedPayment: ''
-        },
-        remainingInsuranceDeposit: '',
-        remainingPerformanceBound: '',
-    });
-
+    const [data, setData] = useState(defaultData);
     const [showModal, setShowModal] = useState(false);
+    const [error,setError] = useState('');
 
     const handleShow = () => {
         setShowModal(true);
@@ -210,6 +176,108 @@ const ClientSummary = () => {
             }
         );
     }, [data.clientSummaryList]);
+
+    const fetchData = useCallback( async (customerId) => {
+        return  methods.get({
+            'url' : 'customers/summary',
+            'params' : { 'customerId' : customerId},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
+
+    const fetchCustomers = useCallback( async (inputValue) => {
+        return  methods.get({
+            'url' : 'customers/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
+
+
+
+    useEffect(() => {
+        const fetchAndProcessData = async () => {
+            try {
+                // 1. Fetch customers
+                const customersResponse = await fetchCustomers('');
+                setCustomers(customersResponse.data.map(customer => ({
+                    value: customer.id,
+                    label: customer.name
+                })));
+
+                // 2. Set the default customer (if available) or the first customer
+                let selectedCustomer = null;
+                if (filter?.search?.customerId) {
+                    selectedCustomer = customersResponse.data.find(c => c.id === filter.search.customerId);
+                }
+                if (!selectedCustomer && customersResponse.data.length > 0) {
+                    selectedCustomer = customersResponse.data[0];
+                    updateSearch({'customerId' : selectedCustomer.id}); // Update filter if no default customer
+                }
+                setCustomer(selectedCustomer ? { value: selectedCustomer.id, label: selectedCustomer.name } : null);
+
+                // 3. Fetch data based on selected customer ID (if available)
+                if (selectedCustomer) {
+                    const dataResponse = await fetchData(selectedCustomer.id);
+                    if (dataResponse && dataResponse?.data){
+                        setData(dataResponse.data);
+                    }
+                }
+            } catch (err) {
+                // Handle errors for fetching customers (similar to previous code)
+                if (err.response) {
+                    console.log('Error fetching customers (server error):', err.response.data);
+                    setError(err.response.data);
+                } else if (err.request) {
+                    console.log('Error fetching customers (network error):', err.message);
+                    setError('Network error. Please check your internet connection.');
+                } else {
+                    console.log('Error fetching customers (unexpected error):', err.message);
+                    setError('An error occurred while fetching customers. Please try again later.');
+                }
+                setCustomer(null); // Clear customer selection on error
+
+                // You might want to handle errors for fetching data here as well,
+                // similar to the previous code block, if needed.
+            }
+        };
+
+        fetchAndProcessData();
+    }, []);
+
+
+
+    useEffect(() => {
+        const fetchDataAndUpdateState = async () => {
+            try {
+                const dataResponse = await fetchData(filter.search.customerId);
+                if (dataResponse && dataResponse?.data) {
+                    setData(dataResponse.data);
+                }
+            } catch (err) {
+                if (err.response) {
+                    // Server responded with an error status code
+                    console.log('Error fetching data (server error):', err.response.data);
+                    setError(err.response.data);
+                } else if (err.request) {
+                    // The request was made but no response was received (likely a network error)
+                    console.log('Error fetching data (network error):', err.message);
+                    setError('Network error. Please check your internet connection.');
+                } else {
+                    // Something else happened while setting up the request
+                    console.log('Error fetching data (unexpected error):', err.message);
+                    setError('An error occurred while fetching data. Please try again later.');
+                }
+                setData(defaultData); // Set default data on any error
+            }
+        }
+
+        fetchDataAndUpdateState();
+    }, [filter.search.customerId]);
+
+
+
+
 
     const totalSalesQuantity = toPersianFormat(subtotals.salesQuantity + data.notInvoicedReportDto.quantity);
     const totalSalesAmount = toPersianFormat(
@@ -295,8 +363,11 @@ const ClientSummary = () => {
             <div className="row mt-3">
                 <AsyncSelectSearch
                         url={'customers/select'}
-                        value={customers.find(customer => customer.value === filter.search['customerId'])}
-                        onChange={value => updateSearch( value?.value ? {'customerId':value.value} : {customerId: ''})}
+                        value={customer}
+                        onChange={customer => {
+                            updateSearch(customer?.value ? {'customerId': customer.value} : {'customerId': ''})
+                            setCustomer(customer);
+                        }}
                     />
             </div>
 

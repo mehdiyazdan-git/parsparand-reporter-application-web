@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CrudComponent from '../../utils/CrudComponent';
+import CrudComponent from '../contexts/CrudComponent';
 import CreateReportForm from './CreateReportForm';
 import EditReportForm from './EditReportForm';
 import { toShamsi } from '../../utils/functions/toShamsi';

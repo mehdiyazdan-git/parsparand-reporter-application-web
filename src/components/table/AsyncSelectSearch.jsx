@@ -1,55 +1,72 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 import AsyncSelect from 'react-select/async';
 import {getCustomSelectStyles} from "../../utils/customStyles";
 import useHttp from "../contexts/useHttp";
 
-const AsyncSelectSearch = ({ url, value, onChange, width }) => {
+const AsyncSelectSearch = ({url, value, onChange, width}) => {
     const [selectedValue, setSelectedValue] = useState(null);
-    const http = useHttp();
-
-    useEffect(() => {
-        if (value) {
-            loadOptions(value.label) // Fetch options using the label
-                .then((options) => {
-                    const matchingOption = options.find((option) => option.value === value.value);
-                    setSelectedValue(matchingOption);
-                });
-        }
-    }, [value]);
-
+    const {methods} = useHttp();
 
     const loadOptions = async (inputValue) => {
         try {
-            const data = await http.get(url,{
-                'searchQuery' : inputValue
-            });
-            return data.map((item) => ({
-                value: item.id,
-                label: item.name,
-            }));
+            const res = await methods.get(
+                {
+                    'url': url,
+                    params : {'searchQuery': inputValue},
+                    'headers': {}
+                });
+            if (res && res?.data){
+                return res.data.map((item) => ({
+                    value: item.id,
+                    label: item.name,
+                }));
+            }else {
+                return [];
+            }
+
         } catch (error) {
             console.error('Error fetching data:', error);
             return [];
         }
     };
-
-    const handleChange = (newValue) => {
-        setSelectedValue(newValue);
-        onChange(newValue);
+    const onInputSelectChange = (inputValue) => {
+        if (inputValue === '') {
+            setSelectedValue(null);
+            if (onChange) {
+                onChange(null);
+            }
+        }
     };
-
+    const handleChange = (selectedOption) => {
+        setSelectedValue(selectedOption);
+        if (onChange) {
+            onChange(selectedOption);
+        }
+    };
     const handleClear = () => {
         setSelectedValue(null);
+        if (onChange) {
+            onChange(null);
+        }
     };
+    useEffect(() => {
+        // Set selectedValue based on the value prop when the component mounts or value prop changes
+        if (value) {
+            setSelectedValue({ value: value.value, label: value.label });
+        } else {
+            setSelectedValue(null);
+        }
+    }, [value]);
 
     return (
         <div width={width}>
             <AsyncSelect
                 cacheOptions
                 defaultOptions
-                value={selectedValue ? [selectedValue] : []}
+                value={selectedValue}
                 onChange={handleChange}
                 loadOptions={loadOptions}
+                onInputChange={onInputSelectChange}
                 placeholder="جستجو..."
                 styles={getCustomSelectStyles()} // Enable clear button styling
                 isClearable

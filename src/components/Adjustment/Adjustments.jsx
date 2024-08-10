@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CrudComponent from '../../utils/CrudComponent';
+import CrudComponent from '../contexts/CrudComponent';
 import CreateAdjustmentForm from './CreateAdjustmentForm';
 import EditAdjustmentForm from './EditAdjustmentForm';
 import { toShamsi } from '../../utils/functions/toShamsi';

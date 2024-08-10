@@ -6,7 +6,7 @@ import {toast} from "react-toastify";
 const SelectContainer = styled.div`
     display: flex;
     flex-direction: column;
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.1rem;
     width: 100%;
     max-width: 100%;
     @media (min-width: 640px) {
@@ -30,11 +30,11 @@ const SelectContainer = styled.div`
 const CustomSelect = styled.select`
   width: 100%;
   max-width: 100%;
-  height: 35px;
+  height: 40px;
   overflow-y: auto;
   margin: 0;
-  padding: 0 0.1rem;
-  border-radius: 0.25rem;
+  padding: 0 0.5rem;
+  border-radius: 0.1rem;
   font-size: 0.7rem;
   line-height: 0.875rem;
   color: #334155;
@@ -73,6 +73,24 @@ const CustomSelect = styled.select`
     border-color: #d1d5db;
     opacity: 0.5;
   }
+    /* Option Styling */
+    & option {
+        font-family: "IRANSans", sans-serif;
+        font-size: 0.7rem;
+        color: #334155;
+        text-align: right;
+        background-color: rgba(255, 255, 255, 0.5);
+        border: 1px #ccc solid; /* Default border */
+        &:hover {
+            background-color: #f3f4f6;
+            border-color: #ccc;
+            color: #334155;
+            font-family: "IRANSans", sans-serif;
+            font-size: 0.7rem;
+            text-align: right;
+            }
+        }
+    }
 `;
 
 
@@ -115,9 +133,15 @@ const YearSelect = ({ value, onChange }) => {
 
     return (
         <SelectContainer>
-            <CustomSelect value={value} onChange={(e) => { e.preventDefault(); onChange(e.target.value); }}>
+            <CustomSelect
+                value={value}
+                onChange={(e) => {
+                    e.preventDefault();
+                    onChange(e.target.value);
+                }}
+            >
                 {years.map((year) => (
-                    <option key={year.value} value={year.label}>
+                    <option key={year.value} value={year.label} >
                         {year.label}
                     </option>
                 ))}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -25,15 +25,23 @@ const CustomModalBody = styled(Modal.Body)`
 
 
 const EditWarehouseReceiptForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
+    const {methods} = useHttp();
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,'');
-    }
+    const yearSelect = useCallback( async (inputValue) => {
+        return await methods.get({
+            'url' : 'years/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
 
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
+    const customerSelect = useCallback( async (inputValue) => {
+        return await methods.get({
+            'url' : 'customers/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
 
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),

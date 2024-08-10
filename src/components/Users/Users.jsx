@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CrudComponent from '../../utils/CrudComponent';
+import CrudComponent from '../contexts/CrudComponent';
 import CreateUserForm from './CreateUserForm';
 import EditUserForm from './EditUserForm';
 

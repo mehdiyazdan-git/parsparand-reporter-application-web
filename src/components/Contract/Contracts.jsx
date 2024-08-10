@@ -1,6 +1,6 @@
 import React from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import CrudComponent from '../../utils/CrudComponent';
+import CrudComponent from '../contexts/CrudComponent';
 import CreateContractForm from './CreateContractForm';
 import EditContractForm from './EditContractForm';
 import { toShamsi } from '../../utils/functions/toShamsi';

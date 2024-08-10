@@ -2,7 +2,7 @@ import React from 'react';
 import EditCustomerForm from "./EditCustomerForm";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import CreateCustomerForm from "./CreateCustomerForm";
-import CrudComponent from "../../utils/CrudComponent";
+import CrudComponent from "../contexts/CrudComponent";
 
 const Customers = () => {
     const customerColumns = [

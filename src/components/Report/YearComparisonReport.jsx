@@ -18,7 +18,7 @@ const YearComparisonReport = () => {
     const [currentYearData, setCurrentYearData] = useState([]);
     const [previousYearData, setPreviousYearData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const http = useHttp();
+    const {methods} = useHttp();
 
     const [filter, setFilter] = useState(() => {
         const storedFilter = JSON.parse(sessionStorage.getItem("filter_year_comparison_report"));
@@ -47,11 +47,19 @@ const YearComparisonReport = () => {
 
             try {
                 const [currentYearResponse, previousYearResponse] = await Promise.all([
-                    http.get('reports/sales-by-year', { yearName: filter.currentYear, productType: filter.productType }),
-                    http.get('reports/sales-by-year', { yearName: filter.previousYear, productType: filter.productType })
+                    methods.get({
+                                        url : 'reports/sales-by-year',
+                                        params :{yearName: filter.currentYear, productType: filter.productType},
+                                        headers : {}
+                                        }),
+                     methods.get({
+                                        url : 'reports/sales-by-year',
+                                        params :{yearName: filter.previousYear, productType: filter.productType},
+                                        headers : {}
+                                    })
                 ]);
-                setCurrentYearData(currentYearResponse);
-                setPreviousYearData(previousYearResponse);
+                setCurrentYearData(currentYearResponse.data);
+                setPreviousYearData(previousYearResponse.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 toast.error("خطا در دریافت اطلاعات. لطفا مجددا تلاش کنید.", { autoClose: 3000 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import * as Yup from "yup";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
@@ -17,11 +17,15 @@ import CustomModal from "../../utils/CustomModal";
 import useHttp from "../contexts/useHttp";
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
+    const {methods} = useHttp();
 
-    const customerSelect = async (searchQuery) => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
+    const customerSelect = useCallback( async (inputValue) => {
+        return await methods.get({
+            'url' : 'customers/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
+    },[methods]);
 
 
 

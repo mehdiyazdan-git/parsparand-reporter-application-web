@@ -1,18 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, {useCallback, useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 import { SiMicrosoftexcel } from 'react-icons/si';
 import Modal from 'react-bootstrap/Modal';
 
-import useModalManager from '../hooks/useModalManager';
-import useDeepCompareEffect from '../hooks/useDeepCompareEffect';
-import useHttp from '../components/contexts/useHttp';
-import ButtonContainer from './ButtonContainer';
-import FileUpload from './FileUpload';
-import Button from './Button';
-import Table from '../components/table/Table';
-import YearSelect from '../components/Year/YearSelect';
-import { generateInitialFilters } from '../components/contexts/generateInitialFilters';
-import { BASE_URL } from '../config/config';
+import useModalManager from '../../hooks/useModalManager';
+import useDeepCompareEffect from '../../hooks/useDeepCompareEffect';
+import useHttp from './useHttp';
+import ButtonContainer from '../../utils/ButtonContainer';
+import FileUpload from '../../utils/FileUpload';
+import Button from '../../utils/Button';
+import Table from '../table/Table';
+import { generateInitialFilters } from './generateInitialFilters';
+import { BASE_URL } from '../../config/config';
 
 // ErrorModal Component
 const ErrorModal = ({ show, handleClose, errorMessage }) => (
@@ -39,12 +38,14 @@ ErrorModal.propTypes = {
 
 // CrudComponent
 const CrudComponent = ({
+                           url,
                            entityName,
                            columns,
                            createForm,
                            editForm,
                            hasYearSelect = false,
                            hasSubTotal = false,
+                           options
                        }) => {
     const {
         showModal,
@@ -60,104 +61,117 @@ const CrudComponent = ({
         closeErrorModal,
     } = useModalManager();
 
-    const { get, post, put, del } = useHttp();
-    const storageKey = `filter-${entityName}`;
+    const { methods } = useHttp();
     const [data, setData] = useState(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [yearsData, setYearsData] = useState([]);
-    ;
+    const [storageKey,setStorageKey] = useState(`filter_${entityName}`);
+    const [filter, setFilter] = useState(generateInitialFilters(columns));
+
+    const getParams = useCallback(() => {
+        const params = {}
+        Object.keys(filter.search).forEach((key) => {
+            params[key] = filter.search[key];
+        });
+        params['page'] = filter.pageable.page;
+        params['size'] = filter.pageable.size;
+        params['order'] = filter.sort.order;
+        params['sortBy'] = filter.sort.sortBy;
+
+        return params;
+    },[filter?.pageable?.page, filter?.pageable?.size, filter?.search, filter?.sort?.order, filter?.sort?.sortBy])
 
 
 
-    // Initialize filter with stored values or defaults
-    function initializeFilter() {
-        const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
-        return storedFilter ?? {
-            ...generateInitialFilters(columns),
-            jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4),
-        };
-    }
-    const [filter, setFilter] = useState(initializeFilter)
-    // Event handlers for filter updates
+
     const updateSearch = (newSearch) => {
-        setFilter((prev) => ({
-            ...prev,
-            search: { ...prev.search, ...newSearch },
-            pageable: { ...prev.pageable, page: 0 },
-        }));
+        setFilter({
+            ...filter,
+            search: { ...filter.search, ...newSearch },
+            pageable: { ...filter.pageable, page: 0 },
+        });
     };
 
     const updatePageable = (newPageable) => {
-        setFilter((prev) => ({ ...prev, pageable: { ...prev.pageable, ...newPageable } }));
+        setFilter({ ...filter, pageable: { ...filter.pageable, ...newPageable } });
     };
 
     const updateSort = (newSort) => {
-        setFilter((prev) => ({ ...prev, sort: { ...prev.sort, ...newSort } }));
+        setFilter({ ...filter, sort: { ...filter.sort, ...newSort } });
     };
 
     const resetFilter = () => {
         setFilter(generateInitialFilters(columns));
     };
 
-    const getParams = () => {
-        const params = new URLSearchParams();
-        Object.keys(filter.search).forEach((key) => {
-            params.append(key, filter.search[key]);
-        });
-        params.append('page', filter.pageable.page);
-        params.append('size', filter.pageable.size);
-        params.append('sortBy', filter.sort.sortBy);
-        params.append('order', filter.sort.order);
-        return params;
-    }
+
 
     // CRUD operations
     const findAll = useCallback(
         async (params) => {
             try {
-                const result = await get(entityName, params);
-                setData(result);
-            } catch (error) {
-                openErrorModal(error.message);
+                const res =  methods.get({
+                    url: `${entityName}`, // Adjust the URL as needed
+                    params,
+                });
+                if (res && res?.data)
+                setData(res.data);
+            } catch (err) {
+                setData({
+                    content : [],
+                    pageable : {
+                        pageNumber : 0,
+                        pageSize : 10,
+                    },
+                    totalElements : 0,
+                    totalPages : 0,
+                })
+                openErrorModal(err.message || 'An error occurred while fetching data.');
             }
         },
-        [get, entityName, openErrorModal]
+        [methods, entityName, openErrorModal]
     );
 
     const handleCreate = useCallback(
         async (newData) => {
             try {
-                await post(entityName, newData);
+                await methods.post({
+                    url: `${entityName}`,
+                    body: newData,
+                });
                 await findAll(getParams());
-            } catch (error) {
-                openErrorModal(error.message);
+            } catch (err) {
+                openErrorModal(err.message || 'An error occurred while creating data.');
             }
         },
-        [post, entityName, findAll, getParams, openErrorModal]
+        [methods, entityName, findAll, getParams, openErrorModal]
     );
 
     const handleUpdate = useCallback(
         async (updatedData) => {
             try {
-                await put(entityName, updatedData);
+                await methods.update({
+                    url: `${entityName}/${updatedData.id}`, // Assuming 'id' is the identifier
+                    body: updatedData,
+                });
                 await findAll(getParams());
-            } catch (error) {
-                openErrorModal(error.message);
+            } catch (err) {
+                openErrorModal(err.message || 'An error occurred while updating data.');
             }
         },
-        [put, entityName, findAll, getParams, openErrorModal]
+        [methods, entityName, findAll, getParams, openErrorModal]
     );
 
     const handleDelete = useCallback(
         async (id) => {
             try {
-                await del(entityName, id);
+                await methods.remove({
+                    url: `${entityName}/${id}`,
+                });
                 await findAll(getParams());
-            } catch (error) {
-                openErrorModal(error.message);
+            } catch (err) {
+                openErrorModal(err.message || 'An error occurred while deleting data.');
             }
         },
-        [del, entityName, findAll, getParams, openErrorModal]
+        [methods, entityName, findAll, getParams, openErrorModal]
     );
 
     const handleDownload = useCallback(
@@ -180,44 +194,65 @@ const CrudComponent = ({
 
 
 
-
-
     useEffect(() => {
-        const fetchYears =async () => {
-            setIsLoading(true);
-            try {
-                const [yearsResponse] = await Promise.all([
-                    fetch(`${BASE_URL}/${entityName}/select`),
-                    findAll(getParams()),
-                ]);
-                const years = await yearsResponse.json();
-                setYearsData(years.map((year) => ({ value: year.name.toString(), label: year.name.toString() })));
-            } catch (error) {
-                openErrorModal("An error occurred while fetching data.");
-            } finally {
-                setIsLoading(false);
+        if (options && typeof options === 'object') {
+            if (options?.storageKey) {
+                setStorageKey(options?.storageKey);
             }
+            const initialFilters = generateInitialFilters(columns, options);
+            setFilter(initialFilters);
+            sessionStorage.setItem(storageKey, JSON.stringify(initialFilters));
+        } else {
+            const initialFilters = generateInitialFilters(columns);
+            setFilter(initialFilters);
+            sessionStorage.setItem(storageKey, JSON.stringify(initialFilters));
         }
-        const fetchPageData = async (params) => {
-            return await get(`${entityName}`, params);
-        };
-         if (sessionStorage.getItem(storageKey)) {
-             const storedFilter = JSON.parse(sessionStorage.getItem(storageKey));
-              setFilter(storedFilter || {...generateInitialFilters(columns)});
-         }
-        fetchYears().then(() => {});
-        fetchPageData(getParams()).then((data) => setData(data))
+
+        methods.get({
+            url : `${entityName}`,
+            params : getParams(),
+            headers : {}
+        }).then(res => {
+            if (res && res?.data) {
+                setData(res.data)
+            }else {
+                setData({
+                    'content' : [],
+                    'pageable' : {
+                        'pageNumber': 0,
+                        'pageSize': 10,
+                    },
+                    'totalPages' : 0,
+                    'totalElements' : 0
+                })
+            }
+        })
     }, []);
 
 
 
     useDeepCompareEffect(() => {
         sessionStorage.setItem(storageKey, JSON.stringify(filter));
-        const fetchPageData = async (params) => {
-            return await get(entityName, params);
-        };
-        fetchPageData(getParams()).then((data) => setData(data));
-    }, [filter]);
+        methods.get({
+            url : `${entityName}`,
+            params : getParams(),
+            headers : {},
+        }).then((res) => {
+            if (res && res?.data){
+                setData(res.data)
+            }else {
+                setData({
+                    'content' : [],
+                    'pageable' : {
+                        'pageNumber' : 0,
+                        'pageSize' : 10,
+                    },
+                    'totalPages' : 0,
+                    'totalElements' : 0,
+                })
+            }
+        });
+    }, [filter,storageKey]);
 
     return (
         <div className="table-container">
@@ -227,12 +262,7 @@ const CrudComponent = ({
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
-                {hasYearSelect && (
-                    <YearSelect
-                        value={filter.search.jalaliYear}
-                        onChange={(value) => updateSearch({ 'jalaliYear': parseInt(value,10) })}
-                    />
-                )}
+
                 <SiMicrosoftexcel
                     onClick={() => handleDownload(getParams())}
                     size="2.2rem"

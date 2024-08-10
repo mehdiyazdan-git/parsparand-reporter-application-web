@@ -34,68 +34,42 @@ const CustomModal = styled(Modal)`
 `;
 
 const InvoicesModal = ({ contractNumber }) => {
-    const http = useHttp();
-    const entityName = "contract-invoice-modal";
-    const {  updateFieldsFilter } = useFilter(entityName);
     const [showModal, setShowModal] = useState(false);
-    const [contracts, setContracts] = useState([]);
-    const getAllContracts = async () => {
-        try {
-            const response = await http.get(`/http://localhost:9090/api/contracts?page=0&size=1000`,'');
-            return response.data.content;
-        }catch (e) {
-            console.log(e)
-        }
+    const handleShow = () => setShowModal(true);
+    const handleClose = () => setShowModal(false);
+
+    const options = {
+        storageKey : 'invoices_filtered_by_contractNo',
+        filters : {
+            search: {'contractNumber' : contractNumber}, // should be added to filter.search
+            excludes : ['jalaliYear'] // should be deleted from filter.search
+        },
     }
-
-    useEffect(() => {
-        const fetchContracts = async () => {
-            const contracts = await getAllContracts();
-            setContracts(contracts);
-        };
-        fetchContracts();
-    }, []);
-
-    const handleShow = () => {
-
-        updateFieldsFilter({
-            search : {contractNumber: contractNumber},
-            pageable : {
-                page: 0,
-                size: 10,
-            },
-           sort : {
-               sortBy: 'id',
-               order: 'asc',
-           },
-        });
-        setShowModal(true);
-    };
-
-    const handleClose = () => {
-        updateFieldsFilter({
-            search : {contractNumber: ''},
-            pageable : {
-                page: 0,
-                size: 10,
-            },
-            sort : {
-                sortBy: 'id',
-                order: 'asc',
-            },
-        });
-        setShowModal(false);
-    };
 
     return (
         <>
-            <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <CustomModal show={showModal} centered>
+            <IconEdit
+                color="green"
+                fontSize={"1rem"}
+                type={"button"}
+                onClick={handleShow}
+                aria-label="Edit Invoices"  // Add aria-label for accessibility
+            />
+
+            <CustomModal
+                show={showModal}
+                centered
+                aria-labelledby="invoices-modal-title" // Add aria-labelledby for accessibility
+                aria-modal="true"
+            >
+                <Modal.Header closeButton>
+                    <Modal.Title id="invoices-modal-title">Invoices</Modal.Title> {/* Add title for accessibility */}
+                </Modal.Header> {/* Add Modal.Header */}
                 <ModalBody>
                     <Invoices
-                        contractNumber={contractNumber}
-                        parent_list_name={entityName}
+                        options={options}
                     />
+                    {/* You can add error handling here if needed */}
                 </ModalBody>
                 <Modal.Footer>
                     <Button $variant="warning" type={"button"} onClick={handleClose}>

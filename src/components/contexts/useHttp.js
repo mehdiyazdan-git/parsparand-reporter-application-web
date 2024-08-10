@@ -1,82 +1,95 @@
 // src/hooks/useHttp.js
-import {useState, useCallback, useRef, useEffect} from 'react';
+import {useState, useRef} from 'react';
 import axios from 'axios';
 import {BASE_URL} from "../../config/config";
 import {useAuth} from "./useAuth";
 import {useNavigate} from "react-router-dom";
 
+const serializeParams = (params) => {
+    return Object.keys(params)
+        .map((key) => {
+            if (Array.isArray(params[key])) {
+                return params[key].map((value) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`).join('&');
+            } else if (typeof params[key] === 'object') {
+                return Object.keys(params[key]).map((subKey) => `${encodeURIComponent(key)}[${subKey}]=${encodeURIComponent(params[key][subKey])}`).join('&');
+            } else if (params[key] !== null && params[key] !== undefined) {
+                return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`;
+            } else if (params[key] === null || params[key] === undefined) {
+                return `${encodeURIComponent(key)}=${encodeURIComponent('')}`;
+            } else {
+                return `${encodeURIComponent(key)}=${encodeURIComponent(params[key])}`
+            }
+        })
+        .join('&');
+}
+
 const useHttp = () => {
-    const [error, setError] = useState(null);
     const {accessToken} = useAuth();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const abortControllerRef = useRef(null);
 
-    const httpRef = useRef(axios.create({ baseURL: BASE_URL }));
 
-    useEffect(() => {
-        // Add interceptors to the stored Axios instance
-        httpRef.current.interceptors.request.use(
-            config => {
-                if (accessToken) {
-                    config.headers['Authorization'] = `Bearer ${accessToken}`;
-                }
-                return config;
-            },
-            error => {
-                if (error.response) {
-                    if (error.response.status === 401) {
-                        console.log(error.response.data);
-                        navigate('/login');
-                    }
-                }
-                if (!error.response && error.request){
-                    console.log(error.request);
-                    navigate('/login');
-                }
-                return Promise.reject(error);
+    const request = async ({
+                                           url,
+                                           method = 'GET',
+                                           body = null,
+                                           params = null,
+                                           headers = {}
+                                       }) => {
+        if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+        setIsLoading(true);
+        setError(null);
+        abortControllerRef.current = new AbortController();
+
+        try {
+            const response = await axios({
+                url: `${BASE_URL}/${url}?${serializeParams(params)}`,
+                method,
+                data: body,
+                headers,
+                signal: abortControllerRef.current.signal,
+            });
+
+            setIsLoading(false);
+            return response;
+
+        } catch (err) {
+            setIsLoading(false);
+
+            if (err.response) {
+                // Handle specific error statuses
+                if (err.response.status === 401) navigate('/login');
+                else if (err.response.status === 403) navigate('/forbidden');
+                else if (err.response.status === 404) navigate('/not-found');
+                else if (err.response.status === 500) navigate('/internal-server-error');
+                // Handle other error statuses or generic API errors here
+                else setError(err.response.data || 'An error occurred during the request.');
+            } else if (err.request) {
+                // Handle network errors (e.g., no internet connection)
+                setError(() => 'Network error. Please check your internet connection.');
+            } else {
+                // Handle other unexpected errors
+                setError(() => 'An unexpected error occurred.');
             }
-        );
-        // Cleanup function to remove interceptors (optional, but good practice)
-        return () => {
-            // eslint-disable-next-line react-hooks/exhaustive-deps
-            httpRef.current.interceptors.request.eject(0); // Remove the first interceptor
-        };
-    }, [accessToken, navigate, httpRef]);
-
-    const serializeParams = (params) => {
-        const searchParams = new URLSearchParams();
-        for (const [key, value] of Object.entries(params)) {
-            if (value !== undefined) {
-                if (Array.isArray(value)) {
-                    value.forEach((item) => {
-                        searchParams.append(key, item.toString().trim());
-                    });
-                } else {
-                    searchParams.append(key, value.toString().trim());
-                }
-            }
+            throw err;
         }
-        return searchParams.toString();
     }
 
-
-    const get = async (url, params = {}) => {
-           return await httpRef.current.get(`${BASE_URL}/${url}?${serializeParams(params)}`);
-     }
-
-    const post = useCallback(async (url, data) => {
-      return  await httpRef.current.post(`${BASE_URL}/${url}`, data);
-
-    }, []);
-
-    const put = async (url, data) => {
-        return await httpRef.current.put(`${BASE_URL}/${url}/${data.id}`, data);
+    const methods = {
+        get: ({url, params, headers}) => request({url, method: 'GET', params, headers}),
+        post: ({url, body, headers}) => request({url, method: 'POST', body, headers}),
+        update: ({url, body, headers}) => request({url, method: 'PUT', body, headers}),
+        remove: ({url, body, headers}) => request({url, method: 'DELETE', body, headers}),
     }
 
-    const del = useCallback(async (url, id) => {
-        await httpRef.current.delete(`${BASE_URL}/${url}/${id}`);
-    }, []);
-
-    return { get, post, put, del, error, setError };
+    return {
+        isLoading,
+        error,
+        methods,
+        abortRequest: () => abortControllerRef.current?.abort(), // Optional chaining in case abortControllerRef is not yet set
+    };
 };
 
 export default useHttp;

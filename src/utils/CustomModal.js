@@ -20,6 +20,12 @@ const CustomModal = styled(Modal).attrs(props => ({
             -webkit-backdrop-filter: blur(10px); /* For Safari support */
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.3);
+              color: white;
+              font-size: 1.2rem;
+              font-weight: 500;
+              transition: all 0.3s ease-in-out;
+              box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+              
           }
         `;
 export default CustomModal;

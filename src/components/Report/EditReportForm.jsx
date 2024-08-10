@@ -16,10 +16,14 @@ import CustomModal from "../../utils/CustomModal";
 import useHttp from "../contexts/useHttp";
 
 const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
+    const {methods} = useHttp();
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,'');
+    const yearSelect = async (inputValue) => {
+        return await methods.get({
+            'url' : 'years/select',
+            'params' : { 'searchQuery' : inputValue},
+            'headers' : { 'Accept' : 'application/json' }
+        });
     }
 
     const validationSchema = Yup.object().shape({
