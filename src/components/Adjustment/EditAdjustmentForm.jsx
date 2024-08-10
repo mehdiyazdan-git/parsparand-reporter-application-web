@@ -15,19 +15,18 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
 import CustomModal from "../../utils/CustomModal";
-import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 
 
 
 const EditAdjustmentForm = ({ editingEntity, onUpdateEntity, show, onHide,entityName }) => {
-    const http = useHttp();
+    const {methods} = useHttp();
 
-    const {filter} = useFilter(entityName);
+    const selectInvoices = async (inputValue) => {
+        const response = await methods.get(`invoice/get-invoices?search=${inputValue}`);
+        return response.data;
+    };
 
-    const invoiceSelect = async (searchQuery) => {
-        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filter?.jalaliYear && filter.jalaliYear.label}`);
-    }
 
     const validationSchema = Yup.object().shape({
         adjustmentType: Yup.string().required('نوع تعدیل الزامیست.'),
@@ -92,7 +91,7 @@ const EditAdjustmentForm = ({ editingEntity, onUpdateEntity, show, onHide,entity
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={selectInvoices} />
                                     </Col>
                                     <Col>
                                         <DateInput name="adjustmentDate" label={"تاریخ تعدیل"} />

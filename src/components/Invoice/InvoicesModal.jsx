@@ -6,7 +6,6 @@ import Button from "../../utils/Button";
 import Invoices from "./Invoices";
 
 import styled from 'styled-components';
-import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 
 const ModalBody = styled(Modal.Body)`

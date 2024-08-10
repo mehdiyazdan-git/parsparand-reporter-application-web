@@ -3,56 +3,40 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
-import {useFilter} from "../contexts/useFilter";
-import {filterToSearchParams} from "../contexts/filterToSearchParams";
+import useHttp from "../contexts/useHttp";
 
-const response = {
-    content: [],
-    pageable: {
-        pageNumber: 0,
-        pageSize: 10,
-        sort: {
-            empty: false,
-            sorted: true,
-            unsorted: false
-        },
-        offset: 0,
-        unpaged: false,
-        paged: true
-    },
-    last: false,
-    subTotals : {
-        'totalPrice': {
-            'page_subtotal' : 0,
-            'overall_subtotal' : 0
-        },
-        'totalQuantity': {
-            'page_subtotal' : 0,
-            'overall_subtotal' : 0
-        }
-    },
-    size: 10,
-    number: 0,
-    numberOfElements: 0,
-    first: true,
-    empty: false
-};
 
-const TableFooter = ({columns, hasSubTotal, entityName}) => {
 
-   const {filter,filteredData} = useFilter(entityName);
 
-   const params = filterToSearchParams(filter);
 
-    const downloadExcelFile = async () => {
-       return;
-    };
-
+const TableFooter = ({data,columns, hasSubTotal, entityName,filter}) => {
+   const {download} = useHttp();
 
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
         : columns.length;
 
+    const downloadExcelFile = async (exportAll) => {
+        const _params = {};
+
+        Object.keys(filter.search).forEach(key => {
+            if (filter.search[key]) {
+                _params[key] = filter.search[key];
+            }
+            if (exportAll) {
+                _params['page'] = 0;
+                _params['size'] = 10000;
+            } else {
+                _params['page'] = filter.page;
+                _params['size'] = filter.size;
+            }
+        });
+
+        const url = `${entityName}/download-all-${entityName}.xlsx`;
+        const fileName = `${entityName}.xlsx`;
+
+        await download({ url, params: _params, fileName });
+    }
 
 
     return (
@@ -63,14 +47,14 @@ const TableFooter = ({columns, hasSubTotal, entityName}) => {
                 {columns.map((column) =>
                     column.subtotal ? (
                         <td className="subtotal-col" key={column.key}>
-                            {formatNumber(filteredData?.subtotals?.pageSubtotal)}
+                            {formatNumber(data?.subtotals?.pageSubtotal)}
                         </td>
                     ) : null
                 )}
                 <td>
                     <SiMicrosoftexcel
                         data-tooltip-id="export-current-page-to-excel-button"
-                        onClick={downloadExcelFile}
+                        onClick={()=>downloadExcelFile(false)}
                         size={"1.3rem"}
                         className={"mx-1"}
                         color={"#41941a"}
@@ -83,14 +67,14 @@ const TableFooter = ({columns, hasSubTotal, entityName}) => {
                 {columns.map((column) =>
                     column.subtotal ? (
                         <td className="subtotal-col" key={column.key}>
-                            {formatNumber(filteredData?.subtotals?.overallSubtotal)}
+                            {formatNumber(data?.subtotals?.overallSubtotal)}
                         </td>
                     ) : null
                 )}
                 <td>
                     <SiMicrosoftexcel
                         data-tooltip-id="export-total-query-to-excel-button"
-                        onClick={() => downloadExcelFile(true)}
+                        onClick={()=>downloadExcelFile(true)}
                         size={"1.3rem"}
                         className={"mx-1"}
                         color={"#41941a"}

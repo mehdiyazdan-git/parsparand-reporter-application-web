@@ -64,7 +64,36 @@ const CrudComponent = ({
     const { methods } = useHttp();
     const [data, setData] = useState(null);
     const [storageKey,setStorageKey] = useState(`filter_${entityName}`);
-    const [filter, setFilter] = useState(generateInitialFilters(columns));
+
+    const [filter, setFilter] = useState(()=> {
+        const storedFilter = sessionStorage.getItem(storageKey);
+        if (!storedFilter){
+            sessionStorage.setItem(storageKey, JSON.stringify(generateInitialFilters(columns)));
+        }
+        return JSON.parse(storedFilter);
+    });
+
+    const updateSearch = (newSearch) => {
+        setFilter({
+            ...filter,
+            search: { ...filter.search, ...newSearch },
+            pageable: { ...filter.pageable, page: 0 },
+        });
+    };
+
+
+    const updatePageable = (newPageable) => {
+        setFilter({ ...filter, pageable: { ...filter.pageable, ...newPageable } });
+    };
+
+    const updateSort = (newSort) => {
+        setFilter({ ...filter, sort: { ...filter.sort, ...newSort } });
+    };
+
+    const resetFilter = () => {
+        setFilter(generateInitialFilters(columns));
+    };
+
 
     const getParams = useCallback(() => {
         const params = {}
@@ -78,29 +107,6 @@ const CrudComponent = ({
 
         return params;
     },[filter?.pageable?.page, filter?.pageable?.size, filter?.search, filter?.sort?.order, filter?.sort?.sortBy])
-
-
-
-
-    const updateSearch = (newSearch) => {
-        setFilter({
-            ...filter,
-            search: { ...filter.search, ...newSearch },
-            pageable: { ...filter.pageable, page: 0 },
-        });
-    };
-
-    const updatePageable = (newPageable) => {
-        setFilter({ ...filter, pageable: { ...filter.pageable, ...newPageable } });
-    };
-
-    const updateSort = (newSort) => {
-        setFilter({ ...filter, sort: { ...filter.sort, ...newSort } });
-    };
-
-    const resetFilter = () => {
-        setFilter(generateInitialFilters(columns));
-    };
 
 
 
@@ -177,7 +183,7 @@ const CrudComponent = ({
     const handleDownload = useCallback(
         async (params) => {
             try {
-                const response = await fetch(`${BASE_URL}/${entityName}/export?${params.toString()}`);
+                const response = await fetch(`${BASE_URL}/${entityName}/download?${getParams().toString()}`);
                 const blob = await response.blob();
                 const url = window.URL.createObjectURL(new Blob([blob]));
                 const link = document.createElement('a');
@@ -194,19 +200,8 @@ const CrudComponent = ({
 
 
 
+
     useEffect(() => {
-        if (options && typeof options === 'object') {
-            if (options?.storageKey) {
-                setStorageKey(options?.storageKey);
-            }
-            const initialFilters = generateInitialFilters(columns, options);
-            setFilter(initialFilters);
-            sessionStorage.setItem(storageKey, JSON.stringify(initialFilters));
-        } else {
-            const initialFilters = generateInitialFilters(columns);
-            setFilter(initialFilters);
-            sessionStorage.setItem(storageKey, JSON.stringify(initialFilters));
-        }
 
         methods.get({
             url : `${entityName}`,
@@ -232,7 +227,7 @@ const CrudComponent = ({
 
 
     useDeepCompareEffect(() => {
-        sessionStorage.setItem(storageKey, JSON.stringify(filter));
+
         methods.get({
             url : `${entityName}`,
             params : getParams(),
@@ -240,6 +235,7 @@ const CrudComponent = ({
         }).then((res) => {
             if (res && res?.data){
                 setData(res.data)
+                sessionStorage.setItem(storageKey, JSON.stringify(filter));
             }else {
                 setData({
                     'content' : [],
@@ -252,7 +248,7 @@ const CrudComponent = ({
                 })
             }
         });
-    }, [filter,storageKey]);
+    }, [filter]);
 
     return (
         <div className="table-container">
@@ -292,6 +288,8 @@ const CrudComponent = ({
                 updatePageable={updatePageable}
                 updateSort={updateSort}
                 getParams={getParams}
+                onDownloadExcelFile={handleDownload}
+                entityName={entityName}
             />
 
             {editingEntity && editForm && React.cloneElement(editForm, {

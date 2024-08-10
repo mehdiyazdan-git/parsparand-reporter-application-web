@@ -5,7 +5,6 @@ import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import WarehouseReceipts from "./WarehouseReceipts";
 import styled from 'styled-components';
-import {useFilter} from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
     max-height: 70vh; /* Adjust as needed */
@@ -34,23 +33,14 @@ const CustomModal = styled(Modal)`
 
 const WarehouseReceiptsModal = ({ customerId }) => {
     const entityName = "not-invoiced-modal";
-    const { filter, updateSearch } = useFilter(entityName, {
-        page: 0,
-        pageSize: 10,
-        sortBy: 'id',
-        order: 'asc',
-    });
+
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        updateSearch("customerId", customerId);
-        updateSearch('notInvoiced', true);
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateSearch("customerId", null);
-        updateSearch('notInvoiced', false);
         setShowModal(false);
     };
 

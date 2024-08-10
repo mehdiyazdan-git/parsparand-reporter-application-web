@@ -33,18 +33,18 @@ const CustomModal = styled(Modal)`
 
 const PaymentsModal = ({ customerId }) => {
     const listName = "payments-modal";
-    const { filter, updateFieldFilter } = useFilter(listName);
+    const { filter, updateSearch } = useFilter(listName);
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
         if (!filter?.customerId || filter?.customerId !== customerId) {
-            updateFieldFilter('customerId',customerId);
+            updateSearch('customerId',customerId);
         }
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFieldFilter({ customerId: null });
+        updateSearch({ customerId: null });
         setShowModal(false);
     };
 

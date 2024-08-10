@@ -6,10 +6,9 @@ import PaymentsModal from "../Payment/paymentsModal";
 import AdjustmentsModal from "../Adjustment/AdjustmentsModal";
 import InvoicesModal from "../Invoice/InvoicesModal";
 import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
-import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 import AsyncSelectSearch from "../table/AsyncSelectSearch";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
+import {useFilter} from "../contexts/useFilter";
 
 
 

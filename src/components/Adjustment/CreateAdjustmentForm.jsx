@@ -19,12 +19,13 @@ import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 
 const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
-    const http = useHttp();
-    const {filter} = useFilter(entityName);
 
-    const invoiceSelect = async (searchQuery) => {
-        return await http.get(`/invoices/select?searchQuery=${searchQuery}&jalaliYear=${filter.years?.jalaliYear && filter.years.jalaliYear.label}`);
-    }
+    const {methods} = useHttp();
+
+    const selectInvoices = async (inputValue) => {
+        const response = await methods.get(`invoice/get-invoices?search=${inputValue}`);
+        return response.data;
+    };
 
     const validationSchema = Yup.object().shape({
         adjustmentType: Yup.string().required('نوع تعدیل الزامیست.'),
@@ -97,7 +98,7 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={invoiceSelect} />
+                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={selectInvoices} />
                                     </Col>
                                     <Col>
                                         <DateInput name="adjustmentDate" label={"تاریخ تعدیل"} />

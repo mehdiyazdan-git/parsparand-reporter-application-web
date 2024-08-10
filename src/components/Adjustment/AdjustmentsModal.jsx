@@ -20,23 +20,13 @@ const CustomModal = styled(Modal)`
 `;
 
 const AdjustmentsModal = ({ customerId }) => {
-    const listName = "adjustments-modal";
-    const { updateFilterField } = useFilter(listName, {
-        customerId: customerId,
-        page: 0,
-        size: 10,
-        sortBy: 'id',
-        order: 'asc',
-    });
-    const [showModal, setShowModal] = useState(false);
 
+    const [showModal, setShowModal] = useState(false);
     const handleShow = () => {
-        updateFilterField('customerId',customerId);
         setShowModal(true);
     };
 
     const handleClose = () => {
-        updateFilterField('customerId','');
         setShowModal(false);
     };
 

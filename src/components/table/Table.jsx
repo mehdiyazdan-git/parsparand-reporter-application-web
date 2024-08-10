@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect} from 'react';
+import React, {useCallback} from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
@@ -14,7 +14,7 @@ import yearSelectStyle from '../styles/yearSelectStyle';
 const Table = ({
                    data, columns,  onDelete, onResetPassword, entityName,
                    downloadExcelFile, hasYearSelect,hasSubTotal,resetFilter,
-                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,onUpdateEntity,onEdit
+                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,getParams,onEdit
                }) => {
 
 
@@ -67,6 +67,8 @@ const Table = ({
                     entityName={entityName}
                     hasSubTotal={hasSubTotal}
                     data={data?.content || []}
+                    getParams={getParams}
+                    filter={filter}
                 />
             </table>
                 <Pagination

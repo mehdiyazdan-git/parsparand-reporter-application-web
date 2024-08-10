@@ -7,7 +7,7 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('ورود اطلاعات با فایل اکسل...');
     const [uploadStatus, setUploadStatus] = useState('');
-    const http = useHttp();
+    const { upload, isLoading, error } = useHttp();
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -21,11 +21,9 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
             setUploadStatus('لطفاً ابتدا یک فایل انتخاب کنید.');
             return;
         }
-        const formData = new FormData();
-        formData.append('file', file);
 
         try {
-            const response = await http.post(uploadUrl, formData);
+            const response = await upload({ url: uploadUrl, file });
             if (response.status === 200) {
                 setUploadStatus('فایل با موفقیت آپلود شد.');
                 setRefreshTrigger(refreshTrigger + 1);
@@ -45,8 +43,6 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
         }
     };
 
-
-
     return (
         <Container>
             <Label htmlFor="file-upload">{fileName}</Label>
@@ -57,14 +53,20 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
                 accept=".pdf, .doc, .docx, .xls, .xlsx, .jpg, .jpeg, .png, .txt"
                 style={{ display: 'none' }}
             />
-            <Button onClick={handleUpload}>آپلود</Button>
+            <Button onClick={handleUpload} disabled={isLoading}>
+                آپلود
+            </Button>
             {uploadStatus && (
                 <Status isSuccess={uploadStatus === 'فایل با موفقیت آپلود شد.'}>
                     {uploadStatus}
                 </Status>
             )}
+            {error && (
+                <Status isSuccess={false}>
+                    {error}
+                </Status>
+            )}
         </Container>
-
     );
 };
 
