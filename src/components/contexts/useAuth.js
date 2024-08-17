@@ -1,53 +1,80 @@
-import {createContext, useState} from "react";
-import axios from "axios";
-import {BASE_URL} from "../../config/config";
+import { useState, useEffect } from 'react';
 
-const AuthContext = createContext();
+const useAuth = () => {
+    const tokenStorageKey = 'auth_token';
+    const usernameStorageKey = 'auth_username';
+    const userRoleStorageKey = 'auth_userRole';
 
-const useAuth = (
-) => {
-    const [accessToken, setAccessToken] = useState(null);
-    const [username, setUsername] = useState(null);
-    const [userRole, setUserRole] = useState(null);
+    // Get initial auth state from sessionStorage
+    const getInitialAuthState = () => {
+        const storedToken = sessionStorage.getItem(tokenStorageKey);
+        const storedUsername = sessionStorage.getItem(usernameStorageKey);
+        const storedUserRole = sessionStorage.getItem(userRoleStorageKey);
 
-    const api = axios.create({
-        baseURL: BASE_URL, // Replace with your backend URL
-    });
+        return storedToken
+            ? {
+                isAuthenticated: true,
+                token: storedToken,
+                username: storedUsername || '',
+                userRole: storedUserRole || '',
+            }
+            : {
+                isAuthenticated: false,
+                token: null,
+                username: '',
+                userRole: '',
+            };
+    };
 
-    const login = async (username, password) => {
-        try {
-            const response = await api.post("/auth/login", { username, password });
-            setAccessToken(response.data.accessToken);
-            setUsername(response.data.username);
-            setUserRole(response.data.role);
+    const [authState, setAuthState] = useState(getInitialAuthState);
 
-            // Store the values in session storage
-            sessionStorage.setItem("accessToken", response.data.accessToken);
-            sessionStorage.setItem("username", response.data.username);
-            sessionStorage.setItem("userRole", response.data.role);
-        } catch (error) {
-            console.error(error);
+    useEffect(() => {
+        if (authState.isAuthenticated) {
+            sessionStorage.setItem(tokenStorageKey, authState.token);
+            sessionStorage.setItem(usernameStorageKey, authState.username);
+            sessionStorage.setItem(userRoleStorageKey, authState.userRole);
+        } else {
+            sessionStorage.removeItem(tokenStorageKey);
+            sessionStorage.removeItem(usernameStorageKey);
+            sessionStorage.removeItem(userRoleStorageKey);
         }
+    }, [authState]);
+
+    const login = (token, username, userRole) => {
+        setAuthState({
+            isAuthenticated: true,
+            token,
+            username,
+            userRole,
+        });
     };
 
     const logout = () => {
-        setAccessToken(null);
-        setUsername(null);
-        setUserRole(null);
-
-        // Remove the values from session storage
-        sessionStorage.removeItem("accessToken");
-        sessionStorage.removeItem("username");
-        sessionStorage.removeItem("userRole");
+        setAuthState({
+            isAuthenticated: false,
+            token: null,
+            username: '',
+            userRole: '',
+        });
     };
 
+    const isAuthenticated = () => authState.isAuthenticated;
+
+    const getToken = () => authState.token;
+
+    const getUsername = () => authState.username;
+
+    const getUserRole = () => authState.userRole;
+
     return {
-        accessToken,
-        username,
-        userRole,
+        authState,
         login,
-        logout
+        logout,
+        isAuthenticated,
+        getToken,
+        getUsername,
+        getUserRole,
     };
 };
 
-export { useAuth, AuthContext };
+export default useAuth;

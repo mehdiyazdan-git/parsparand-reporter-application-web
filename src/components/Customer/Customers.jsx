@@ -5,7 +5,7 @@ import CreateCustomerForm from "./CreateCustomerForm";
 import CrudComponent from "../contexts/CrudComponent";
 
 const Customers = () => {
-    const customerColumns = [
+    const columns = [
         { key: 'id', title: 'شناسه', width: '5%', sortable: true },
         { key: 'name', title: 'نام', width: '15%', sortable: true, searchable: true },
         { key: 'phone', title: 'تلفن', width: '15%', sortable: true, searchable: true },
@@ -27,7 +27,7 @@ const Customers = () => {
         <CrudComponent
             url={'/customers'}
             entityName="customers"
-            columns={customerColumns}
+            columns={columns}
             createForm={<CreateCustomerForm />}
             editForm={<EditCustomerForm />}
         />

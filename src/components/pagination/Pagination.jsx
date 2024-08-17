@@ -4,7 +4,7 @@ import './Pagination.css';
 import PageSizeSelector from './PageSizeSelector';
 
 
-const Pagination = ({ data,filter,updatePageable }) => {
+const Pagination = ({ data,filter,updatePagination }) => {
 
 
     const totalPages = data?.totalPages || 0;
@@ -16,17 +16,21 @@ const Pagination = ({ data,filter,updatePageable }) => {
     const endIndex = data?.last ? totalElements : (currentPage * pageSize) + pageSize;
 
 
-    const handleSizeChange = (newSize) => {
-        updatePageable({ page : 0 , size : newSize });
+    const handleSizeChange = (e) => {
+        e.preventDefault();
+        const newSize = parseInt(e.target.value, 10);
+        updatePagination({ page : 0 , size : newSize });
     };
 
     const goToPage = (pageNo) => {
-        updatePageable({ page : pageNo , size : pageSize });
+        updatePagination({ page : pageNo , size : pageSize });
     };
 
     return (
         <div className="pagination">
-            <PageSizeSelector size={pageSize} handleSizeChange={handleSizeChange} />
+            <PageSizeSelector
+                size={pageSize}
+                handleSizeChange={handleSizeChange} />
             <div className="page-info">
                 {`${startIndex} تا ${endIndex} از ${totalElements}`}
             </div>

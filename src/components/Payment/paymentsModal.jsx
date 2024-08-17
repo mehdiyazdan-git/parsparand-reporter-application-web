@@ -3,9 +3,9 @@ import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Payments from "./Payments";
-import Button from "../../utils/Button";
 import styled from 'styled-components';
-import {useFilter} from "../contexts/useFilter";
+import useFilter from "../contexts/useFilter";
+
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -43,7 +43,8 @@ const PaymentsModal = ({ customerId }) => {
         setShowModal(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (e) => {
+        e.preventDefault()
         updateSearch({ customerId: null });
         setShowModal(false);
     };
@@ -56,9 +57,12 @@ const PaymentsModal = ({ customerId }) => {
                     <Payments customerId={customerId} />
                 </ModalBody>
                 <Modal.Footer>
-                    <Button $variant="warning" onClick={handleClose}>
+                    <button
+                        className='btn btn-warning btn-sm'
+                        type={'button'}
+                        onClick={e=>handleClose(e)}>
                         بستن
-                    </Button>
+                    </button>
                 </Modal.Footer>
             </CustomModal>
         </>

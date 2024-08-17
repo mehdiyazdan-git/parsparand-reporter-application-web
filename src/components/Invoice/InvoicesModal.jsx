@@ -35,7 +35,10 @@ const CustomModal = styled(Modal)`
 const InvoicesModal = ({ contractNumber }) => {
     const [showModal, setShowModal] = useState(false);
     const handleShow = () => setShowModal(true);
-    const handleClose = () => setShowModal(false);
+    const handleClose = (e) => {
+        e.preventDefault()
+        setShowModal(false);
+    }
 
     const options = {
         storageKey : 'invoices_filtered_by_contractNo',
@@ -62,7 +65,7 @@ const InvoicesModal = ({ contractNumber }) => {
                 aria-modal="true"
             >
                 <Modal.Header closeButton>
-                    <Modal.Title id="invoices-modal-title">Invoices</Modal.Title> {/* Add title for accessibility */}
+                    <Modal.Title id="invoices-modal-title">Invoices</Modal.Title>
                 </Modal.Header> {/* Add Modal.Header */}
                 <ModalBody>
                     <Invoices
@@ -71,7 +74,7 @@ const InvoicesModal = ({ contractNumber }) => {
                     {/* You can add error handling here if needed */}
                 </ModalBody>
                 <Modal.Footer>
-                    <Button $variant="warning" type={"button"} onClick={handleClose}>
+                    <Button $variant="warning" type={"button"} onClick={e=>handleClose(e)}>
                         بستن
                     </Button>
                 </Modal.Footer>

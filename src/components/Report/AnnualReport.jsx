@@ -30,7 +30,7 @@ const AnnualReport = () => {
     const [scraptData, setScrapData] = useState([]);
     const [rawMaterialData, setRawMaterialData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const http = useHttp();
+    const {getAll} = useHttp();
 
     const handleFilterChange = useCallback((newFilter) => {
         setFilter((prevFilter) => {
@@ -49,13 +49,13 @@ const AnnualReport = () => {
 
             try {
                 const [productData,scraptData,rawMaterialData] = await Promise.all([
-                    http.get('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.MAIN }),
-                    http.get('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.SCRAPT }),
-                    http.get('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.RAWMATERIAL })
+                    getAll('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.MAIN }),
+                    getAll('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.SCRAPT }),
+                    getAll('reports/sales-by-year', { yearName: filter.yearName, productType: productTypes.RAWMATERIAL })
                 ]);
-                    setProductData(productData);
-                    setScrapData(scraptData);
-                    setRawMaterialData(rawMaterialData);
+                    setProductData(productData.data);
+                    setScrapData(scraptData.data);
+                    setRawMaterialData(rawMaterialData.data);
             } catch (error) {
                 console.error("Error fetching data:", error);
                 toast.error("خطا در دریافت اطلاعات. لطفا مجددا تلاش کنید.", { autoClose: 3000 });

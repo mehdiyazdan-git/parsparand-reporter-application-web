@@ -1,17 +1,17 @@
 import React from "react";
 
-const TableHeader = ({ columns, filter, updateFilter }) => {
+const TableHeader = ({ columns, filter, updateSorting }) => {
 
     const handleSort = (key) => {
-        if (key === filter?.sort?.sortBy) {
+        if (key === filter?.sorting?.sortBy) {
 
-                if (filter?.sort?.order === "desc") {
-                    updateFilter({ ...filter, "sort": { "sortBy": key, "order": "asc" } });
+                if (filter?.sorting?.order === "desc") {
+                    updateSorting({ ...filter, "sorting": { "sortBy": key, "order": "asc" } });
                 } else {
-                    updateFilter({ ...filter, "sort": { "sortBy": key, "order": "desc" } });
+                    updateSorting({ ...filter, "sorting": { "sortBy": key, "order": "desc" } });
                 }
         } else {
-            updateFilter({ ...filter, "sort": { "sortBy": key, "order": "desc" } });
+            updateSorting({ ...filter, "sorting": { "sortBy": key, "order": "desc" } });
         }
     };
 
@@ -22,10 +22,10 @@ const TableHeader = ({ columns, filter, updateFilter }) => {
                 <th
                     key={column.key}
                     onClick={() => handleSort(column.key)}
-                    style={column.key === filter?.order?.sortBy ? {cursor: "pointer"} : null}
+                    style={column.key === filter?.sorting?.sortBy ? {cursor: "pointer"} : null}
                 >
                     {column.title}
-                    {column.key === filter?.order?.sortBy && <span>{filter?.sort?.order === "asc" ? "▲" : "▼"}</span>}
+                    {column.key === filter?.sorting?.sortBy && <span>{filter?.sorting?.order === "asc" ? "▲" : "▼"}</span>}
                 </th>
 
             ))}

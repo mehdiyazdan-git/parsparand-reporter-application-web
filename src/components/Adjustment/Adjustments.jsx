@@ -16,7 +16,7 @@ const convertToPersianCaption = (subject) => {
             return subject;
     }
 };
-const Adjustments = () => {
+const Adjustments = ({customerId}) => {
     const adjustmentColumns = useMemo(() => [
         { key: 'id', title: 'شناسه', width: '2%', sortable: true },
         { key: 'adjustmentNumber', title: 'شماره تعدیل', width: '5%', sortable: true, searchable: true },

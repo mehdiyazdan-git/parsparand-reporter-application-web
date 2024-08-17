@@ -15,7 +15,6 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
 import CustomModal from "../../utils/CustomModal";
-import {useFilter} from "../contexts/useFilter";
 import useHttp from "../contexts/useHttp";
 
 const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {

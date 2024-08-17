@@ -1,4 +1,5 @@
-export default function deepMerge(obj1, obj2) {
+
+const deepMerge = (obj1, obj2) => {
     const result = { ...obj1 };
 
     for (let key in obj2) {
@@ -12,4 +13,5 @@ export default function deepMerge(obj1, obj2) {
     }
 
     return result;
-}
+};
+export default deepMerge

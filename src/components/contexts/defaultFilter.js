@@ -1,5 +1,8 @@
+import {useMemo} from 'react';
 
-    const defaultFilter = {
+const DefaultFilter = () => {
+
+    return useMemo(() => ({
         search: {},
         pageable: {
             page: 0,
@@ -8,7 +11,8 @@
         sort: {
             order: 'asc',
             sortBy: 'id',
-        },
-        subTotals: []
-    };
-    export default defaultFilter;
+        }
+    }), []);
+};
+
+export default DefaultFilter;

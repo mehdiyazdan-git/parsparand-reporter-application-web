@@ -1,64 +1,76 @@
-import {createContext, useState} from "react";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
+import { useState, useEffect } from 'react';
 
-const FilterContext = createContext();
+const useFilter = (entityListName,initialFilter) => {
+    const storageKey = `filter_${entityListName}`;
 
+    const filterSchema = {
+        search: {},
+        pagination: {
+            page: 0,
+            size: 10,
+        },
+        sorting: {
+            order: 'asc',
+            sortBy: 'id',
+        },
+    };
 
+    const getInitialFilters = (storageKey) => {
+        const storedFilters = sessionStorage.getItem(storageKey);
+        return storedFilters ? JSON.parse(storedFilters) : initialFilter || filterSchema; // if initialFilter is passed then use it else use filterSchema
+    };
 
-const useFilter = (entityName,initialValues = {
-    search: {},
-    pageable: {
-        page: 0,
-        size: 10
-    },
-    sort: {
-        order: 'asc',
-        sortBy: 'id',
-    },
-    subTotals: []
-},
-
-    storageKey = `filter-${entityName}`) => {
-
-    const [filter, setFilter] = useState(
-        JSON.parse(sessionStorage.getItem(storageKey)) || initialValues
-    );
-
-    useDeepCompareEffect(() => {
-        sessionStorage.setItem(storageKey, JSON.stringify(filter));
-    }, [filter, storageKey]);
-
-    const updateSearch = (newSearch) => {
-        setFilter({...filter, search: {...filter.search, ...newSearch}});
-    }
-
-    const updatePageable = (newFilter) => {
-        setFilter({...filter, pageable: {...filter.pageable, ...newFilter}});
-    }
-
-    const updateSort = (newSort) => {
-        setFilter({...filter, sort: {...filter.sort, ...newSort}});
-    }
+    const [filters, setFilters] = useState(getInitialFilters(storageKey,initialFilter));
 
 
-    const getParams = () => {
-        const params = new URLSearchParams();
-        filter.search && Object.keys(filter.search).forEach(key => {
-            params.append(key, filter.search[key])
-        });
-        params.append('page', filter.pageable.page);
-        params.append('size', filter.pageable.size);
-        params.append('sort', `${filter.sort.sortBy},${filter.sort.order}`);
-        return params;
-    }
+    useEffect(() => {
+        sessionStorage.setItem(storageKey, JSON.stringify(filters));
+    }, [filters, storageKey]);
+
+
+
+
+    const updateSearchParams = (newSearch) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            search: {
+                ...prevFilters.search,
+                ...newSearch,
+            },
+        }));
+    };
+
+    const updatePagination = (pagination) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            pagination: {
+                ...prevFilters.pagination,
+                ...pagination,
+            },
+        }));
+    };
+
+    const updateSorting = (sorting) => {
+        setFilters((prevFilters) => ({
+            ...prevFilters,
+            sorting: {
+                ...prevFilters.sorting,
+                ...sorting,
+            },
+        }));
+    };
+
+    const resetFilters = () => {
+        setFilters(filterSchema);
+    };
 
     return {
-        filter,
-        updateSearch,
-        updatePageable,
-        updateSort,
-        getParams
+        filters,
+        updateSearchParams,
+        updatePagination,
+        updateSorting,
+        resetFilters,
     };
 };
 
-export { useFilter, FilterContext };
+export default useFilter;

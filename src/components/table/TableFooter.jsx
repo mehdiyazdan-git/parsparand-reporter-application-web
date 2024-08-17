@@ -3,40 +3,17 @@ import { SiMicrosoftexcel } from "react-icons/si";
 import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
-import useHttp from "../contexts/useHttp";
 
 
 
 
 
-const TableFooter = ({data,columns, hasSubTotal, entityName,filter}) => {
-   const {download} = useHttp();
+const TableFooter = ({data,columns, hasSubTotal, downloadExcelFile}) => {
+
 
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
         : columns.length;
-
-    const downloadExcelFile = async (exportAll) => {
-        const _params = {};
-
-        Object.keys(filter.search).forEach(key => {
-            if (filter.search[key]) {
-                _params[key] = filter.search[key];
-            }
-            if (exportAll) {
-                _params['page'] = 0;
-                _params['size'] = 10000;
-            } else {
-                _params['page'] = filter.page;
-                _params['size'] = filter.size;
-            }
-        });
-
-        const url = `${entityName}/download-all-${entityName}.xlsx`;
-        const fileName = `${entityName}.xlsx`;
-
-        await download({ url, params: _params, fileName });
-    }
 
 
     return (

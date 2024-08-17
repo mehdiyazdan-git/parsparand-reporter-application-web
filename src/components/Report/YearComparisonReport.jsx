@@ -18,7 +18,7 @@ const YearComparisonReport = () => {
     const [currentYearData, setCurrentYearData] = useState([]);
     const [previousYearData, setPreviousYearData] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const {methods} = useHttp();
+    const {getAll} = useHttp();
 
     const [filter, setFilter] = useState(() => {
         const storedFilter = JSON.parse(sessionStorage.getItem("filter_year_comparison_report"));
@@ -47,16 +47,8 @@ const YearComparisonReport = () => {
 
             try {
                 const [currentYearResponse, previousYearResponse] = await Promise.all([
-                    methods.get({
-                                        url : 'reports/sales-by-year',
-                                        params :{yearName: filter.currentYear, productType: filter.productType},
-                                        headers : {}
-                                        }),
-                     methods.get({
-                                        url : 'reports/sales-by-year',
-                                        params :{yearName: filter.previousYear, productType: filter.productType},
-                                        headers : {}
-                                    })
+                    getAll('reports/sales-by-year', {yearName: filter.currentYear, productType: filter.productType}),
+                    getAll('reports/sales-by-year',{yearName: filter.previousYear, productType: filter.productType})
                 ]);
                 setCurrentYearData(currentYearResponse.data);
                 setPreviousYearData(previousYearResponse.data);

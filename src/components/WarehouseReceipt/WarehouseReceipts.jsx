@@ -7,7 +7,7 @@ import {toShamsi} from '../../utils/functions/toShamsi';
 import {formatNumber} from '../../utils/functions/formatNumber';
 
 const WarehouseReceipts = () => {
-    const warehouseReceiptColumns = useMemo(() => [
+    const columns = useMemo(() => [
         {key: 'id', title: 'شناسه', width: '3%', sortable: true},
         {key: 'warehouseReceiptNumber', title: 'شماره حواله', width: '5%', sortable: true, searchable: true},
         {
@@ -56,7 +56,7 @@ const WarehouseReceipts = () => {
         <CrudComponent
             url={'warehouse-receipts'}
             entityName="warehouse-receipts"
-            columns={warehouseReceiptColumns}
+            columns={columns}
             createForm={<CreateWarehouseReceiptForm/>}
             editForm={<EditWarehouseReceiptForm/>}
             hasSubTotal={true}

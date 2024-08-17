@@ -12,15 +12,26 @@ import yearSelectStyle from '../styles/yearSelectStyle';
 
 
 const Table = ({
-                   data, columns,  onDelete, onResetPassword, entityName,
-                   downloadExcelFile, hasYearSelect,hasSubTotal,resetFilter,
-                   refreshTrigger,updateSearch,updatePageable,filter,updateSort,getParams,onEdit
+                   data,
+                   columns,
+                   hasSubTotal,
+                   hasYearSelect,
+                   onEdit,
+                   onDelete,
+                   filter,
+                   resetFilter,
+                   updateSearchParams,
+                   updatePagination,
+                   updateSorting,
+                   getParams,
+                   onDownloadExcelFile,
+                   entityName
                }) => {
 
 
     const handleYearChange = useCallback((value) => {
-        updateSearch({'jalaliYear': parseInt(value,10)});
-    }, [updateSearch]);
+        updateSearchParams({'jalaliYear': parseInt(value,10)});
+    }, [updateSearchParams]);
 
 
     return (
@@ -39,31 +50,30 @@ const Table = ({
             <table className="recipient-table table-fixed-height mt-3">
                 <TableHeader
                     columns={columns}
-                    entityName={entityName}
                     filter={filter}
-                    updateSort={updateSort}
+                    updateSorting={updateSorting}
                 />
                 <TableSearch
                     columns={columns}
                     entityName={entityName}
-                    updateSearch={updateSearch}
-                    updatePageable={updatePageable}
+                    updateSearchParams={updateSearchParams}
+                    updatePagination={updatePagination}
                     filter={filter}
                     resetFilter={resetFilter}
                 />
                 <TableBody
                     data={data?.content || []}
-                    refreshTrigger={refreshTrigger}
+
                     entityName={entityName}
                     onEdit={onEdit}
                     columns={columns}
                     onDelete={onDelete}
-                    onResetPassword={onResetPassword}
+
                 />
                 <TableFooter
                     allData={data?.content || []}
                     columns={columns}
-                    downloadExcelFile={downloadExcelFile}
+                    downloadExcelFile={onDownloadExcelFile}
                     entityName={entityName}
                     hasSubTotal={hasSubTotal}
                     data={data?.content || []}
@@ -74,7 +84,7 @@ const Table = ({
                 <Pagination
                     entityName={entityName}
                     filter={filter}
-                    updatePageable={updatePageable}
+                    updatePagination={updatePagination}
                     data={data}
                 />
         </>
@@ -93,7 +103,6 @@ Table.propTypes = {
         fetchAPI: PropTypes.func,
         render: PropTypes.func
     })).isRequired,
-    url: PropTypes.string.isRequired,
     onEdit: PropTypes.func,
     onDelete: PropTypes.func,
     onResetPassword: PropTypes.func,

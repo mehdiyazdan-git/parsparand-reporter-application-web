@@ -7,11 +7,10 @@ import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
 
-const TableSearch = function ({columns,updateSearch,filter,resetFilter}) {
+const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
 
     const handleSearchChange = (name, value) => {
-        updateSearch({[name]: value});
-
+        updateSearchParams({[name] : value});
     };
     const handleReset = () => {
         resetFilter();

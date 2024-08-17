@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 
 
 import styled from 'styled-components';
@@ -8,14 +8,11 @@ import InvoicesModal from "../Invoice/InvoicesModal";
 import WarehouseReceiptsModal from "../WarehouseReceipt/WarehouseReceiptsModal";
 import useHttp from "../contexts/useHttp";
 import AsyncSelectSearch from "../table/AsyncSelectSearch";
-import {useFilter} from "../contexts/useFilter";
-
-
-
+import TotalsSummary from "./TotalsSummary";
 
 
 const Container = styled.div`
-    font-family: IRANSans,sans-serif;
+    font-family: IRANSans, sans-serif;
     font-size: 0.75rem;
     width: 100%;
     height: calc(100vh - 100px);
@@ -41,7 +38,7 @@ const Row = styled.td`
     text-align: center;
     padding: 0.5rem;
     border: 1px #95a3b3 solid;
-    font-family: IRANSans,sans-serif;
+    font-family: IRANSans, sans-serif;
     width: 14.30%; /* Adjust the width to ensure alignment */
     background-color: rgba(240, 240, 240, 0.9);
 `;
@@ -53,7 +50,7 @@ const Footer = styled.td`
     text-align: center;
     padding: 0.5rem;
     border: 1px #95a3b3 solid;
-    font-family: IRANSans,sans-serif;
+    font-family: IRANSans, sans-serif;
     font-weight: bold;
     width: 14.30%; /* Adjust the width to ensure alignment */
 `;
@@ -93,7 +90,7 @@ function toPersianFormat(number) {
     return isNegative ? `(${formattedValue})` : formattedValue;
 }
 
-const date = new Intl.DateTimeFormat('fa-IR', { dateStyle: 'full', timeStyle: 'long' }).format(new Date());
+const date = new Intl.DateTimeFormat('fa-IR', {dateStyle: 'full', timeStyle: 'long'}).format(new Date());
 
 const defaultData = {
     clientSummaryList: [
@@ -131,247 +128,77 @@ const defaultData = {
 }
 
 const ClientSummary = () => {
-    const {methods} = useHttp();
-    const entityName = 'customerSummary';
-    const {filter,updateSearch} = useFilter(entityName,{
-    search : {
-        customerId : ''
-    }
-    })
-    const [customers,setCustomers] = useState([{'label' : '','value' : ''}]);
-    const [customer,setCustomer] = useState(() => {
-            return  (filter.search.customerId) ? customers.find(item => item.value === filter.search.customerId) : customers[0]
+    const { getAll } = useHttp();
+
+    // --- State ---
+    const [customers, setCustomers] = useState([]);
+    const [filter, setFilter] = useState(() => {
+        const storedFilters = JSON.parse(sessionStorage.getItem("clientSummary"));
+        return storedFilters ?? { customerId: null };
     });
     const [data, setData] = useState(defaultData);
     const [showModal, setShowModal] = useState(false);
-    const [error,setError] = useState('');
 
-    const handleShow = () => {
-        setShowModal(true);
-    };
-
-    const handleClose = () => {
-        setShowModal(false);
-    };
-
-    const subtotals = useMemo(() => {
-        return data.clientSummaryList.reduce(
-            (acc, item) => {
-                Object.keys(item).forEach((key) => {
-                    if (!isNaN(parseFloat(item[key]))) {
-                        acc[key] += parseFloat(item[key]);
-                    }
-                });
-                return acc;
-            },
-            {
-                contractNumber: 'Subtotals',
-                salesQuantity: 0,
-                salesAmount: 0,
-                advancedPayment: 0,
-                performanceBound: 0,
-                insuranceDeposit: 0,
-                vat: 0,
-            }
-        );
-    }, [data.clientSummaryList]);
-
-    const fetchData = useCallback( async (customerId) => {
-        return  methods.get({
-            'url' : 'customers/summary',
-            'params' : { 'customerId' : customerId},
-            'headers' : { 'Accept' : 'application/json' }
+    // --- Helper Functions ---
+    const handleFilterChange = useCallback((newFilter) => {
+        setFilter((prevFilter) => {
+            const updatedFilter = { ...prevFilter, ...newFilter };
+            sessionStorage.setItem("clientSummary", JSON.stringify(updatedFilter));
+            return updatedFilter;
         });
-    },[methods]);
-
-    const fetchCustomers = useCallback( async (inputValue) => {
-        return  methods.get({
-            'url' : 'customers/select',
-            'params' : { 'searchQuery' : inputValue},
-            'headers' : { 'Accept' : 'application/json' }
-        });
-    },[methods]);
-
-
-
-    useEffect(() => {
-        const fetchAndProcessData = async () => {
-            try {
-                // 1. Fetch customers
-                const customersResponse = await fetchCustomers('');
-                setCustomers(customersResponse.data.map(customer => ({
-                    value: customer.id,
-                    label: customer.name
-                })));
-
-                // 2. Set the default customer (if available) or the first customer
-                let selectedCustomer = null;
-                if (filter?.search?.customerId) {
-                    selectedCustomer = customersResponse.data.find(c => c.id === filter.search.customerId);
-                }
-                if (!selectedCustomer && customersResponse.data.length > 0) {
-                    selectedCustomer = customersResponse.data[0];
-                    updateSearch({'customerId' : selectedCustomer.id}); // Update filter if no default customer
-                }
-                setCustomer(selectedCustomer ? { value: selectedCustomer.id, label: selectedCustomer.name } : null);
-
-                // 3. Fetch data based on selected customer ID (if available)
-                if (selectedCustomer) {
-                    const dataResponse = await fetchData(selectedCustomer.id);
-                    if (dataResponse && dataResponse?.data){
-                        setData(dataResponse.data);
-                    }
-                }
-            } catch (err) {
-                // Handle errors for fetching customers (similar to previous code)
-                if (err.response) {
-                    console.log('Error fetching customers (server error):', err.response.data);
-                    setError(err.response.data);
-                } else if (err.request) {
-                    console.log('Error fetching customers (network error):', err.message);
-                    setError('Network error. Please check your internet connection.');
-                } else {
-                    console.log('Error fetching customers (unexpected error):', err.message);
-                    setError('An error occurred while fetching customers. Please try again later.');
-                }
-                setCustomer(null); // Clear customer selection on error
-
-                // You might want to handle errors for fetching data here as well,
-                // similar to the previous code block, if needed.
-            }
-        };
-
-        fetchAndProcessData();
     }, []);
 
+    const handleShow = () => setShowModal(true);
+    const handleClose = () => setShowModal(false);
 
+    const fetchCustomers = async () => {
+        const customerData = await getAll('customers/select', {});
+        const customerOptions = customerData.data.map(item => ({ label: item.name, value: item.id }));
+        setCustomers(customerOptions);
+
+        if (!filter.customerId && customerOptions.length > 0) {
+            handleFilterChange({ customerId: customerOptions[0].value });
+        }
+    };
+
+    const fetchData = async () => {
+        if (!filter.customerId) return;
+
+        getAll("customers/summary", { customerId: filter.customerId })
+            .then(res => setData(res.data))
+            .catch(err => console.log(err))
+    };
+
+    // --- Effects ---
+    useEffect(() => {
+        fetchCustomers();
+    }, []);
 
     useEffect(() => {
-        const fetchDataAndUpdateState = async () => {
-            try {
-                const dataResponse = await fetchData(filter.search.customerId);
-                if (dataResponse && dataResponse?.data) {
-                    setData(dataResponse.data);
-                }
-            } catch (err) {
-                if (err.response) {
-                    // Server responded with an error status code
-                    console.log('Error fetching data (server error):', err.response.data);
-                    setError(err.response.data);
-                } else if (err.request) {
-                    // The request was made but no response was received (likely a network error)
-                    console.log('Error fetching data (network error):', err.message);
-                    setError('Network error. Please check your internet connection.');
-                } else {
-                    // Something else happened while setting up the request
-                    console.log('Error fetching data (unexpected error):', err.message);
-                    setError('An error occurred while fetching data. Please try again later.');
-                }
-                setData(defaultData); // Set default data on any error
-            }
-        }
+        fetchData();
+    }, [filter]);
 
-        fetchDataAndUpdateState();
-    }, [filter.search.customerId]);
+    // --- Derived Data ---
+    const totals = TotalsSummary({ data });
+    const selectedCustomerLabel = customers.find(c => c?.value === filter?.customerId)?.label || '----';
 
-
-
-
-
-    const totalSalesQuantity = toPersianFormat(subtotals.salesQuantity + data.notInvoicedReportDto.quantity);
-    const totalSalesAmount = toPersianFormat(
-        subtotals.salesAmount + data.notInvoicedReportDto.amount + data.adjustmentReportDto.amount
-    );
-    const totalVat = toPersianFormat(subtotals.vat + data.notInvoicedReportDto.vat + data.adjustmentReportDto.vat);
-    const totalNetSales = toPersianFormat(
-        subtotals.salesAmount + subtotals.vat
-        - subtotals.insuranceDeposit
-        - subtotals.performanceBound
-        - subtotals.advancedPayment
-        + data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat
-        - data.notInvoicedReportDto.insurance
-        - data.notInvoicedReportDto.performance
-        + data.adjustmentReportDto.amount + data.adjustmentReportDto.vat
-        - data.adjustmentReportDto.insurance
-        - data.adjustmentReportDto.performance
-    );
-    const totalAdvancedPayment = toPersianFormat(subtotals.advancedPayment);
-    const totalPerformanceBound = toPersianFormat(
-        subtotals.performanceBound
-        + data.notInvoicedReportDto.performance
-        + data.adjustmentReportDto.performance
-    );
-    const totalInsuranceDeposit = toPersianFormat(
-        subtotals.insuranceDeposit
-        + data.notInvoicedReportDto.insurance
-        + data.adjustmentReportDto.insurance
-    );
-    const totalGrossSales = toPersianFormat(
-        subtotals.salesAmount + subtotals.vat
-        + data.notInvoicedReportDto.amount
-        + data.adjustmentReportDto.amount
-        + data.notInvoicedReportDto.vat
-        + data.adjustmentReportDto.vat
-    );
-
-    const totalPayment = toPersianFormat(
-        data.totalPaymentByCustomerId.productPayment +
-        data.totalPaymentByCustomerId.performanceBoundPayment +
-        data.totalPaymentByCustomerId.insuranceDepositPayment +
-        data.totalPaymentByCustomerId.advancedPayment
-    );
-
-    const remainingClaimable = toPersianFormat(
-        subtotals.salesAmount + subtotals.vat
-        - subtotals.insuranceDeposit
-        - subtotals.performanceBound
-        + data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat
-        - data.notInvoicedReportDto.insurance
-        - data.notInvoicedReportDto.performance
-        + data.adjustmentReportDto.amount + data.adjustmentReportDto.vat
-        - data.adjustmentReportDto.insurance
-        - data.adjustmentReportDto.performance
-        - data.totalPaymentByCustomerId.productPayment
-        - data.totalPaymentByCustomerId.advancedPayment
-    );
-
-    const remainingAdvancedPayment = toPersianFormat(
-        data.totalPaymentByCustomerId.advancedPayment - subtotals.advancedPayment
-    );
-
-    const remainingPerformanceBound = toPersianFormat(
-        subtotals.performanceBound +
-        data.notInvoicedReportDto.performance +
-        data.adjustmentReportDto.performance -
-        data.totalPaymentByCustomerId.performanceBoundPayment
-    );
-
-    const remainingInsuranceDeposit = toPersianFormat(
-        subtotals.insuranceDeposit +
-        data.notInvoicedReportDto.insurance +
-        data.adjustmentReportDto.insurance -
-        data.totalPaymentByCustomerId.insuranceDepositPayment
-    );
-
-    if (!data) {
-        return <div>در حال بارگذاری...</div>;
-    }
+    // --- JSX ---
+    if (!data) return <div>Loading...</div>;
 
     return (
         <Container>
             <div className="row mt-3">
                 <AsyncSelectSearch
-                        url={'customers/select'}
-                        value={customer}
-                        onChange={customer => {
-                            updateSearch(customer?.value ? {'customerId': customer.value} : {'customerId': ''})
-                            setCustomer(customer);
-                        }}
-                    />
+                    url="customers/select?"
+                    value={filter.customerId}
+                    onChange={value => handleFilterChange({ customerId: value })}
+                />
             </div>
 
             <div className="row mt-5">
-                <span><strong>{`خلاصه وضعیت مشتری : ${customer?.label || '----'} در تاریخ : ${date}`}</strong></span>
+                <span>
+                    <strong>{`خلاصه وضعیت مشتری : ${selectedCustomerLabel} در تاریخ : ${date}`}</strong>
+                </span>
             </div>
             <TableContainer>
                 <Table>
@@ -423,7 +250,7 @@ const ClientSummary = () => {
                             <Row>{toPersianFormat(data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat)}</Row>
                             <Row>
                                 <WarehouseReceiptsModal
-                                    customerId={customer?.value}
+                                    customerId={filter.customerId}
                                     showModal={showModal}
                                     handleShow={handleShow}
                                     handleClose={handleClose}
@@ -441,7 +268,7 @@ const ClientSummary = () => {
                             <Row>{toPersianFormat(data.adjustmentReportDto.amount + data.adjustmentReportDto.vat)}</Row>
                             <Row>
                                 <AdjustmentsModal
-                                    customerId={filter?.customerId}
+                                    customerId={filter.customerId}
                                     showModal={showModal}
                                     handleShow={handleShow}
                                     handleClose={handleClose}
@@ -452,14 +279,14 @@ const ClientSummary = () => {
                     <Tfoot>
                         <tr className="table-footer">
                             <Footer><strong>{"جمع کل : "}</strong></Footer>
-                            <Footer><strong>{totalSalesQuantity}</strong></Footer>
-                            <Footer><strong>{totalSalesAmount}</strong></Footer>
-                            <Footer><strong>{totalVat}</strong></Footer>
-                            <Footer><strong>{totalNetSales}</strong></Footer>
-                            <Footer><strong>{totalAdvancedPayment}</strong></Footer>
-                            <Footer><strong>{totalPerformanceBound}</strong></Footer>
-                            <Footer><strong>{totalInsuranceDeposit}</strong></Footer>
-                            <Footer><strong>{totalGrossSales}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalSalesQuantity)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalSalesAmount)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.subtotals.vat + data.notInvoicedReportDto.vat + data.adjustmentReportDto.vat)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.subtotals.salesAmount + totals.subtotals.vat - totals.subtotals.insuranceDeposit - totals.subtotals.performanceBound - totals.subtotals.advancedPayment + data.notInvoicedReportDto.amount + data.notInvoicedReportDto.vat - data.notInvoicedReportDto.insurance - data.notInvoicedReportDto.performance + data.adjustmentReportDto.amount + data.adjustmentReportDto.vat - data.adjustmentReportDto.insurance - data.adjustmentReportDto.performance)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalAdvancedPayment)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalPerformanceBound)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalInsuranceDeposit)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalGrossSales)}</strong></Footer>
                             <Footer></Footer>
                         </tr>
                         <tr>
@@ -468,7 +295,7 @@ const ClientSummary = () => {
                             <Footer><strong>{toPersianFormat(data.totalPaymentByCustomerId.advancedPayment)}</strong></Footer>
                             <Footer><strong>{toPersianFormat(data.totalPaymentByCustomerId.performanceBoundPayment)}</strong></Footer>
                             <Footer><strong>{toPersianFormat(data.totalPaymentByCustomerId.insuranceDepositPayment)}</strong></Footer>
-                            <Footer><strong>{totalPayment}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.totalPayment)}</strong></Footer>
                             <Footer>
                                 <PaymentsModal
                                     customerId={filter?.customerId}
@@ -480,18 +307,20 @@ const ClientSummary = () => {
                         </tr>
                         <tr>
                             <Footer colSpan={4}><strong>{"مانده قابل مطالبه (ریال)"}</strong></Footer>
-                            <Footer><strong>{remainingClaimable}</strong></Footer>
-                            <Footer><strong>{remainingAdvancedPayment}</strong></Footer>
-                            <Footer><strong>{remainingPerformanceBound}</strong></Footer>
-                            <Footer><strong>{remainingInsuranceDeposit}</strong></Footer>
-                            <Footer><strong>{remainingClaimable}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.remainingClaimable)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.remainingAdvancedPayment)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.remainingPerformanceBound)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.remainingInsuranceDeposit)}</strong></Footer>
+                            <Footer><strong>{toPersianFormat(totals.remainingClaimable)}</strong></Footer>
                             <Footer></Footer>
                         </tr>
                     </Tfoot>
+
                 </Table>
             </TableContainer>
         </Container>
     );
 };
+
 
 export default ClientSummary;

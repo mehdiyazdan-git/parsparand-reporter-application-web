@@ -8,25 +8,30 @@ const options = {
     },
 }
 
-export const generateInitialFilters = (columns, options) => {
-    const initialFilters = {
+export const generateInitialFilters = (columns, options,entityListName) => {
+    const storageKey = `filter_${entityListName}`
+    const filterSchema = {
         search: {
-            jalaliYear: new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4), // Default year
         },
-        pageable: {
+        pagination: {
             page: 0,
             size: 10,
         },
-        sort: {
+        sorting: {
             order: 'asc',
             sortBy: 'id',
         },
-        subTotals: columns.filter(col => col.subtotal).map(col => col.key),
+
     };
 
     columns.forEach(column => {
         if (column.searchable) {
-            initialFilters.search[column.key] = '';
+            if (column.key === 'jalaliYear'){
+                filterSchema.search[column.key] = new Intl.DateTimeFormat('fa-IR').format(new Date()).substring(0, 4);
+            }
+            else {
+                filterSchema.search[column.key] = '';
+            }
         }
     });
 
@@ -34,7 +39,7 @@ export const generateInitialFilters = (columns, options) => {
         if (options.storageKey) {
             try {
                 const storedFilters = JSON.parse(sessionStorage.getItem(options.storageKey) || '{}');
-                initialFilters.search = { ...initialFilters.search, ...storedFilters.search };
+                filterSchema.search = { ...filterSchema.search, ...storedFilters.search };
             } catch (error) {
                 console.error('Error parsing stored filters:', error);
             }
@@ -43,16 +48,16 @@ export const generateInitialFilters = (columns, options) => {
         if (options.filters) {
             if (Array.isArray(options.filters.excludes)) {
                 options.filters.excludes.forEach(exclude => {
-                    delete initialFilters.search[exclude];
+                    delete filterSchema.search[exclude];
                 });
             }
 
             if (typeof options.filters.search === 'object' && options.filters.search !== null) {
-                initialFilters.search = { ...initialFilters.search, ...options.filters.search };
+                filterSchema.search = { ...filterSchema.search, ...options.filters.search };
             }
         }
     }
 
-    return initialFilters;
+    return filterSchema;
 };
 

@@ -40,7 +40,8 @@ const WarehouseReceiptsModal = ({ customerId }) => {
         setShowModal(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (e) => {
+        e.preventDefault()
         setShowModal(false);
     };
 
@@ -49,10 +50,10 @@ const WarehouseReceiptsModal = ({ customerId }) => {
             <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
             <CustomModal show={showModal} centered onHide={handleClose}>
                 <ModalBody>
-                    <WarehouseReceipts customerId={customerId} shouldNotDisplayCustomerName={false} />
+                    <WarehouseReceipts customerId={customerId} />
                 </ModalBody>
                 <Modal.Footer>
-                    <Button $variant="warning" onClick={handleClose}>
+                    <Button $variant="warning" onClick={e=>handleClose(e)}>
                         بستن
                     </Button>
                 </Modal.Footer>

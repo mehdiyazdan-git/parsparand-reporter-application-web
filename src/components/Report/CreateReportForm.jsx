@@ -15,10 +15,10 @@ import useHttp from "../contexts/useHttp";
 
 
 const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
+    const {getAll} = useHttp();
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,'');
+    const yearSelect = async (inputValue) => {
+        return await getAll('years/select', {'searchParams':inputValue});
     }
 
     const validationSchema = Yup.object().shape({

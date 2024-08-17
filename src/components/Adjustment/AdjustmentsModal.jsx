@@ -5,7 +5,7 @@ import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import Adjustments from "./Adjustments";
 import styled from 'styled-components';
-import {useFilter} from "../contexts/useFilter";
+
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */
@@ -26,7 +26,8 @@ const AdjustmentsModal = ({ customerId }) => {
         setShowModal(true);
     };
 
-    const handleClose = () => {
+    const handleClose = (e) => {
+        e.preventDefault();
         setShowModal(false);
     };
 
@@ -38,9 +39,11 @@ const AdjustmentsModal = ({ customerId }) => {
                     <Adjustments customerId={customerId} />
                 </ModalBody>
                 <Modal.Footer>
-                    <Button $variant="warning" onClick={handleClose}>
+                    <button
+                        className='btn btn-sm btn-warning'
+                        onClick={e=>handleClose(e)}>
                         بستن
-                    </Button>
+                    </button>
                 </Modal.Footer>
             </CustomModal>
         </>

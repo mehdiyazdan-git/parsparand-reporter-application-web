@@ -1,82 +1,70 @@
-import React, {useEffect, useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import AsyncSelect from 'react-select/async';
-import {getCustomSelectStyles} from "../../utils/customStyles";
+import styled from 'styled-components';
+import { toast } from "react-toastify";
 import useHttp from "../contexts/useHttp";
 
-const AsyncSelectSearch = ({url, value, onChange, width}) => {
-    const [selectedValue, setSelectedValue] = useState(null);
-    const {methods} = useHttp();
+// Styled Components (You can adjust these as needed to match your design)
+const SelectContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.1rem;
+    width: 100%;
+`;
 
-    const loadOptions = async (inputValue) => {
+const AsyncSelectSearch = ({ url, value, onChange }) => {
+    const { getAll } = useHttp();
+
+    // --- State ---
+    const [isLoading, setIsLoading] = useState(false);
+
+    // --- Functions ---
+    const loadOptions = async (inputValue, callback) => {
+        setIsLoading(true);
         try {
-            const res = await methods.get(
-                {
-                    'url': url,
-                    params : {'searchQuery': inputValue},
-                    'headers': {}
-                });
-            if (res && res?.data){
-                return res.data.map((item) => ({
+            const response = await getAll(
+                encodeURI(url),
+                { searchQuery: inputValue }
+            );
+            if (response && response.data) {
+                const options = response.data.map(item => ({
                     value: item.id,
                     label: item.name,
                 }));
-            }else {
-                return [];
+                callback(options);
+            } else {
+                callback([]);
             }
+        } catch (err) {
+            console.error(err);
+            toast.error("Error loading options.");
+            callback([]);
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
-        } catch (error) {
-            console.error('Error fetching data:', error);
-            return [];
-        }
+    const handleInputChange = (newValue) => {
+        // Handle changes in the input value (for filtering/searching)
+        return newValue;
     };
-    const onInputSelectChange = (inputValue) => {
-        if (inputValue === '') {
-            setSelectedValue(null);
-            if (onChange) {
-                onChange(null);
-            }
-        }
-    };
-    const handleChange = (selectedOption) => {
-        setSelectedValue(selectedOption);
-        if (onChange) {
-            onChange(selectedOption);
-        }
-    };
-    const handleClear = () => {
-        setSelectedValue(null);
-        if (onChange) {
-            onChange(null);
-        }
-    };
-    useEffect(() => {
-        // Set selectedValue based on the value prop when the component mounts or value prop changes
-        if (value) {
-            setSelectedValue({ value: value.value, label: value.label });
-        } else {
-            setSelectedValue(null);
-        }
-    }, [value]);
 
+    // --- JSX ---
     return (
-        <div width={width}>
+        <SelectContainer>
             <AsyncSelect
-                cacheOptions
-                defaultOptions
-                value={selectedValue}
-                onChange={handleChange}
+                cacheOptions // Enable caching for better performance
+                defaultOptions // Load initial options on component mount
                 loadOptions={loadOptions}
-                onInputChange={onInputSelectChange}
-                placeholder="جستجو..."
-                styles={getCustomSelectStyles()} // Enable clear button styling
-                isClearable
-                onClear={handleClear}
-                className="select-input"
-                classNamePrefix="react-select"
-                noOptionsMessage={() => "موردی یافت نشد"}
-                loadingMessage={() => "در حال بارگذاری"}
+                onInputChange={handleInputChange}
+                onChange={onChange}
+                value={value}
+                isLoading={isLoading}
+                placeholder="Search for a customer..."
+                noOptionsMessage={() => "No customers found"}
+                // Add other props like isClearable, styles, etc. as needed
             />
-        </div>
+        </SelectContainer>
     );
 };
 
