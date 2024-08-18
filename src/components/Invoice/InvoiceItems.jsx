@@ -17,15 +17,6 @@ const InvoiceItems = () => {
         name: 'invoiceItems',
     });
 
-    const http = useHttp();
-    const productSelect = async (searchQuery = '') => {
-        return await http.get(`/products/select`,searchQuery);
-    }
-
-    const warehouseReceiptSelect = async (searchQuery = '') => {
-        return await http.get(`/warehouse-receipts/select`,searchQuery);
-    }
-
     const watchedFields = useWatch({
         name: 'invoiceItems',
         control
@@ -76,10 +67,18 @@ const InvoiceItems = () => {
                 {fields.map((field, index) => (
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
-                            <AsyncSelectInput name={`invoiceItems[${index}].productId`} apiFetchFunction={productSelect} />
+                            <AsyncSelectInput
+                                url={"products/select"}
+                                name={`invoiceItems[${index}].productId`}
+                                value={fields[index]['productId']}
+                            />
                         </td>
                         <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
-                            <AsyncSelectInput name={`invoiceItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
+                            <AsyncSelectInput
+                                url={"warehouse-receipts/select"}
+                                name={`invoiceItems[${index}].warehouseReceiptId`}
+                                value={fields[index]['warehouseReceiptId']}
+                            />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%', ...tdStyle  }}>
                             <NumberInput name={`invoiceItems[${index}].unitPrice`} />

@@ -6,7 +6,7 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
-import useHttp from "../contexts/useHttp";
+
 
 const ReportItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -16,24 +16,6 @@ const ReportItems = () => {
         control,
         name: 'reportItems',
     });
-
-    const {methods} = useHttp();
-
-    const customerSelect = useCallback( async (inputValue) => {
-        return await methods.get({
-            'url' : 'customers/select',
-            'params' : { 'searchQuery' : inputValue},
-            'headers' : { 'Accept' : 'application/json' }
-        });
-    },[methods]);
-
-    const warehouseReceiptSelect = useCallback(async (inputValue = '', yearId = '') => {
-        return await methods.get({
-            'url' : 'warehouse-receipts/select',
-            'params' : { 'searchQuery' : inputValue , 'yearId' : yearId},
-            'headers' : { 'Accept' : 'application/json' }
-        });
-    }, [methods]);
 
     const watchedFields = useWatch({
         name: 'reportItems',
@@ -73,10 +55,20 @@ const ReportItems = () => {
     const renderedFields = useMemo(() => fields.map((field, index) => (
         <tr key={field.id}>
             <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
-                <AsyncSelectInput name={`reportItems[${index}].customerId`} apiFetchFunction={customerSelect} />
+                <AsyncSelectInput
+                    url={"customers/select"}
+                    name={`reportItems[${index}].customerId`}
+                    value={fields[index]['customerId']}
+                    // onChange has already been passed by form context. No need to pass it again
+                />
             </td>
             <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
-                <AsyncSelectInput name={`reportItems[${index}].warehouseReceiptId`} apiFetchFunction={warehouseReceiptSelect} />
+                <AsyncSelectInput
+                    url={"warehouse-receipts/select"}
+                    name={`reportItems[${index}].warehouseReceiptId`}
+                    value={fields[index]['warehouseReceiptId']}
+                    // onChange has already been passed by form context. No need to pass it again
+                />
             </td>
             <td className="m-0 p-0" style={{ width: '10%',...tdStyle}}>
                 <NumberInput name={`reportItems[${index}].unitPrice`} />
@@ -95,7 +87,7 @@ const ReportItems = () => {
                 <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
             </td>
         </tr>
-    )), [fields, watchedFields, customerSelect, warehouseReceiptSelect, removeItem]);
+    )), [fields, watchedFields, removeItem]);
 
     return (
         <div className="form-container" >

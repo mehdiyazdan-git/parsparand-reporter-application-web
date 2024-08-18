@@ -7,17 +7,22 @@ import IconKey from '../assets/icons/IconKey';
 import ConfirmationModal from './ConfirmationModal';
 import LoadingDataErrorPage from '../../utils/LoadingDataErrorPage';
 
-const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
+const TableBody = ({data, columns, handleEditButtonClick,onDeleteEntity, onResetPassword }) => {
     const [selectedItem, setSelectedItem] = useState(null);
     const [errorMessage, setErrorMessage] = useState('');
     const [showErrorModal, setShowErrorModal] = useState(false);
     const [showConfirmationModal, setShowConfirmationModal] = useState(false);
 
 
+    const handleDeleteButtonClick = useCallback((id) => {
+        setSelectedItem(id);
+        setShowConfirmationModal(true); }, []);
+
+
     const handleDeleteConfirm = useCallback(async () => {
         if (selectedItem) {
             try {
-                const errorMessage = await onDelete(selectedItem);
+                const errorMessage = await onDeleteEntity(selectedItem);
                 if (errorMessage) {
                     setErrorMessage(errorMessage);
                     setShowErrorModal(true);
@@ -33,7 +38,7 @@ const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
                 }
             }
         }
-    }, [selectedItem, onDelete]);
+    }, [selectedItem, onDeleteEntity]);
 
     const ErrorModal = ({ show, handleClose, errorMessage }) => (
         <Modal show={show} onHide={handleClose} centered>
@@ -52,6 +57,7 @@ const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
     if (!data) {
         return <LoadingDataErrorPage />;
     }
+
 
     return (
         <tbody>
@@ -81,15 +87,12 @@ const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
                         style={{ margin: '0px 10px', cursor: 'pointer' }}
                         fontSize={'1rem'}
                         color="green"
-                        onClick={() => onEdit(item)}
+                        onClick={()=> handleEditButtonClick(item)}
                     />
                     <IconDeleteOutline
                         style={{ cursor: 'pointer' }}
                         size={'1.5rem'}
-                        onClick={() => {
-                            setSelectedItem(item.id);
-                            setShowConfirmationModal(true);
-                        }}
+                        onClick={()=>handleDeleteButtonClick(item.id)}
                     />
                 </td>
             </tr>
@@ -108,8 +111,8 @@ const TableBody = ({data, columns, onEdit, onDelete, onResetPassword }) => {
 TableBody.propTypes = {
     columns: PropTypes.array.isRequired,
     data: PropTypes.array.isRequired,
-    onEdit: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
+    handleEditButtonClick: PropTypes.func.isRequired,
+    onDeleteEntity: PropTypes.func.isRequired,
     onResetPassword: PropTypes.func,
 };
 

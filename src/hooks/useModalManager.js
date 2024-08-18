@@ -46,7 +46,7 @@ const useModalManager = () => {
         openEditModal,
         closeEditModal,
         openErrorModal,
-        closeErrorModal
+        closeErrorModal,
     };
 };
 

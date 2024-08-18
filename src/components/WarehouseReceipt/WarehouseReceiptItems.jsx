@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -6,7 +6,6 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, thStyle} from "../styles/styles";
-import useHttp from "../contexts/useHttp";
 
 const WarehouseReceiptItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -16,15 +15,6 @@ const WarehouseReceiptItems = () => {
         control,
         name: 'warehouseReceiptItems',
     });
-
-    const {methods} = useHttp();
-    const productSelect = useCallback( async (inputValue) => {
-        return await methods.get({
-            'url' : 'products/select',
-            'params' : { 'searchQuery' : inputValue},
-            'headers' : { 'Accept' : 'application/json' }
-        });
-    },[methods]);
 
     const watchedFields = useWatch({
         name: 'warehouseReceiptItems',
@@ -76,13 +66,17 @@ const WarehouseReceiptItems = () => {
                 {fields.map((field, index) => (
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '50%' }}>
-                            <AsyncSelectInput name={`warehouseReceiptItems[${index}].productId`} apiFetchFunction={productSelect}/>
+                            <AsyncSelectInput
+                                url={"products/select"}
+                                name={`invoiceItems[${index}].productId`}
+                                value={fields[index]['productId']}
+                            />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].unitPrice`} />
+                            <NumberInput name={`warehouseReceiptItems[${index}].unitPrice`} field={field} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%' }}>
-                            <NumberInput name={`warehouseReceiptItems[${index}].quantity`} />
+                            <NumberInput name={`warehouseReceiptItems[${index}].quantity`} field={field} />
                         </td>
                         <td className="m-0 p-0" style={{ width: '20%' }}>
                             <AmountNumber

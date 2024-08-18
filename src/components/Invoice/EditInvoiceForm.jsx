@@ -15,26 +15,8 @@ import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
-
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,'');
-    }
-
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
-
-    const contractSelect = async (searchQuery = '') => {
-        return await http.get(`/contracts/select`,searchQuery);
-    }
-
-    const invoiceStatusSelect = async (searchParam='') => {
-        return await http.get(`/invoice-statuses/select`,searchParam);
-    }
 
     const validationSchema = Yup.object().shape({
         dueDate: Yup.string().required('تاریخ سررسید الزامیست.'),
@@ -51,18 +33,22 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
             })
         )
     });
-
     const resolver = useYupValidationResolver(validationSchema);
-
     const onSubmit = async (data) => {
-        if (data.dueDate) {
-            data.dueDate = moment(new Date(data.dueDate)).format('YYYY-MM-DD');
-        }
-        if (data.issuedDate) {
-            data.issuedDate = moment(new Date(data.issuedDate)).format('YYYY-MM-DD');
-        }
-        await onUpdateEntity(data);
+        const formattedData = {
+            ...data,
+            dueDate: data.dueDate ? formatDate(data.dueDate) : null,
+            issuedDate: data.issuedDate ? formatDate(data.issuedDate) : null,
+        };
+        await onUpdateEntity(formattedData);
         onHide();
+    };
+
+    const formatDate = (date) => {
+        if (date) {
+            return moment(new Date(date)).format('YYYY-MM-DD');
+        }
+        return null;
     };
 
     return (
@@ -87,9 +73,6 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             advancedPayment: editingEntity.advancedPayment,
                             insuranceDeposit: editingEntity.insuranceDeposit,
                             performanceBound: editingEntity.performanceBound,
-                            yearId: async() => await yearSelect().then(r => {
-                                return r.find(y => y.name === moment.jYear());
-                            }) ,
                             invoiceItems: editingEntity.invoiceItems,
                         }}
                         onSubmit={onSubmit}
@@ -122,7 +105,11 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"مشتری"}
+                                            url={"customers/select"}
+                                        />
                                     </Col>
                                 </Row>
                                 <ContractFields>
@@ -131,7 +118,7 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                             <AsyncSelectInput
                                                 name="contractId"
                                                 label={" قرارداد"}
-                                                apiFetchFunction={contractSelect}
+                                                url={"contracts/select"}
                                             />
                                         </Col>
                                     </Row>

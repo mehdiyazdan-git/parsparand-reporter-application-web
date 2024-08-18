@@ -11,48 +11,38 @@ import moment from "jalali-moment";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import ReportItems from "./ReportItems";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
 
 
 const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
-    const {getAll} = useHttp();
-
-    const yearSelect = async (inputValue) => {
-        return await getAll('years/select', {'searchParams':inputValue});
-    }
 
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
         reportExplanation: Yup.string().required('توضیحات گزارش الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
         reportItems: Yup.array().of(
             Yup.object().shape({
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-                customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-                warehouseReceiptId: Yup.number().required('شناسه رسید انبار الزامیست.'),
+                quantity: Yup.number()
+                    .typeError('مقدار باید عدد باشد.')
+                    .required('مقدار الزامیست.'),
+                unitPrice: Yup.number()
+                    .typeError('قیمت واحد باید عدد باشد.')
+                    .required('قیمت واحد الزامیست.'),
+                customerId: Yup.number()
+                    .typeError('شناسه مشتری باید عدد باشد.')
+                    .required('شناسه مشتری الزامیست.'),
+                warehouseReceiptId: Yup.number()
+                    .typeError('شناسه رسید انبار باید عدد باشد.')
+                    .required('شناسه رسید انبار الزامیست.'),
             })
         )
     });
 
     const resolver = useYupValidationResolver(validationSchema);
-    const getYearId = async () => {
-        try {
-            const data = await yearSelect().then((res) => res.data);
-            const year = data.find((item) => item.name === Number(moment(new Date()).format('jYYYY')));
-            return year.id;
-        } catch (error) {
-            console.error(error);
-            return null;
-        }
-    }
+
 
     const onSubmit = async (entity) => {
-        entity.yearId = await getYearId();
+
         if (entity.reportDate) {
             entity.reportDate = moment(new Date(entity.reportDate)).format('YYYY-MM-DD');
-            const years = await yearSelect().then((res) => res.data);
-            entity.yearId = years.find((item) => item.name === Number(moment(new Date(years.reportDate)).format('jYYYY'))).id;
         }
         await onCreateEntity(entity);
         onHide();
@@ -66,12 +56,16 @@ const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                <div className="container modal-body"
+                     style={{
+                         fontFamily: "IRANSans",
+                         fontSize: "0.8rem",
+                         margin: "0"
+                }}>
                     <Form
                         defaultValues={{
                             reportDate: '',
                             reportExplanation: '',
-                            yearId: '',
                             reportItems: [
                                 {
                                     quantity: '',

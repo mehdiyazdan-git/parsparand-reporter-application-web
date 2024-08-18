@@ -1,90 +1,83 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import AsyncSelect from 'react-select/async';
-import {Controller} from "react-hook-form";
-import {ConnectForm} from "./ConnectForm";
-import {getCustomSelectStyles} from "./customStyles";
+import {Controller} from 'react-hook-form';
+import {ConnectForm} from './ConnectForm';
+import {getCustomSelectStyles} from './customStyles';
+import useHttp from "../components/contexts/useHttp";
 
-const AsyncSelectInput = ({name,apiFetchFunction,defaultValue,isDisabled,label}) => {
+
+const AsyncSelectInput = ({name, url,onChange, value, isDisabled, label}) => {
     const [options, setOptions] = useState([]);
-    const [_defaultValue,_setDefaultValue] = useState(defaultValue)
+    const [selectedOption, setSelectedOption] = useState(null);
+    const {getAll} = useHttp();
+    const labelStyle = useMemo(() => (
+        {fontFamily: 'IRANSansBold', fontSize: '0.7rem'}
+    ), []);
 
-    const fetchAPI = async (inputValue) => {
-        return await apiFetchFunction(inputValue)
+    // Fetch data from the API
+    const fetchData = async (inputValue = '') => {
+        return await getAll(encodeURI(url), {'searchQuery': encodeURIComponent(inputValue.trim())})
+            .then(res => {
+                    if (res && Array.isArray(res.data)) {
+                        return res.data.map((record) => ({
+                            label: record.name,
+                            value: record.id,
+                        }))
+                    }
+                }
+            )
     };
-    const promiseOptions = async (inputValue) => {
-        try {
-            const response = await fetchAPI(inputValue);
-            const data = response.data; // Make sure this is an array.
-            if (!Array.isArray(data)) {
-                throw new Error('Data is not an array');
-            }
-            const newOptions = data.map((record) => ({
-                label: record.name,
-                value: record.id,
-            }));
-            setOptions(newOptions);
-            return newOptions;
-        } catch (error) {
-            console.error('There was an error fetching the options: ', error);
-            return []; // Return an empty array if there's an error.
-        }
-    };
-
 
     useEffect(() => {
-        async function loadOptions() {
-            try {
-                const response = await fetchAPI();
-                const data = response.data; // Make sure this is an array.
-                if (!Array.isArray(data)) {
-                    throw new Error('Data is not an array');
-                }
-                const newOptions = data.map((record) => ({
-                    label: record.name,
-                    value: record.id,
-                }));
-                setOptions(newOptions);
-                _setDefaultValue(defaultValue ? options.find((o)=> o?.value === defaultValue) : null)
-            } catch (error) {
-                console.error('There was an error in the initial options load: ', error);
-                // You might want to handle this error state appropriately.
-            }
-        }
-        loadOptions();
+        fetchData().then((data) => {
+            setOptions(data);
+            if (value) setSelectedOption(data.find((o) => o.value === value));
+        });
     }, []);
 
 
     return (
         <ConnectForm>
-            {({ control,setValue}) =>
+            {({control, setValue,}) => (
                 <Controller
                     name={name}
                     control={control}
-                    render={({ field,fieldState : {error} }) => (
-                        <div style={{ position: 'relative' }}>
-                            {label && <label style={{fontFamily:"IRANSansBold",fontSize:"0.7rem"}} htmlFor={name}>{label}</label>}
+                    render={(
+                        {field,
+                            fieldState: {error}}) => (
+                        <div style={{position: 'relative'}}>
+                            {label && <label style={labelStyle} htmlFor={name}>{label}</label>}
                             <AsyncSelect
                                 {...field}
-                                value={field.value ? options.find((o)=> o?.value === field.value) : null}
-                                onChange={(option) =>
-                                    field.onChange(option ? option.value : null)}
+                                value={selectedOption}
+                                onChange={(option) => {
+                                    if (onChange) {
+                                        onChange(option);
+                                    } else {
+                                        setValue(name, option?.value);
+                                        setSelectedOption(option);
+                                    }
+                                }}
                                 cacheOptions
-                                loadOptions={promiseOptions}
-                                name={name}
-                                defaultOptions
-                                placeholder={error ? error.message : "انتخاب کنید"}
+                                loadOptions={fetchData}
+                                getOptionLabel={option => option.label}
+                                getOptionValue={option => option.value}
+                                defaultOptions={options}
+                                placeholder={error ? error.message : 'انتخاب..'}
                                 menuPortalTarget={document.body}
                                 styles={{
                                     ...getCustomSelectStyles(error),
-                                    boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
-                                    menuPortal: base => ({ ...base, zIndex: 9999 }),
+                                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                                    menuPortal: (base) => ({...base, zIndex: 9999}),
                                 }}
                                 isDisabled={isDisabled}
                             />
                         </div>
                     )}
-                />}
+                />
+            )}
         </ConnectForm>
     );
 };
+
 export default AsyncSelectInput;

@@ -45,8 +45,4 @@ const Pagination = ({ data,filter,updatePagination }) => {
     );
 };
 
-Pagination.propTypes = {
-    entityName: PropTypes.string.isRequired,
-};
-
 export default Pagination;

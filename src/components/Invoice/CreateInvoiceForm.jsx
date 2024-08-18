@@ -14,49 +14,77 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+
+const defaultValues = {
+    dueDate: '',
+    invoiceNumber: '',
+    issuedDate: '',
+    salesType: 'CASH_SALES',
+    contractId: '',
+    customerId: '',
+    invoiceStatusId: '',
+    advancedPayment: '',
+    insuranceDeposit: '',
+    performanceBound: '',
+    yearId: '',
+    invoiceItems: [
+        {
+            productId: '',
+            quantity: '',
+            unitPrice: '',
+            warehouseReceiptId: '',
+        }
+    ],
+}
 
 const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
+
     const [isContractualSales, setIsContractualSales] = useState(false);
-
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,'');
-    }
-
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
-
-    const contractSelect = async (searchQuery = '') => {
-        return await http.get(`/contracts/select`,searchQuery);
-    }
-
-    const invoiceStatusSelect = async (searchParam='') => {
-        return await http.get(`/invoice-statuses/select`,searchParam);
-    }
 
     const validationSchema = Yup.object().shape({
         dueDate: Yup.string().required('تاریخ سررسید الزامیست.'),
-        invoiceNumber: Yup.number().required('شماره فاکتور الزامیست.'),
+        invoiceNumber: Yup.number()
+                .typeError('شماره فاکتور باید عدد باشد.')
+                .positive('شماره فاکتور باید عدد مثبت باشد.')
+            .required('شماره فاکتور الزامیست.'),
         issuedDate: Yup.string().required('تاریخ صدور الزامیست.'),
-        salesType: Yup.string().required('نوع فروش الزامیست.'),
-        invoiceStatusId: Yup.number().required('وضعیت فاکتور الزامیست.'),
+        salesType: Yup.string()
+            .typeError('نوع فروش الزامیست.')
+            .required('نوع فروش الزامیست.'),
+        invoiceStatusId: Yup.number()
+            .typeError('وضعیت فاکتور الزامیست.')
+            .required('وضعیت فاکتور الزامیست.'),
         contractId: isContractualSales ? Yup.number().required('شناسه قرارداد الزامیست.') : Yup.number(),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
+        customerId: Yup.number()
+            .typeError('شناسه مشتری الزامیست.')
+            .required('شناسه مشتری الزامیست.'),
         advancedPayment: isContractualSales ? Yup.number().required('پیش پرداخت الزامیست.') : Yup.number(),
         insuranceDeposit: isContractualSales ? Yup.number().required('ودیعه بیمه الزامیست.') : Yup.number(),
         performanceBound: isContractualSales ? Yup.number().required('ضمانت اجرا الزامیست.') : Yup.number(),
         yearId: Yup.number().required('سال الزامیست.'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-                warehouseReceiptId: Yup.number().required('شناسه رسید انبار الزامیست.'),
+                productId: Yup.number()
+                    .typeError(' محصول الزامیست.')
+                    .required(' محصول الزامیست.'),
+                quantity: Yup.number()
+                    .typeError('تعداد باید عدد باشد.')
+                    .positive('تعداد باید عدد مثبت باشد.')
+                    .required('تعداد الزامیست.'),
+                unitPrice: Yup.number()
+                        .typeError('قیمت واحد باید عدد باشد.')
+                        .positive('قیمت واحد باید عدد مثبت باشد.')
+                    .required('قیمت واحد الزامیست.'),
+                warehouseReceiptId: Yup.number()
+                    .typeError(' رسید انبار الزامیست.')
+                    .required(' رسید انبار الزامیست.'),
             })
         )
     });
+    const salesTypeOptions = [
+        { label: "فروش نقدی", value: "CASH_SALES" },
+        { label: "فروش قراردادی", value: "CONTRACTUAL_SALES" },
+    ]
 
     const resolver = useYupValidationResolver(validationSchema);
 
@@ -86,27 +114,7 @@ const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
-                        defaultValues={{
-                            dueDate: '',
-                            invoiceNumber: '',
-                            issuedDate: '',
-                            salesType: 'CASH_SALES',
-                            contractId: '',
-                            customerId: '',
-                            invoiceStatusId: '',
-                            advancedPayment: '',
-                            insuranceDeposit: '',
-                            performanceBound: '',
-                            yearId: '',
-                            invoiceItems: [
-                                {
-                                    productId: '',
-                                    quantity: '',
-                                    unitPrice: '',
-                                    warehouseReceiptId: '',
-                                }
-                            ],
-                        }}
+                        defaultValues={defaultValues}
                         onSubmit={onSubmit}
                         resolver={resolver}
                     >
@@ -128,28 +136,23 @@ const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
                                         <SelectInput
                                             name="salesType"
                                             label={"نوع فروش"}
-                                            options={[
-                                                { label: "فروش نقدی", value: "CASH_SALES" },
-                                                { label: "فروش قراردادی", value: "CONTRACTUAL_SALES" },
-                                            ]}
+                                            options={salesTypeOptions}
                                         />
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
-                                    </Col>
-                                </Row>
-                                <Row>
-                                    <Col>
-                                        <AsyncSelectInput name="customerId" label={"مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"مشتری"}
+                                            url={"customers/select"}
+                                        />
                                     </Col>
                                     <Col>
                                         <AsyncSelectInput
                                             name="invoiceStatusId"
                                             label={"وضعیت فاکتور"}
-                                            apiFetchFunction={invoiceStatusSelect}
-                                            onChange={handleInvoiceStatusChange}
+                                            url={"invoice-statuses/select"}
                                         />
                                     </Col>
                                 </Row>
@@ -159,7 +162,7 @@ const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
                                             <AsyncSelectInput
                                                 name="contractId"
                                                 label={" قرارداد"}
-                                                apiFetchFunction={contractSelect}
+                                                url={"contracts/select"}
                                             />
                                         </Col>
                                     </Row>

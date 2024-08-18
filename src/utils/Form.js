@@ -23,6 +23,7 @@ export function Form({ defaultValues, children, onSubmit,resolver }) {
                             ...{
                                 ...child.props,
                                 register: register,
+                                control : control,
                                 errors :errors,
                                 key: child.props.name
                             }

@@ -10,8 +10,7 @@ import Table from '../table/Table';
 import useFilter from "./useFilter";
 import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
 import ErrorModal from "./ErrorModal";
-import axios from "axios";
-import {BASE_URL} from "../../config/config";
+import useHttp from "./useHttp";
 
 
 const filterSchema = {
@@ -28,7 +27,7 @@ const filterSchema = {
 
 // CrudComponent
 const CrudComponent = ({
-                           entityName,
+                           resourcePath,
                            columns,
                            createForm,
                            editForm,
@@ -39,16 +38,18 @@ const CrudComponent = ({
         showModal,
         showEditModal,
         showErrorModal,
+        editingEntity,
         errorMessage,
         openCreateModal,
         closeCreateModal,
+        openEditModal,
         closeEditModal,
         openErrorModal,
-        editingEntity,
-        closeErrorModal,
+        closeErrorModal
     } = useModalManager();
 
     const [data, setData] = useState(null);
+    const {getAll, post, put, del} = useHttp();
 
     const getInitialFilters = (columns) => {
         const search = {};
@@ -68,7 +69,8 @@ const CrudComponent = ({
         updatePagination,
         updateSorting,
         resetFilters,
-    } = useFilter(entityName,initialFilters);
+    } = useFilter(resourcePath,initialFilters);
+
 
 
     const getParams = (filters) => {
@@ -78,14 +80,22 @@ const CrudComponent = ({
             ...filters.sorting
         }
     }
-    const fetchData = async (url = encodeURI(BASE_URL) + "/" + encodeURI(entityName), params = getParams(filters)) => {
-        const response = await axios.get(url, {params});
-        return response.data;
+    const params = {...getParams(filters)};
+
+    const fetchData = async () => {
+        try {
+            const response = await  getAll(encodeURI(resourcePath), {...params})
+            setData(response.data)
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            openErrorModal(err.message || "An error occurred while fetching data");
+            return null;
+        }
     }
 
     useDeepCompareEffect(() => {
-        fetchData(encodeURI(BASE_URL) + "/" + encodeURI(entityName), getParams(filters)).then(data => setData(data));
-    }, [entityName, filters, fetchData]);
+        fetchData();
+    }, [filters]);
     
 
 
@@ -93,51 +103,57 @@ const CrudComponent = ({
     // // CRUD operations
 
     const handleExportToExcel = async (url, exportAll = false) => {
-        const params = {...getParams(filters)}
-            if (exportAll) {
-                params['pagination'] = {
-                    size: 1000000,
-                    page: 0
-                }
+        const params = { ...getParams(filters) }
+        if (exportAll) {
+            params['pagination'] = {
+                size: 1000000,
+                page: 0
             }
-            await axios.get(encodeURI(BASE_URL) + "/" + encodeURI(entityName), {
-                params
-            })
+        }
+        try {
+            await getAll(resourcePath, params); // Use getAll for export
+        } catch (err) {
+            console.error("Error exporting data:", err);
+            openErrorModal(err?.message || "An error occurred while exporting data");
+        }
     }
 
-    const handleCreateEntity = async (entity) => {
+    const handleCreateEntity = async (formData) => {
         try {
-            const url = `/${entityName}`
-            const response =  await axios.post(url,entity,{});
-                        if (response.status === 201){
-                            closeEditModal();
-                            await fetchData().then(data => setData(data));
-                        }
-        } catch (error) {
-            openErrorModal(error.message);
+            const response = await post(resourcePath, formData); // Use post from useHttp
+            if (response?.status === 201) {
+                closeEditModal();
+                await fetchData().then(data => setData(data));
+            }
+        } catch (err) {
+            console.error("Error creating entity:", err);
+            openErrorModal(err?.message || "An error occurred while creating the entity");
         }
     };
 
-    const handleUpdateEntity = async (entity) => {
+    const handleUpdateEntity = async (formData) => {
         try {
-           const response = await  axios.put(`/${entityName}/${editingEntity.id}`, entity);
-           if (response.status === 200){
-               closeEditModal();
-               await fetchData().then(data => setData(data));
-           }
-        } catch (error) {
-            openErrorModal(error.message);
+            const pathVariable = formData?.id || ''; // Assuming 'id' is the primary key
+            const response = await put(`${encodeURI(resourcePath)}/${encodeURIComponent(pathVariable)}`, formData); // Use put from useHttp
+            if (response?.status === 200) {
+                closeEditModal();
+                await fetchData().then(data => setData(data));
+            }
+        } catch (err) {
+            console.error("Error updating entity:", err);
+            openErrorModal(err?.message || "An error occurred while updating the entity");
         }
     };
 
     const handleDeleteEntity = async (id) => {
         try {
-           const response = await axios.delete(`/${entityName}/${id}`);
-           if (response.status === 204){
-               await fetchData().then(data => setData(data));
-           }
-        } catch (error) {
-            openErrorModal(error.message);
+            const response = await del(`${encodeURI(resourcePath)}/${id}`); // Use del from useHttp
+            if (response?.status === 204) {
+                await fetchData().then(data => setData(data));
+            }
+        } catch (err) {
+            console.error("Error deleting entity:", err);
+            openErrorModal(err?.message || "An error occurred while deleting the entity");
         }
     };
 
@@ -145,16 +161,14 @@ const CrudComponent = ({
     return(
         <div className="table-container">
             <ButtonContainer
-                lastChild={<FileUpload uploadUrl={`/${entityName}/import`}/>}
+                lastChild={<FileUpload uploadUrl={`/${resourcePath}/import`}/>}
             >
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
 
                 <SiMicrosoftexcel
-                    onClick={() => handleExportToExcel(`${entityName}/download-all-${entityName}.xlsx`,
-                        {contentType : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}
-                    )}
+                    onClick={() => handleExportToExcel(`${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`,false)}
                     size="2.2rem"
                     className="m-1"
                     color="#41941a"
@@ -172,22 +186,22 @@ const CrudComponent = ({
                 columns={columns}
                 hasSubTotal={hasSubTotal}
                 hasYearSelect={hasYearSelect}
-                onEdit={handleUpdateEntity}
-                onDelete={handleDeleteEntity}
                 filter={filters}
                 resetFilter={resetFilters}
+                handleEditButtonClick={openEditModal}
                 updateSearchParams={updateSearchParams}
                 updatePagination={updatePagination}
                 updateSorting={updateSorting}
-                getParams={getParams}
+                params={params}
+                onDeleteEntity={handleDeleteEntity}
                 onDownloadExcelFile={handleExportToExcel}
-                entityName={entityName}
+                resourcePath={resourcePath}
             />
 
             {editingEntity && editForm && React.cloneElement(editForm, {
                 editingEntity,
                 show: showEditModal,
-                onUpdateEntity: '',
+                onUpdateEntity: handleUpdateEntity,
                 onHide: closeEditModal,
             })}
 
@@ -201,7 +215,7 @@ const CrudComponent = ({
 };
 
 CrudComponent.propTypes = {
-    entityName: PropTypes.string.isRequired,
+    resourcePath: PropTypes.string.isRequired,
     columns: PropTypes.array.isRequired,
     createForm: PropTypes.element,
     editForm: PropTypes.element,

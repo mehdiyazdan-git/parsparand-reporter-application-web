@@ -54,7 +54,7 @@ const WarehouseReceipts = () => {
 
     return (
         <CrudComponent
-            url={'warehouse-receipts'}
+            resourcePath={'warehouse-receipts'}
             entityName="warehouse-receipts"
             columns={columns}
             createForm={<CreateWarehouseReceiptForm/>}

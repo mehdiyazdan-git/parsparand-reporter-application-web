@@ -48,8 +48,7 @@ const Payments = ({ customerId }) => {
 
     return (
         <CrudComponent
-            url={'payments'}
-            entityName={"payments"}
+            resourcePath="payments"
             columns={paymentColumns}
             createForm={<CreatePaymentForm />}
             editForm={<EditPaymentForm />}

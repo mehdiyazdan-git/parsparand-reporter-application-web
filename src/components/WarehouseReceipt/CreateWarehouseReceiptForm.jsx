@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import * as Yup from "yup";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
@@ -14,43 +14,53 @@ import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
-    const {methods} = useHttp();
-
-    const customerSelect = useCallback( async (inputValue) => {
-        return await methods.get({
-            'url' : 'customers/select',
-            'params' : { 'searchQuery' : inputValue},
-            'headers' : { 'Accept' : 'application/json' }
-        });
-    },[methods]);
-
-
 
     const validationSchema = Yup.object().shape({
-        warehouseReceiptDate: Yup.string().required('تاریخ رسید الزامیست.'),
+        warehouseReceiptDate: Yup.date()
+            .typeError('تاریخ رسید الزامیست.')
+            .required('تاریخ رسید الزامیست.'),
+
         warehouseReceiptDescription: Yup.string()
-            .max(255, 'توضیحات نمیتواند بیشتر از 255 کاراکتر باشد.')
-            .min(3, 'توضیحات نمیتواند کمتر از 3 کاراکتر باشد.')
-            .required('توضیحات الزامیست.'),
-        warehouseReceiptNumber: Yup.number().required('شماره رسید الزامیست.'),
-        customerId: Yup.number().required(' مشتری الزامیست.'),
+            .required('توضیحات الزامیست.')
+            .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
+            .max(255, 'توضیحات نمی‌تواند بیشتر از 255 کاراکتر باشد.'),
+
+        warehouseReceiptNumber: Yup.number()
+            .typeError('شماره رسید باید عدد باشد.')
+            .integer('شماره رسید باید عدد صحیح باشد.') // Ensure it's an integer
+            .positive('شماره رسید باید مثبت باشد.')
+            .required('شماره رسید الزامیست.'),
+
+        customerId: Yup.number()
+            .typeError('مشتری باید به صورت عددی انتخاب شود.') // More specific error message
+            .integer('شناسه مشتری باید عدد صحیح باشد.')
+            .positive('شناسه مشتری باید مثبت باشد.')
+            .required(' انتخاب مشتری الزامیست.'),
 
         warehouseReceiptItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required(' محصول الزامیست.'),
+                productId: Yup.number()
+                    .typeError('محصول باید به صورت عددی انتخاب شود.')
+                    .integer('شناسه محصول باید عدد صحیح باشد.')
+                    .positive('شناسه محصول باید مثبت باشد.')
+                    .required(' انتخاب محصول الزامیست.'),
+
                 quantity: Yup.number()
                     .typeError('مقدار باید عدد باشد.')
+                    .integer('مقدار باید عدد صحیح باشد.')
                     .positive('مقدار باید مثبت باشد.')
                     .required('مقدار الزامیست.'),
+
                 unitPrice: Yup.number()
-                    .typeError('قیمت واحد باید باید عدد باشد.')
+                    .typeError('قیمت واحد باید عدد باشد.')
                     .positive('قیمت واحد باید مثبت باشد.')
                     .required('قیمت واحد الزامیست.'),
+
+                // 'amount' is calculated, so it doesn't need validation here
             })
-        )
+        ).min(1, 'حداقل یک قلم کالا باید وارد شود.') // Ensure at least one item is added
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -90,7 +100,7 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                             ],
                         }}
                         onSubmit={onSubmit}
-                        // resolver={resolver}
+                        resolver={resolver}
                     >
                         <Row>
                             <Col>
@@ -103,9 +113,11 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                                     </Col>
                                 </Row>
                                <Row>
-                                   <Col>
-                                       <AsyncSelectInput name="customerId" label={" مشتری"} apiFetchFunction={customerSelect} />
-                                   </Col>
+                                   <AsyncSelectInput
+                                       name="customerId"
+                                       label={"شناسه مشتری"}
+                                       url={"customers/select"}
+                                   />
                                </Row>
                                 <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />
                             </Col>

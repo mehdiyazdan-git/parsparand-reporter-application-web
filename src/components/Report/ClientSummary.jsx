@@ -190,8 +190,8 @@ const ClientSummary = () => {
             <div className="row mt-3">
                 <AsyncSelectSearch
                     url="customers/select?"
-                    value={filter.customerId}
-                    onChange={value => handleFilterChange({ customerId: value })}
+                    value={customers.find(item => item.value === filter.customerId)}
+                    onChange={value => handleFilterChange({ customerId: value?.value })} // Update here
                 />
             </div>
 

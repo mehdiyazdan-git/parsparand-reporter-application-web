@@ -3,8 +3,8 @@ import AsyncSelect from 'react-select/async';
 import styled from 'styled-components';
 import { toast } from "react-toastify";
 import useHttp from "../contexts/useHttp";
+import {getCustomSelectStyles} from "../../utils/customStyles";
 
-// Styled Components (You can adjust these as needed to match your design)
 const SelectContainer = styled.div`
     display: flex;
     flex-direction: column;
@@ -17,6 +17,32 @@ const AsyncSelectSearch = ({ url, value, onChange }) => {
 
     // --- State ---
     const [isLoading, setIsLoading] = useState(false);
+    const [defaultOptions, setDefaultOptions] = useState([]); // Store default options
+
+    // --- Effects ---
+    useEffect(() => {
+        // Fetch default options on component mount
+        const fetchDefaultOptions = async () => {
+            setIsLoading(true);
+            try {
+                const response = await getAll(encodeURI(url));
+                if (response && response.data) {
+                    const options = response.data.map(item => ({
+                        value: item.id,
+                        label: item.name,
+                    }));
+                    setDefaultOptions(options);
+                }
+            } catch (err) {
+                console.error(err);
+                toast.error("Error loading default options.");
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchDefaultOptions();
+    }, []); // Re-fetch if url or getAll changes
 
     // --- Functions ---
     const loadOptions = async (inputValue, callback) => {
@@ -54,15 +80,15 @@ const AsyncSelectSearch = ({ url, value, onChange }) => {
         <SelectContainer>
             <AsyncSelect
                 cacheOptions // Enable caching for better performance
-                defaultOptions // Load initial options on component mount
+                defaultOptions={defaultOptions}
                 loadOptions={loadOptions}
                 onInputChange={handleInputChange}
                 onChange={onChange}
                 value={value}
                 isLoading={isLoading}
-                placeholder="Search for a customer..."
-                noOptionsMessage={() => "No customers found"}
-                // Add other props like isClearable, styles, etc. as needed
+                placeholder="جستجو..."
+                noOptionsMessage={() => "هیچ موردی یافت نشد."}
+                styles={getCustomSelectStyles()}
             />
         </SelectContainer>
     );

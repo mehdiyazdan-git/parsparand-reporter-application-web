@@ -40,8 +40,7 @@ const Products = () => {
     ];
     return (
         <CrudComponent
-            url={'/products'}
-            entityName="products"
+            resourcePath="products"
             columns={productColumns}
             createForm={<CreateProductForm />}
             editForm={<EditProductForm />}

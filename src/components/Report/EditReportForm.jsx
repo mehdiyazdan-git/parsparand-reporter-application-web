@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useCallback} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Modal, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -9,29 +9,33 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
 import { bodyStyle, titleStyle } from "../styles/styles";
-import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ReportItems from "./ReportItems";
 import "../../App.css";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import NumberInput from "../../utils/NumberInput";
 
 const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const {getAll} = useHttp();
-
-    const yearSelect = async (inputValue) => {
-        return await getAll('years/select', {'searchParams':inputValue});
-    }
 
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
         reportExplanation: Yup.string().required('توضیحات گزارش الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
+        yearId: Yup.number()
+            .typeError('سال باید عدد باشد.')
+            .required('سال الزامیست.'),
         reportItems: Yup.array().of(
             Yup.object().shape({
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-                customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-                warehouseReceiptId: Yup.number().required('شناسه رسید انبار الزامیست.'),
+                quantity: Yup.number()
+                    .typeError('مقدار باید عدد باشد.')
+                    .required('مقدار الزامیست.'),
+                unitPrice: Yup.number()
+                    .typeError('قیمت واحد باید عدد باشد.')
+                    .required('قیمت واحد الزامیست.'),
+                customerId: Yup.number()
+                    .typeError('شناسه مشتری باید عدد باشد.')
+                    .required('شناسه مشتری الزامیست.'),
+                warehouseReceiptId: Yup.number()
+                    .typeError('شناسه رسید انبار باید عدد باشد.')
+                    .required('شناسه رسید انبار الزامیست.'),
             })
         )
     });
@@ -44,7 +48,7 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         }
         await onUpdateEntity(data);
         onHide();
-    };
+    }
 
     return (
         <CustomModal size={"xl"} show={show}>
@@ -56,13 +60,7 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
-                        defaultValues={{
-                            id: editingEntity.id,
-                            reportDate: editingEntity.reportDate,
-                            reportExplanation: editingEntity.reportExplanation,
-                            yearId: editingEntity.yearId,
-                            reportItems: editingEntity.reportItems,
-                        }}
+                        defaultValues={editingEntity}
                         onSubmit={onSubmit}
                         resolver={resolver}
                     >
@@ -70,10 +68,10 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <DateInput name="reportDate" label={"تاریخ گزارش"} />
+                                        <NumberInput name="id" label={"شناسه"} />
                                     </Col>
-                                    <Col className={"mb-1"}>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
+                                    <Col>
+                                        <DateInput name="reportDate" label={"تاریخ گزارش"} />
                                     </Col>
                                 </Row>
                                 <TextInput name="reportExplanation" label={"توضیحات گزارش"} />

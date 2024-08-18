@@ -16,21 +16,21 @@ const Table = ({
                    columns,
                    hasSubTotal,
                    hasYearSelect,
-                   onEdit,
-                   onDelete,
                    filter,
                    resetFilter,
                    updateSearchParams,
                    updatePagination,
                    updateSorting,
-                   getParams,
+                   params,
+                   handleEditButtonClick,
                    onDownloadExcelFile,
-                   entityName
+                   onDeleteEntity,
+                   resourcePath
                }) => {
 
 
     const handleYearChange = useCallback((value) => {
-        updateSearchParams({'jalaliYear': parseInt(value,10)});
+        updateSearchParams({'jalaliYear': parseInt(value, 10)});
     }, [updateSearchParams]);
 
 
@@ -55,7 +55,7 @@ const Table = ({
                 />
                 <TableSearch
                     columns={columns}
-                    entityName={entityName}
+                    resourcePath={resourcePath}
                     updateSearchParams={updateSearchParams}
                     updatePagination={updatePagination}
                     filter={filter}
@@ -63,30 +63,26 @@ const Table = ({
                 />
                 <TableBody
                     data={data?.content || []}
-
-                    entityName={entityName}
-                    onEdit={onEdit}
                     columns={columns}
-                    onDelete={onDelete}
-
-                />
+                    handleEditButtonClick={handleEditButtonClick}
+                    onDeleteEntity={onDeleteEntity}
+                 />
                 <TableFooter
                     allData={data?.content || []}
                     columns={columns}
                     downloadExcelFile={onDownloadExcelFile}
-                    entityName={entityName}
+                    resourcePath={resourcePath}
                     hasSubTotal={hasSubTotal}
                     data={data?.content || []}
-                    getParams={getParams}
+                    params={params}
                     filter={filter}
                 />
             </table>
-                <Pagination
-                    entityName={entityName}
-                    filter={filter}
-                    updatePagination={updatePagination}
-                    data={data}
-                />
+            <Pagination
+                filter={filter}
+                updatePagination={updatePagination}
+                data={data}
+            />
         </>
     );
 };
@@ -114,7 +110,7 @@ Table.propTypes = {
 };
 
 Table.defaultProps = {
-    initialFilter: { page: 0, size: 10 }
+    initialFilter: {page: 0, size: 10}
 };
 
 export default Table;

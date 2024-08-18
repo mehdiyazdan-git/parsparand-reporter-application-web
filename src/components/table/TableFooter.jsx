@@ -4,17 +4,18 @@ import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
 
-
-
-
-
-const TableFooter = ({data,columns, hasSubTotal, downloadExcelFile}) => {
-
-
+const TableFooter = ({ data, columns, hasSubTotal, downloadExcelFile, params }) => {
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
         : columns.length;
 
+    const handleDownloadCurrentPage = () => {
+        downloadExcelFile( false, params);
+    };
+
+    const handleDownloadAllPages = () => {
+        downloadExcelFile( true, params);
+    };
 
     return (
         hasSubTotal && (
@@ -31,11 +32,17 @@ const TableFooter = ({data,columns, hasSubTotal, downloadExcelFile}) => {
                 <td>
                     <SiMicrosoftexcel
                         data-tooltip-id="export-current-page-to-excel-button"
-                        onClick={()=>downloadExcelFile(false)}
+                        onClick={handleDownloadCurrentPage}
                         size={"1.3rem"}
                         className={"mx-1"}
                         color={"#41941a"}
                         type="button"
+                    />
+                    <Tooltip
+                        id="export-current-page-to-excel-button"
+                        color={"green"}
+                        content="صفحه جاری"
+                        place="left"
                     />
                 </td>
             </tr>
@@ -51,26 +58,20 @@ const TableFooter = ({data,columns, hasSubTotal, downloadExcelFile}) => {
                 <td>
                     <SiMicrosoftexcel
                         data-tooltip-id="export-total-query-to-excel-button"
-                        onClick={()=>downloadExcelFile(true)}
+                        onClick={handleDownloadAllPages}
                         size={"1.3rem"}
                         className={"mx-1"}
                         color={"#41941a"}
                         type="button"
                     />
+                    <Tooltip
+                        id="export-total-query-to-excel-button"
+                        color={"green"}
+                        content="کل صفحات"
+                        place="left"
+                    />
                 </td>
             </tr>
-            <Tooltip
-                id="export-current-page-to-excel-button"
-                color={"green"}
-                content="صفحه جاری"
-                place="left"
-            />
-            <Tooltip
-                id="export-total-query-to-excel-button"
-                color={"green"}
-                content="کل صفحات"
-                place="left"
-            />
             </tfoot>
         )
     );
@@ -78,11 +79,10 @@ const TableFooter = ({data,columns, hasSubTotal, downloadExcelFile}) => {
 
 TableFooter.propTypes = {
     columns: PropTypes.array.isRequired,
-    data: PropTypes.array.isRequired,
-    allData: PropTypes.array.isRequired,
-    downloadExcelFile: PropTypes.func.isRequired,
-    entityName: PropTypes.string.isRequired,
+    data: PropTypes.object.isRequired,
     hasSubTotal: PropTypes.bool.isRequired,
+    downloadExcelFile: PropTypes.func.isRequired,
+    params: PropTypes.object.isRequired,
 };
 
 export default TableFooter;

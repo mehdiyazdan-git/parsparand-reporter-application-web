@@ -12,6 +12,8 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
 import useHttp from "../contexts/useHttp";
+import * as Yup from "yup";
+import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 
 
 
@@ -23,20 +25,20 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
         return await http.get(`/customers/select`,{searchQuery});
     }
 
-    // const validationSchema = Yup.object().shape({
-    //     paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
-    //     paymentDescription: Yup.string()
-    //         .max(255, 'توضیحات پرداخت نباید بیشتر از 255 کاراکتر باشد.')
-    //         .typeError('توضیحات پرداخت باید باید متن باشد.')
-    //         .required('توضیحات پرداخت الزامیست.'),
-    //     customerId: Yup.number().required('مشتری الزامیست.'),
-    //     paymentAmount: Yup.number()
-    //         .typeError('مبلغ پرداخت باید باید عدد باشد.')
-    //         .positive('مبلغ پرداخت باید عدد مثبت باشد.')
-    //         .required('مبلغ پرداخت الزامیست.'),
-    // });
+    const validationSchema = Yup.object().shape({
+        paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
+        paymentDescription: Yup.string()
+            .max(255, 'توضیحات پرداخت نباید بیشتر از 255 کاراکتر باشد.')
+            .typeError('توضیحات پرداخت باید باید متن باشد.')
+            .required('توضیحات پرداخت الزامیست.'),
+        customerId: Yup.number().required('مشتری الزامیست.'),
+        paymentAmount: Yup.number()
+            .typeError('مبلغ پرداخت باید باید عدد باشد.')
+            .positive('مبلغ پرداخت باید عدد مثبت باشد.')
+            .required('مبلغ پرداخت الزامیست.'),
+    });
 
-    // const resolver = useYupValidationResolver(validationSchema);
+    const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
        try {
@@ -62,9 +64,15 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
             <Modal.Body style={bodyStyle}>
                 <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
                     <Form
-
+                        defaultValues={{
+                            paymentDate: '',
+                            paymentDescription: '',
+                            customerId: '',
+                            paymentAmount: '',
+                            paymentSubject: '',
+                        }}
                         onSubmit={onSubmit}
-                        // resolver={resolver}
+                        resolver={resolver}
                     >
                         <Row>
                             <Col>
