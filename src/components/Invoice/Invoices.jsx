@@ -8,8 +8,6 @@ import {formatNumber} from '../../utils/functions/formatNumber';
 
 const Invoices = ({options}) => {
 
-    const entityName = 'invoices';
-
 
     const columns = [
         {key: 'id', title: 'شناسه', width: '5%', sortable: true},
@@ -57,8 +55,7 @@ const Invoices = ({options}) => {
 
     return (
         <CrudComponent
-            url={'invoices'}
-            entityName={'invoices'}
+            resourcePath="invoices"
             columns={columns}
             createForm={<CreateInvoiceForm/>}
             editForm={<EditInvoiceForm/>}

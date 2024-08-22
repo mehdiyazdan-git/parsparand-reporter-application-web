@@ -58,7 +58,10 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                <div
+                    className="container modal-body"
+                     style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}
+                >
                     <Form
                         defaultValues={editingEntity}
                         onSubmit={onSubmit}

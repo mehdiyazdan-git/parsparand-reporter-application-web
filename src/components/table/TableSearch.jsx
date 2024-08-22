@@ -7,7 +7,7 @@ import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
 
-const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
+const TableSearch = function ({columns,updateSearchParams,filters,resetFilter}) {
 
     const handleSearchChange = (name, value) => {
         updateSearchParams({[name] : value});
@@ -24,7 +24,7 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             key={column.key}
                             width={column.width}
                             name={column.key || ''}
-                            value={filter.search[column.key] ? (column.render ? column.render(filter.search[column.key]) : filter.search[column.key]) : ''}
+                            value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
                             onChange={(date) => handleSearchChange(column.key, date)}/>
                     ) : column.type === 'select' ? (
                         <SelectSearchInput
@@ -33,14 +33,14 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             name={column?.key || ''}
                             options={column.options}
                             fetchAPI={column.fetchAPI}
-                            value={filter?.search ? filter.search[column.key] : null}
+                            value={filters?.search ? filters.search[column.key] : null}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
                         <AsyncSelectSearch
                             width={column.width}
                             url={column.url}
-                            value={filter?.search ? filter?.search[column.key] : null}
+                            value={filters?.search ? filters?.search[column.key] : null}
                             onChange={(value) => handleSearchChange(column.searchKey, value?.value ? value.value : '')}
                         />
                     ) : column.type === 'text' ? (
@@ -49,7 +49,7 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             width={column.width}
                             id={column.key}
                             name={column?.key || ''}
-                            value={filter.search[column.key] ? (column.render ? column.render(filter.search[column.key]) : filter.search[column.key]) : ''}
+                            value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
                             onChange={(value) => handleSearchChange([column.searchKey], value)}
                         />
                     ) : column.type === 'checkbox' ? (
@@ -58,7 +58,7 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             width={column.width}
                             id={column.key}
                             name={column?.key || ''}
-                            checked={filter.search?.[column.key]}
+                            checked={filters.search?.[column.key]}
                             onChange={(event) => handleSearchChange(column.key, event.target.checked)}
                             label={column.title}
                         />
@@ -68,7 +68,7 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             width={column.width}
                             id={column.key}
                             name={column.key}
-                            value={filter.search[column.key]}
+                            value={filters.search[column.key]}
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : (
@@ -77,7 +77,7 @@ const TableSearch = function ({columns,updateSearchParams,filter,resetFilter}) {
                             width={column.width}
                             id={column.key}
                             name={column?.key || ''}
-                            value={filter.search?.[column.key]}
+                            value={filters.search?.[column.key]}
                             onChange={(event) => handleSearchChange(column.key, event.target.value)}
                         />
                     )

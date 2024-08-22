@@ -17,8 +17,7 @@ const Users = () => {
 
     return (
         <CrudComponent
-            url={'/users'}
-            entityName="users"
+            resourcePath="users"
             columns={userColumns}
             createForm={<CreateUserForm />}
             editForm={<EditUserForm />}

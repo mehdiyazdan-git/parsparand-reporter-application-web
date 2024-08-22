@@ -39,13 +39,14 @@ const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
 
-    const onSubmit = async (entity) => {
+    const onSubmit = (formData) => {
 
-        if (entity.reportDate) {
-            entity.reportDate = moment(new Date(entity.reportDate)).format('YYYY-MM-DD');
+        if (formData.reportDate) {
+            formData.reportDate = moment(new Date(formData.reportDate)).format('YYYY-MM-DD');
         }
-        await onCreateEntity(entity);
         onHide();
+        onCreateEntity(formData);
+
     };
 
     return (

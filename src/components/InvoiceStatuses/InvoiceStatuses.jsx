@@ -12,8 +12,7 @@ const InvoiceStatuses = () => {
 
     return (
         <CrudComponent
-            url={'/invoice-statuses'}
-            entityName="invoice-statuses"
+            resourcePath="invoice-statuses"
             columns={invoiceStatusColumns}
             createForm={<CreateInvoiceStatusForm />}
             editForm={<EditInvoiceStatusForm />}

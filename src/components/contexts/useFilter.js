@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 
-const useFilter = (entityListName,initialFilter) => {
-    const storageKey = `filter_${entityListName}`;
+const useFilter = (resourcePath,initialFilter) => {
+    const storageKey = `filter_${resourcePath}`;
 
     const filterSchema = {
         search: {},
@@ -17,9 +17,8 @@ const useFilter = (entityListName,initialFilter) => {
 
     const getInitialFilters = (storageKey) => {
         const storedFilters = sessionStorage.getItem(storageKey);
-        return storedFilters ? JSON.parse(storedFilters) : initialFilter || filterSchema; // if initialFilter is passed then use it else use filterSchema
+        return storedFilters ? JSON.parse(storedFilters) : initialFilter || filterSchema;
     };
-
     const [filters, setFilters] = useState(getInitialFilters(storageKey,initialFilter));
 
 
@@ -28,11 +27,13 @@ const useFilter = (entityListName,initialFilter) => {
     }, [filters, storageKey]);
 
 
-
-
     const updateSearchParams = (newSearch) => {
         setFilters((prevFilters) => ({
             ...prevFilters,
+            pagination: {
+                ...prevFilters.pagination,
+                page : 0,
+            },
             search: {
                 ...prevFilters.search,
                 ...newSearch,
@@ -63,6 +64,7 @@ const useFilter = (entityListName,initialFilter) => {
     const resetFilters = () => {
         setFilters(filterSchema);
     };
+
 
     return {
         filters,

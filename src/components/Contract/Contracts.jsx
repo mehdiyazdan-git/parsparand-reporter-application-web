@@ -20,8 +20,7 @@ const Contracts = () => {
 
     return (
         <CrudComponent
-            url={'/contracts'}
-            entityName="contracts"
+            resourcePath="contracts"
             columns={contractColumns}
             createForm={<CreateContractForm />}
             editForm={<EditContractForm />}

@@ -1,30 +1,33 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React, {useEffect} from 'react';
 import './Pagination.css';
 import PageSizeSelector from './PageSizeSelector';
 
 
-const Pagination = ({ data,filter,updatePagination }) => {
+const Pagination = ({ data,updatePagination}) => {
 
-
-    const totalPages = data?.totalPages || 0;
-    const totalElements = data?.totalElements || 0;
-    const currentPage = filter?.pageable?.page || 0;
-    const pageSize = filter?.pageable?.size || 10; // Default page size
-
-    const startIndex = data?.first ? 1 : (currentPage * pageSize) + 1;
-    const endIndex = data?.last ? totalElements : (currentPage * pageSize) + pageSize;
+    const [totalPages,setTotalPages] = React.useState(0);
+    const [totalElements,setTotalElements] = React.useState(0);
+    const [currentPage,setCurrentPage] = React.useState(0);
+    const [pageSize,setPageSize] = React.useState(10);
+    const [startIndex, setStartIndex] = React.useState(0);
+    const [endIndex, setEndIndex] = React.useState(0);
 
 
     const handleSizeChange = (e) => {
-        e.preventDefault();
         const newSize = parseInt(e.target.value, 10);
         updatePagination({ page : 0 , size : newSize });
     };
 
-    const goToPage = (pageNo) => {
-        updatePagination({ page : pageNo , size : pageSize });
-    };
+    useEffect(() => {
+        if (data) {
+            setTotalPages(data.totalPages);
+            setTotalElements(data.totalElements);
+            setCurrentPage(data.pageable?.pageNumber);
+            setPageSize(data.pageable?.pageSize);
+            setStartIndex(data.pageable.offset + 1); // offset is 0-based, so add 1
+            setEndIndex(Math.min(data.pageable.offset + data.pageable.pageSize, data.totalElements));
+        }
+    }, [data]);
 
     return (
         <div className="pagination">
@@ -35,11 +38,11 @@ const Pagination = ({ data,filter,updatePagination }) => {
                 {`${startIndex} تا ${endIndex} از ${totalElements}`}
             </div>
             <div className="page-controls">
-                <button onClick={() => goToPage(0)} disabled={currentPage === 0}>{'<<'}</button>
-                <button onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 0}>{'<'}</button>
+                <button onClick={()=> updatePagination({ page : 0 })} disabled={data?.first}>{'<<'}</button>
+                <button onClick={()=> updatePagination({ page : currentPage - 1 })} disabled={data?.first}>{'<'}</button>
                 صفحه {currentPage + 1} از {totalPages}
-                <button onClick={() => goToPage(currentPage + 1)} disabled={currentPage + 1 >= totalPages}>{'>'}</button>
-                <button onClick={() => goToPage(totalPages - 1)} disabled={currentPage + 1 >= totalPages}>{'>>'}</button>
+                <button onClick={()=>updatePagination({ page : currentPage + 1 })} disabled={data?.last}>{'>'}</button>
+                <button onClick={()=> updatePagination({ page : totalPages - 1 })} disabled={data?.last}>{'>>'}</button>
             </div>
         </div>
     );

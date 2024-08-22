@@ -1,31 +1,18 @@
-import React, {useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
-import {SiMicrosoftexcel} from 'react-icons/si';
 
 import useModalManager from '../../hooks/useModalManager';
 import ButtonContainer from '../../utils/ButtonContainer';
 import FileUpload from '../../utils/FileUpload';
 import Button from '../../utils/Button';
 import Table from '../table/Table';
-import useFilter from "./useFilter";
-import useDeepCompareEffect from "../../hooks/useDeepCompareEffect";
-import ErrorModal from "./ErrorModal";
-import useHttp from "./useHttp";
+import useFilter from './useFilter';
+import ErrorModal from './ErrorModal';
+import useHttp from './useHttp';
+import DownloadFile from './DownloadFile';
 
 
-const filterSchema = {
-    'search': {},
-    'pagination': {
-        size: 10,
-        page: 0
-    },
-    'sorting': {
-        sortBy: 'id',
-        order: 'asc'
-    },
-}
 
-// CrudComponent
 const CrudComponent = ({
                            resourcePath,
                            columns,
@@ -45,135 +32,140 @@ const CrudComponent = ({
         openEditModal,
         closeEditModal,
         openErrorModal,
-        closeErrorModal
+        closeErrorModal,
     } = useModalManager();
+    const filterSchema = {
+        search: {},
+        pagination: {
+            size: 10,
+            page: 0,
+        },
+        sorting: {
+            sortBy: 'id',
+            order: 'asc',
+        },
+    };
+    const getInitialFilters = (columns) => {
+        const search = {};
+        columns.forEach((column) => {
+            if (column.searchable) {
+                search[column.key] = '';
+            }
+        });
+        return {...filterSchema, search};
+    };
+
+    const getParams = (filters) => {
+        return Object.entries(filters).reduce((params, [key, value]) => {
+            if (typeof value === 'object') {
+                Object.assign(params, value);
+            } else {
+                params[key] = value;
+            }
+            return params;
+        }, {});
+    };
 
     const [data, setData] = useState(null);
     const {getAll, post, put, del} = useHttp();
 
-    const getInitialFilters = (columns) => {
-        const search = {};
-        columns.forEach(column => {
-            if (column.searchable) {
-                search[column.key] = '';
-            }
-        })
-        return {...filterSchema, search};
-    };
 
     const initialFilters = getInitialFilters(columns);
-
     const {
         filters,
         updateSearchParams,
         updatePagination,
         updateSorting,
         resetFilters,
-    } = useFilter(resourcePath,initialFilters);
+    } = useFilter(resourcePath, initialFilters);
 
-
-
-    const getParams = (filters) => {
-        return {
-            ...filters.search,
-            ...filters.pagination,
-            ...filters.sorting
-        }
-    }
-    const params = {...getParams(filters)};
-
-    const fetchData = async () => {
+    const fetchData = useCallback(async () => {
         try {
-            const response = await  getAll(encodeURI(resourcePath), {...params})
-            setData(response.data)
+            const response = await getAll(encodeURI(resourcePath), getParams(filters));
+            setData(response.data); // Directly set the response data
         } catch (err) {
-            console.error("Error fetching data:", err);
-            openErrorModal(err.message || "An error occurred while fetching data");
-            return null;
+            console.error('Error fetching data:', err);
+            openErrorModal(err?.message || 'An error occurred while fetching data');
         }
-    }
+    }, [filters, openErrorModal, resourcePath]);
 
-    useDeepCompareEffect(() => {
+
+    useEffect(() => {
         fetchData();
-    }, [filters]);
-    
-
-
-
-    // // CRUD operations
+    }, [fetchData]); // Use fetchData as a dependency
 
     const handleExportToExcel = async (url, exportAll = false) => {
-        const params = { ...getParams(filters) }
+        const params = getParams(filters);
         if (exportAll) {
-            params['pagination'] = {
+            params.pagination = {
                 size: 1000000,
-                page: 0
-            }
+                page: 0,
+            };
         }
         try {
-            await getAll(resourcePath, params); // Use getAll for export
+            await getAll(url, params);
         } catch (err) {
-            console.error("Error exporting data:", err);
-            openErrorModal(err?.message || "An error occurred while exporting data");
+            console.error('Error exporting data:', err);
+            openErrorModal(err?.message || 'An error occurred while exporting data');
         }
-    }
+    };
 
     const handleCreateEntity = async (formData) => {
         try {
-            const response = await post(resourcePath, formData); // Use post from useHttp
+            const response = await post(encodeURI(resourcePath), formData);
             if (response?.status === 201) {
-                closeEditModal();
-                await fetchData().then(data => setData(data));
+                await fetchData();
+                closeCreateModal();
             }
         } catch (err) {
-            console.error("Error creating entity:", err);
-            openErrorModal(err?.message || "An error occurred while creating the entity");
+            console.error('Error creating entity:', err);
+            openErrorModal(err?.response?.data || 'An error occurred while creating the entity');
         }
     };
 
     const handleUpdateEntity = async (formData) => {
         try {
-            const pathVariable = formData?.id || ''; // Assuming 'id' is the primary key
-            const response = await put(`${encodeURI(resourcePath)}/${encodeURIComponent(pathVariable)}`, formData); // Use put from useHttp
+            const pathVariable = formData?.id || '';
+            const response = await put(`${encodeURI(resourcePath)}/${encodeURIComponent(pathVariable)}`, formData);
             if (response?.status === 200) {
+                await fetchData();
                 closeEditModal();
-                await fetchData().then(data => setData(data));
             }
         } catch (err) {
-            console.error("Error updating entity:", err);
-            openErrorModal(err?.message || "An error occurred while updating the entity");
+            console.error('Error updating entity:', err);
+            openErrorModal(err?.response?.data || `An error occurred while updating the entity: ${err.response?.status}`);
         }
     };
 
     const handleDeleteEntity = async (id) => {
         try {
-            const response = await del(`${encodeURI(resourcePath)}/${id}`); // Use del from useHttp
+            const response = await del(`${encodeURI(resourcePath)}/${id}`);
             if (response?.status === 204) {
-                await fetchData().then(data => setData(data));
+                await fetchData();
             }
         } catch (err) {
-            console.error("Error deleting entity:", err);
-            openErrorModal(err?.message || "An error occurred while deleting the entity");
+            console.error('Error deleting entity:', err);
+            openErrorModal(err?.response?.data || 'An error occurred while deleting the entity');
         }
     };
 
+    const onSuccess = async () => {
+        await fetchData();
+    };
 
-    return(
+    return (
         <div className="table-container">
             <ButtonContainer
-                lastChild={<FileUpload uploadUrl={`/${resourcePath}/import`}/>}
+                lastChild={<FileUpload uploadUrl={`/${resourcePath}/upload`} onSuccess={onSuccess}/>}
             >
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
-
-                <SiMicrosoftexcel
-                    onClick={() => handleExportToExcel(`${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`,false)}
-                    size="2.2rem"
-                    className="m-1"
-                    color="#41941a"
-                    type="button"
-                />
+                {/*<DownloadFile*/}
+                {/*    exportAll={false}*/}
+                {/*    fileName={resourcePath}*/}
+                {/*    params={getParams(filters)}*/}
+                {/*/>*/}
                 {createForm && React.cloneElement(createForm, {
                     onCreateEntity: handleCreateEntity,
                     show: showModal,
@@ -186,15 +178,15 @@ const CrudComponent = ({
                 columns={columns}
                 hasSubTotal={hasSubTotal}
                 hasYearSelect={hasYearSelect}
-                filter={filters}
+                filters={filters}
+                params={getParams(filters)}
                 resetFilter={resetFilters}
                 handleEditButtonClick={openEditModal}
                 updateSearchParams={updateSearchParams}
                 updatePagination={updatePagination}
                 updateSorting={updateSorting}
-                params={params}
-                onDeleteEntity={handleDeleteEntity}
                 onDownloadExcelFile={handleExportToExcel}
+                onDeleteEntity={handleDeleteEntity}
                 resourcePath={resourcePath}
             />
 

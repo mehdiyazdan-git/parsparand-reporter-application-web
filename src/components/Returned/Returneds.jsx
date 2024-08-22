@@ -18,8 +18,7 @@ const Returneds = () => {
 
     return (
         <CrudComponent
-            url={'/returneds'}
-            entityName="returneds"
+            resourcePath="returneds"
             columns={returnedColumns}
             createForm={<CreateReturnedForm />}
             editForm={<EditReturnedForm />}

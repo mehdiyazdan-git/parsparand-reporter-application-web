@@ -3,11 +3,13 @@ import styled from 'styled-components';
 import useHttp from "../components/contexts/useHttp";
 
 
-const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
+const FileUpload = ({ uploadUrl, onSuccess }) => {
     const [file, setFile] = useState(null);
     const [fileName, setFileName] = useState('ورود اطلاعات با فایل اکسل...');
     const [uploadStatus, setUploadStatus] = useState('');
-    const { upload, isLoading, error } = useHttp();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
+    const { upload} = useHttp();
 
     const handleFileChange = (event) => {
         const file = event.target.files[0];
@@ -22,24 +24,27 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
             return;
         }
 
+        setIsLoading(true); // Indicate loading state
+        setError(null); // Clear any previous errors
+
         try {
-            const response = await upload({ url: uploadUrl, file });
+            const response = await upload({ url: encodeURI(uploadUrl) }, { file });
             if (response.status === 200) {
                 setUploadStatus('فایل با موفقیت آپلود شد.');
-                setRefreshTrigger(refreshTrigger + 1);
+               await onSuccess();
                 setFile(null);
                 setFileName('');
 
                 setTimeout(() => {
                     setUploadStatus('');
                     setFileName('انتخاب...');
-                }, 3000)
-            } else {
-                setUploadStatus('خطا در آپلود فایل.');
+                }, 3000);
             }
         } catch (error) {
-            setUploadStatus('خطا در آپلود فایل.');
-            console.error('Upload error:', error.response);
+            setError(error.message); // Set the error message from the thrown error
+            console.error('Upload error:', error);
+        } finally {
+            setIsLoading(false); // Reset loading state regardless of success or failure
         }
     };
 
@@ -54,7 +59,7 @@ const FileUpload = ({ uploadUrl, setRefreshTrigger, refreshTrigger }) => {
                 style={{ display: 'none' }}
             />
             <Button onClick={handleUpload} disabled={isLoading}>
-                آپلود
+                {isLoading ? 'در حال آپلود...' : 'آپلود'} {/* Show loading indicator */}
             </Button>
             {uploadStatus && (
                 <Status isSuccess={uploadStatus === 'فایل با موفقیت آپلود شد.'}>

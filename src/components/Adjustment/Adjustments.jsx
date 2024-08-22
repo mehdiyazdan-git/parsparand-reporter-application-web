@@ -33,8 +33,7 @@ const Adjustments = ({customerId}) => {
 
     return (
         <CrudComponent
-            url={'/adjustments'}
-            entityName="adjustments"
+            resourcePath="adjustments"
             columns={adjustmentColumns}
             createForm={<CreateAdjustmentForm />}
             editForm={<EditAdjustmentForm />}

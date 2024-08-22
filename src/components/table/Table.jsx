@@ -16,74 +16,70 @@ const Table = ({
                    columns,
                    hasSubTotal,
                    hasYearSelect,
-                   filter,
+                   filters,
+                   params,
+                   resetFilters,
                    resetFilter,
                    updateSearchParams,
                    updatePagination,
                    updateSorting,
-                   params,
                    handleEditButtonClick,
                    onDownloadExcelFile,
                    onDeleteEntity,
                    resourcePath
                }) => {
 
-
     const handleYearChange = useCallback((value) => {
-        updateSearchParams({'jalaliYear': parseInt(value, 10)});
+        updateSearchParams({ jalaliYear: parseInt(value, 10) });
     }, [updateSearchParams]);
 
-
+    const tableData = data?.content || []; // Extract table data for better readability
     return (
-        <>
+        <div className="table-container"> {/* Added a container for better styling */}
             {hasYearSelect && (
                 <div style={yearSelectStyle}>
                     <label style={yearSelectLabelStyle}>انتخاب سال</label>
                     <div style={yearSelectContainerStyle}>
                         <YearSelect
-                            value={filter?.search?.jalaliYear}
+                            value={filters?.search?.jalaliYear}
                             onChange={handleYearChange}
                         />
                     </div>
                 </div>
             )}
+
             <table className="recipient-table table-fixed-height mt-3">
-                <TableHeader
-                    columns={columns}
-                    filter={filter}
-                    updateSorting={updateSorting}
-                />
+                <TableHeader columns={columns} filter={filters} updateSorting={updateSorting}/>
                 <TableSearch
                     columns={columns}
                     resourcePath={resourcePath}
                     updateSearchParams={updateSearchParams}
                     updatePagination={updatePagination}
-                    filter={filter}
+                    filters={filters}
                     resetFilter={resetFilter}
                 />
                 <TableBody
-                    data={data?.content || []}
+                    data={tableData}
                     columns={columns}
                     handleEditButtonClick={handleEditButtonClick}
                     onDeleteEntity={onDeleteEntity}
-                 />
+                />
                 <TableFooter
-                    allData={data?.content || []}
+                    allData={tableData}
                     columns={columns}
                     downloadExcelFile={onDownloadExcelFile}
                     resourcePath={resourcePath}
                     hasSubTotal={hasSubTotal}
-                    data={data?.content || []}
-                    params={params}
-                    filter={filter}
+                    data={tableData}
+                    filters={filters}
                 />
             </table>
+
             <Pagination
-                filter={filter}
                 updatePagination={updatePagination}
                 data={data}
             />
-        </>
+        </div>
     );
 };
 

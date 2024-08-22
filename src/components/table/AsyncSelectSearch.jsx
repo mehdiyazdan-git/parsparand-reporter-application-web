@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 import AsyncSelect from 'react-select/async';
 import styled from 'styled-components';
-import { toast } from "react-toastify";
+import {toast} from "react-toastify";
 import useHttp from "../contexts/useHttp";
 import {getCustomSelectStyles} from "../../utils/customStyles";
 
@@ -12,8 +12,8 @@ const SelectContainer = styled.div`
     width: 100%;
 `;
 
-const AsyncSelectSearch = ({ url, value, onChange }) => {
-    const { getAll } = useHttp();
+const AsyncSelectSearch = ({url, value, onChange}) => {
+    const {getAll} = useHttp();
 
     // --- State ---
     const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +50,7 @@ const AsyncSelectSearch = ({ url, value, onChange }) => {
         try {
             const response = await getAll(
                 encodeURI(url),
-                { searchQuery: inputValue }
+                {searchQuery: inputValue}
             );
             if (response && response.data) {
                 const options = response.data.map(item => ({
@@ -71,8 +71,21 @@ const AsyncSelectSearch = ({ url, value, onChange }) => {
     };
 
     const handleInputChange = (newValue) => {
-        // Handle changes in the input value (for filtering/searching)
         return newValue;
+    };
+    const ClearIndicator = props => {
+        const {getStyles, innerProps: {ref, ...restInnerProps},} = props;
+        return (
+            <div
+                {...restInnerProps}
+                ref={ref}
+                style={getStyles('clearIndicator', props)}
+            >
+                <div style={{padding: '0 5px'}}>
+                    <strong>X</strong>
+                </div>
+            </div>
+        );
     };
 
     // --- JSX ---
@@ -89,6 +102,8 @@ const AsyncSelectSearch = ({ url, value, onChange }) => {
                 placeholder="جستجو..."
                 noOptionsMessage={() => "هیچ موردی یافت نشد."}
                 styles={getCustomSelectStyles()}
+                components={{ ClearIndicator }}
+                isClearable={true}
             />
         </SelectContainer>
     );

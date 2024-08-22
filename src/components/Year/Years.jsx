@@ -12,8 +12,7 @@ const Years = () => {
 
     return (
         <CrudComponent
-            url={'/years'}
-            entityName="years"
+            resourcePath="years"
             columns={yearColumns}
             createForm={<CreateYearForm />}
             editForm={<EditYearForm />}

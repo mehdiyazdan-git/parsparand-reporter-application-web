@@ -25,8 +25,7 @@ const Customers = () => {
 
     return (
         <CrudComponent
-            url={'/customers'}
-            entityName="customers"
+            resourcePath="customers"
             columns={columns}
             createForm={<CreateCustomerForm />}
             editForm={<EditCustomerForm />}
