@@ -9,7 +9,6 @@ import Table from '../table/Table';
 import useFilter from './useFilter';
 import ErrorModal from './ErrorModal';
 import useHttp from './useHttp';
-import DownloadFile from './DownloadFile';
 
 
 
@@ -21,6 +20,8 @@ const CrudComponent = ({
                            hasYearSelect = false,
                            hasSubTotal = false,
                        }) => {
+    const [data, setData] = useState(null);
+    const {getAll, post, put, del} = useHttp();
     const {
         showModal,
         showEditModal,
@@ -34,6 +35,7 @@ const CrudComponent = ({
         openErrorModal,
         closeErrorModal,
     } = useModalManager();
+
     const filterSchema = {
         search: {},
         pagination: {
@@ -49,11 +51,24 @@ const CrudComponent = ({
         const search = {};
         columns.forEach((column) => {
             if (column.searchable) {
-                search[column.key] = '';
+                if (column.searchKey){
+                    search[column.searchKey] = '';
+                } else {
+                    search[column.key] = '';
+                }
             }
         });
         return {...filterSchema, search};
     };
+
+    const initialFilters = getInitialFilters(columns);
+    const {
+        filters,
+        updateSearchParams,
+        updatePagination,
+        updateSorting,
+        resetFilters,
+    } = useFilter(resourcePath, initialFilters);
 
     const getParams = (filters) => {
         return Object.entries(filters).reduce((params, [key, value]) => {
@@ -65,19 +80,6 @@ const CrudComponent = ({
             return params;
         }, {});
     };
-
-    const [data, setData] = useState(null);
-    const {getAll, post, put, del} = useHttp();
-
-
-    const initialFilters = getInitialFilters(columns);
-    const {
-        filters,
-        updateSearchParams,
-        updatePagination,
-        updateSorting,
-        resetFilters,
-    } = useFilter(resourcePath, initialFilters);
 
     const fetchData = useCallback(async () => {
         try {

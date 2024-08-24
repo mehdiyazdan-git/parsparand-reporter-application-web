@@ -86,7 +86,11 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"شناسه مشتری"}
+                                            url={"customers/select"}
+                                        />
                                     </Col>
                                 </Row>
                                 <Row>

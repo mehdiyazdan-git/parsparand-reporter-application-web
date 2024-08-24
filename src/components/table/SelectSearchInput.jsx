@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import Select from "react-select";
-import { getCustomSelectStyles } from "./customStyles";
+import { getCustomSelectStyles } from "../../utils/customStyles";
 import PropTypes from "prop-types";
 
 const SelectSearchInput = memo(({ options, value, onChange, name }) => {

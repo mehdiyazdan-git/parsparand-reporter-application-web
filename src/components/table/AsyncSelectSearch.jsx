@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import AsyncSelect from 'react-select/async';
 import styled from 'styled-components';
 import {toast} from "react-toastify";
@@ -12,40 +12,16 @@ const SelectContainer = styled.div`
     width: 100%;
 `;
 
-const AsyncSelectSearch = ({url, value, onChange}) => {
+const AsyncSelectSearch = ({url, value,name, onChange}) => {
     const {getAll} = useHttp();
 
     // --- State ---
     const [isLoading, setIsLoading] = useState(false);
     const [defaultOptions, setDefaultOptions] = useState([]); // Store default options
 
-    // --- Effects ---
-    useEffect(() => {
-        // Fetch default options on component mount
-        const fetchDefaultOptions = async () => {
-            setIsLoading(true);
-            try {
-                const response = await getAll(encodeURI(url));
-                if (response && response.data) {
-                    const options = response.data.map(item => ({
-                        value: item.id,
-                        label: item.name,
-                    }));
-                    setDefaultOptions(options);
-                }
-            } catch (err) {
-                console.error(err);
-                toast.error("Error loading default options.");
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchDefaultOptions();
-    }, []); // Re-fetch if url or getAll changes
 
     // --- Functions ---
-    const loadOptions = async (inputValue, callback) => {
+    const loadOptions = useCallback( async (inputValue, callback) => {
         setIsLoading(true);
         try {
             const response = await getAll(
@@ -57,6 +33,9 @@ const AsyncSelectSearch = ({url, value, onChange}) => {
                     value: item.id,
                     label: item.name,
                 }));
+                if (inputValue === ""){
+                    setDefaultOptions(options)
+                }
                 callback(options);
             } else {
                 callback([]);
@@ -68,11 +47,8 @@ const AsyncSelectSearch = ({url, value, onChange}) => {
         } finally {
             setIsLoading(false);
         }
-    };
+    },[url,getAll]);
 
-    const handleInputChange = (newValue) => {
-        return newValue;
-    };
     const ClearIndicator = props => {
         const {getStyles, innerProps: {ref, ...restInnerProps},} = props;
         return (
@@ -87,7 +63,10 @@ const AsyncSelectSearch = ({url, value, onChange}) => {
             </div>
         );
     };
-
+// --- Effects ---
+    useEffect(() => {
+        loadOptions("", setDefaultOptions)
+    }, []); // Re-fetch if url or getAll changes
     // --- JSX ---
     return (
         <SelectContainer>
@@ -95,7 +74,7 @@ const AsyncSelectSearch = ({url, value, onChange}) => {
                 cacheOptions // Enable caching for better performance
                 defaultOptions={defaultOptions}
                 loadOptions={loadOptions}
-                onInputChange={handleInputChange}
+                name={name}
                 onChange={onChange}
                 value={value}
                 isLoading={isLoading}

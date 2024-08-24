@@ -1,5 +1,5 @@
 import React from 'react';
-import SelectSearchInput from '../../utils/SelectSearchInput';
+import SelectSearchInput from './SelectSearchInput';
 import SearchCheckboxInput from './SearchCheckboxInput';
 import SearchNumberInput from './SearchNumberInput';
 import SearchInput from './SearchInput';
@@ -25,7 +25,8 @@ const TableSearch = function ({columns,updateSearchParams,filters,resetFilter}) 
                             width={column.width}
                             name={column.key || ''}
                             value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
-                            onChange={(date) => handleSearchChange(column.key, date)}/>
+                            onChange={(date) => handleSearchChange(column.key, date)}
+                        />
                     ) : column.type === 'select' ? (
                         <SelectSearchInput
                             key={column.key}
@@ -40,8 +41,9 @@ const TableSearch = function ({columns,updateSearchParams,filters,resetFilter}) 
                         <AsyncSelectSearch
                             width={column.width}
                             url={column.url}
-                            value={filters?.search ? filters?.search[column.key] : null}
-                            onChange={(value) => handleSearchChange(column.searchKey, value?.value ? value.value : '')}
+                            name={column?.searchKey || ''}
+                            value={filters?.search[column?.key]}
+                            onChange={(value) => handleSearchChange(column.searchKey, value?.value)}
                         />
                     ) : column.type === 'text' ? (
                         <SearchInput

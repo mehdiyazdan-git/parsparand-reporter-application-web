@@ -19,21 +19,6 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const http = useHttp();
 
 
-    const customerSelect = async (searchQuery = '') => {
-        try {
-            const response = await http.get(`/customers/select`, {
-                params: { searchQuery }
-            });
-            return response.data.map(item => ({
-                value: item.id,
-                label: item.name
-            }));
-        } catch (err) {
-            console.error("Error fetching customer options:", err.message);
-            throw err;
-        }
-    };
-
     const validationSchema = Yup.object().shape({
         paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
         paymentDescription: Yup.string().required('توضیحات پرداخت الزامیست.'),
@@ -85,7 +70,12 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"شناسه مشتری"}
+                                            url={"customers/select"}
+                                            value={editingEntity?.customerId}
+                                        />
                                     </Col>
                                 </Row>
                                 <Row>

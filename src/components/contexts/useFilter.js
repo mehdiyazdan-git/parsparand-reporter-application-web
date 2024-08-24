@@ -1,25 +1,12 @@
-import { useState, useEffect } from 'react';
+import {useState, useEffect} from 'react';
 
 const useFilter = (resourcePath,initialFilter) => {
     const storageKey = `filter_${resourcePath}`;
 
-    const filterSchema = {
-        search: {},
-        pagination: {
-            page: 0,
-            size: 10,
-        },
-        sorting: {
-            order: 'asc',
-            sortBy: 'id',
-        },
-    };
-
-    const getInitialFilters = (storageKey) => {
+    const [filters, setFilters] = useState(() => {
         const storedFilters = sessionStorage.getItem(storageKey);
-        return storedFilters ? JSON.parse(storedFilters) : initialFilter || filterSchema;
-    };
-    const [filters, setFilters] = useState(getInitialFilters(storageKey,initialFilter));
+        return storedFilters ? JSON.parse(storedFilters) : initialFilter;
+    });
 
 
     useEffect(() => {
@@ -62,7 +49,7 @@ const useFilter = (resourcePath,initialFilter) => {
     };
 
     const resetFilters = () => {
-        setFilters(filterSchema);
+        setFilters(initialFilter);
     };
 
 
