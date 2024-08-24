@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect, useCallback, useRef} from 'react';
 import AsyncSelect from 'react-select/async';
 import styled from 'styled-components';
 import {toast} from "react-toastify";
@@ -12,8 +12,9 @@ const SelectContainer = styled.div`
     width: 100%;
 `;
 
-const AsyncSelectSearch = ({url, value,name, onChange}) => {
+const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger}) => {
     const {getAll} = useHttp();
+    const ref = useRef();
 
     // --- State ---
     const [isLoading, setIsLoading] = useState(false);
@@ -63,10 +64,24 @@ const AsyncSelectSearch = ({url, value,name, onChange}) => {
             </div>
         );
     };
+
+    // Function to clear the selected value
+    const handleReset = () => {
+        ref.current.clearValue();
+    };
+    // --- Effects ---
+    // clear value when resetTrigger changes
+    useEffect(() => {
+        if (resetTrigger) {
+            handleReset();
+        }}, [resetTrigger]);
+
 // --- Effects ---
     useEffect(() => {
         loadOptions("", setDefaultOptions)
     }, []); // Re-fetch if url or getAll changes
+
+
     // --- JSX ---
     return (
         <SelectContainer>
@@ -77,6 +92,7 @@ const AsyncSelectSearch = ({url, value,name, onChange}) => {
                 name={name}
                 onChange={onChange}
                 value={value}
+                ref={ref}
                 isLoading={isLoading}
                 placeholder="جستجو..."
                 noOptionsMessage={() => "هیچ موردی یافت نشد."}

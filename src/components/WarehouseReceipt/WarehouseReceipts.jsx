@@ -28,7 +28,7 @@ const WarehouseReceipts = () => {
             searchable: true,
             type: 'async-select',
             url: 'customers/select',
-            searchKey: 'customerId'
+            searchKey: 'customerId',
         },
         {
             key: 'totalQuantity',

@@ -17,8 +17,6 @@ const Table = ({
                    hasSubTotal,
                    hasYearSelect,
                    filters,
-                   params,
-                   resetFilters,
                    resetFilter,
                    updateSearchParams,
                    updatePagination,

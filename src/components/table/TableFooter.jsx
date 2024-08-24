@@ -4,7 +4,41 @@ import PropTypes from 'prop-types';
 import { formatNumber } from "../../utils/functions/formatNumber";
 import Tooltip from "../../utils/Tooltip";
 
-const TableFooter = ({ data,filters, columns, hasSubTotal, downloadExcelFile }) => {
+const TableFooter = ({ data, columns, hasSubTotal, downloadExcelFile }) => {
+    const [subtotals, setSubtotals] = React.useState({
+        total: 0,
+        totalItems: 0,
+    });
+    const [pageSubtotal, setPageSubtotal] = React.useState({});
+
+    React.useEffect(() => {
+        const calculateSubtotals = (data) => {
+            const totals = {
+                total: 0,
+                totalItems: 0,
+            };
+            const pageTotals = {};
+
+            data.forEach((row) => {
+                totals.total += row.total;
+                totals.totalItems += row.totalItems;
+
+                columns.forEach((column) => {
+                    if (column.subtotal) {
+                        if (!pageTotals[column.key]) {
+                            pageTotals[column.key] = 0;
+                        }
+                        pageTotals[column.key] += row[column.key];
+                    }
+                });
+            });
+            setPageSubtotal(pageTotals);
+            setSubtotals(totals);
+        };
+        calculateSubtotals(data);
+    }, [data, columns]);
+
+
     const dynamicColspan = hasSubTotal
         ? columns.length - columns.filter(column => column.subtotal).length
         : columns.length;
@@ -27,7 +61,7 @@ const TableFooter = ({ data,filters, columns, hasSubTotal, downloadExcelFile }) 
             {columns.map(column =>
                 column.subtotal ? (
                     <td className="subtotal-col" key={column.key}>
-                        {formatNumber(data?.subtotals?.pageSubtotal)}
+                        {formatNumber(pageSubtotal[column.key])}
                     </td>
                 ) : null
             )}
@@ -50,7 +84,7 @@ const TableFooter = ({ data,filters, columns, hasSubTotal, downloadExcelFile }) 
             {columns.map(column =>
                 column.subtotal ? (
                     <td className="subtotal-col" key={column.key}>
-                        {formatNumber(data?.subtotals?.overallSubtotal)}
+                        {formatNumber(subtotals[column.key])}
                     </td>
                 ) : null
             )}

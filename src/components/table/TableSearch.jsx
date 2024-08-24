@@ -7,14 +7,22 @@ import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import AsyncSelectSearch from "./AsyncSelectSearch";
 
-const TableSearch = function ({columns,updateSearchParams,filters,resetFilter}) {
+
+const TableSearch = function ({columns, updateSearchParams, filters, resetFilter}) {
+
+    const [resetAsyncSearchSelectTrigger, setResetAsyncSearchSelectTrigger] = React.useState(0);
 
     const handleSearchChange = (name, value) => {
-        updateSearchParams({[name] : value});
+        updateSearchParams({[name]: value});
     };
     const handleReset = () => {
         resetFilter();
-    }
+        columns.forEach(column => {
+            if (column.type === 'async-select') {
+                setResetAsyncSearchSelectTrigger(prevState => ++prevState);
+            }
+        });
+    };
     return (
         <tr className="table-header-row">
             {columns.map((column) =>
@@ -44,6 +52,7 @@ const TableSearch = function ({columns,updateSearchParams,filters,resetFilter}) 
                             name={column?.searchKey || ''}
                             value={filters?.search[column?.key]}
                             onChange={(value) => handleSearchChange(column.searchKey, value?.value)}
+                            resetTrigger={resetAsyncSearchSelectTrigger} // Pass the reset function to AsyncSelectSearch
                         />
                     ) : column.type === 'text' ? (
                         <SearchInput
