@@ -9,6 +9,8 @@ import Table from '../table/Table';
 import useFilter from './useFilter';
 import ErrorModal from './ErrorModal';
 import useHttp from './useHttp';
+import axios from "axios";
+import {BASE_URL} from "../../config/config";
 
 
 
@@ -85,6 +87,7 @@ const CrudComponent = ({
         try {
             const response = await getAll(encodeURI(resourcePath), getParams(filters));
             setData(response.data); // Directly set the response data
+            sessionStorage.setItem(resourcePath, JSON.stringify(response.data));
         } catch (err) {
             console.error('Error fetching data:', err);
             openErrorModal(err?.message || 'An error occurred while fetching data');
@@ -96,16 +99,28 @@ const CrudComponent = ({
         fetchData();
     }, [fetchData]); // Use fetchData as a dependency
 
-    const handleExportToExcel = async (url, exportAll = false) => {
+    const handleExportToExcel = async (exportAll = false) => {
+
+        const url = `${BASE_URL}/${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`;
+
         const params = getParams(filters);
         if (exportAll) {
-            params.pagination = {
-                size: 1000000,
-                page: 0,
-            };
+            params.size = 1000000;
+            params.page = 0;
         }
         try {
-            await getAll(url, params);
+          await axios.get(url, {
+              params: params,
+              responseType: 'blob', // Important
+          }).then((response) => {
+              const url = window.URL.createObjectURL(new Blob([response.data]));
+              const link = document.createElement('a');
+              link.href = url;
+              link.setAttribute('download', `download-all-${encodeURI(resourcePath)}.xlsx`);
+              document.body.appendChild(link);
+              link.click();
+              document.body.removeChild(link);
+          })
         } catch (err) {
             console.error('Error exporting data:', err);
             openErrorModal(err?.message || 'An error occurred while exporting data');

@@ -63,12 +63,12 @@ const Table = ({
                     onDeleteEntity={onDeleteEntity}
                 />
                 <TableFooter
-                    allData={tableData}
+                    content={tableData}
                     columns={columns}
                     downloadExcelFile={onDownloadExcelFile}
                     resourcePath={resourcePath}
                     hasSubTotal={hasSubTotal}
-                    data={tableData}
+                    data={data}
                     filters={filters}
                 />
             </table>

@@ -23,13 +23,13 @@ const Invoices = ({options}) => {
         },
         {
             key: 'customerName',
-            title: 'نام مشتری',
-            width: '20%',
+            title: 'مشتری',
+            width: '15%',
             sortable: true,
             searchable: true,
             type: 'async-select',
             url: 'customers/select',
-            searchKey: 'customerId'
+            searchKey: 'customerId',
         },
         {
             key: 'totalQuantity',
@@ -56,6 +56,7 @@ const Invoices = ({options}) => {
     return (
         <CrudComponent
             resourcePath="invoices"
+            entityName="invoices"
             columns={columns}
             createForm={<CreateInvoiceForm/>}
             editForm={<EditInvoiceForm/>}

@@ -61,8 +61,8 @@ const TableBody = ({data, columns, handleEditButtonClick,onDeleteEntity, onReset
 
     return (
         <tbody>
-        {data.map((item) => (
-            <tr key={item.id}>
+        {data.map((item,index) => (
+            <tr key={index}>
                 {columns.map((column) => (
                     <td style={{ fontSize: '0.72rem' }} key={column.key}>
                         {column.render ? column.render(item) : item[column.key]}

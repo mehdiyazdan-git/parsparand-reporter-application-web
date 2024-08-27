@@ -107,8 +107,9 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                     <Col>
                                         <AsyncSelectInput
                                             name="customerId"
-                                            label={"مشتری"}
+                                            label={"شناسه مشتری"}
                                             url={"customers/select"}
+                                            value={editingEntity?.customerId}
                                         />
                                     </Col>
                                 </Row>
