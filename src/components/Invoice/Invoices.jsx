@@ -6,7 +6,7 @@ import EditInvoiceForm from './EditInvoiceForm';
 import {toShamsi} from '../../utils/functions/toShamsi';
 import {formatNumber} from '../../utils/functions/formatNumber';
 
-const Invoices = ({options}) => {
+const Invoices = ({filterOptions}) => {
 
 
     const columns = [
@@ -58,11 +58,11 @@ const Invoices = ({options}) => {
             resourcePath="invoices"
             entityName="invoices"
             columns={columns}
+            filterOptions={filterOptions}
             createForm={<CreateInvoiceForm/>}
             editForm={<EditInvoiceForm/>}
             hasSubTotal={true}
             hasYearSelect={true}
-            options={options}
         />
     );
 };

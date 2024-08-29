@@ -33,20 +33,35 @@ const CustomModal = styled(Modal)`
 `;
 
 const InvoicesModal = ({ contractNumber }) => {
-    const [showModal, setShowModal] = useState(false);
-    const handleShow = () => setShowModal(true);
-    const handleClose = (e) => {
-        e.preventDefault()
-        setShowModal(false);
-    }
 
-    const options = {
+
+    const [filterOptions,setFilterOptions] = useState({
         storageKey : 'invoices_filtered_by_contractNo',
-        filters : {
-            search: {'contractNumber' : contractNumber}, // should be added to filter.search
-            excludes : ['jalaliYear'] // should be deleted from filter.search
+        filter : {
+            search: {'contractNumber' : contractNumber}
+            ,
+            pagination: {
+                page: 0,
+                size: 5
+            },
+            sorting: {
+                sortBy: "id",
+                order: "asc"
+            }
         },
-    }
+    });
+    const [showModal, setShowModal] = useState(false);
+
+    const handleShow = (e) => {
+        setShowModal(true);
+    };
+
+    const handleClose = (e) => {
+        setShowModal(false);
+    };
+
+
+
 
     return (
         <>
@@ -69,7 +84,7 @@ const InvoicesModal = ({ contractNumber }) => {
                 </Modal.Header> {/* Add Modal.Header */}
                 <ModalBody>
                     <Invoices
-                        options={options}
+                        filterOptions={filterOptions}
                     />
                     {/* You can add error handling here if needed */}
                 </ModalBody>

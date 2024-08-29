@@ -6,7 +6,7 @@ import EditWarehouseReceiptForm from './EditWarehouseReceiptForm';
 import {toShamsi} from '../../utils/functions/toShamsi';
 import {formatNumber} from '../../utils/functions/formatNumber';
 
-const WarehouseReceipts = () => {
+const WarehouseReceipts = ({filterOptions}) => {
     const columns = useMemo(() => [
         {key: 'id', title: 'شناسه', width: '3%', sortable: true},
         {key: 'warehouseReceiptNumber', title: 'شماره حواله', width: '5%', sortable: true, searchable: true},
@@ -57,6 +57,7 @@ const WarehouseReceipts = () => {
             resourcePath={'warehouse-receipts'}
             entityName="warehouse-receipts"
             columns={columns}
+            filterOptions={filterOptions}
             createForm={<CreateWarehouseReceiptForm/>}
             editForm={<EditWarehouseReceiptForm/>}
             hasSubTotal={true}

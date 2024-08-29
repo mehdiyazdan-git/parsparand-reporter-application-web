@@ -1,66 +1,90 @@
-import React, { useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Payments from "./Payments";
 import styled from 'styled-components';
-import useFilter from "../contexts/useFilter";
 
 
 const ModalBody = styled(Modal.Body)`
-  max-height: 70vh; /* Adjust as needed */
-  overflow-y: auto;
+    max-height: 70vh; /* Adjust as needed */
+    overflow-y: auto;
 `;
 
 const CustomModal = styled(Modal)`
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 
-  .modal-dialog {
-    width: auto;
-    max-width: 90%; /* Adjust as needed */
-  }
+    .modal-dialog {
+        width: auto;
+        max-width: 90%; /* Adjust as needed */
+    }
 
-  .modal-content {
-    background: rgba(255, 255, 255, 0.2);
-    backdrop-filter: blur(10px); /* This applies the glass effect */
-    -webkit-backdrop-filter: blur(10px); /* For Safari support */
-    border-radius: 10px;
-    border: 1px solid rgba(255, 255, 255, 0.3);
-  }
+    .modal-content {
+        background: rgba(255, 255, 255, 0.2);
+        backdrop-filter: blur(10px); /* This applies the glass effect */
+        -webkit-backdrop-filter: blur(10px); /* For Safari support */
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
 `;
 
-const PaymentsModal = ({ customerId }) => {
-    const listName = "payments-modal";
-    const { filter, updateSearch } = useFilter(listName);
+const PaymentsModal = ({customerId}) => {
+
+    const [filterOptions,setFilterOptions] = useState({
+        storageKey: "payments-modal",
+        filter: {
+            search: {
+                customerId
+            }
+        },
+        pagination: {
+            page: 0,
+            size: 5
+        },
+        sorting: {
+            sortBy: "id",
+            order: "asc"
+        }
+    }) 
+
+
     const [showModal, setShowModal] = useState(false);
 
     const handleShow = () => {
-        if (!filter?.customerId || filter?.customerId !== customerId) {
-            updateSearch('customerId',customerId);
-        }
         setShowModal(true);
     };
 
     const handleClose = (e) => {
-        e.preventDefault()
-        updateSearch({ customerId: null });
         setShowModal(false);
     };
 
+    useEffect(() => {
+        setFilterOptions(prevState => ({
+            ...prevState,
+            filter: {
+                search: {
+                    customerId
+                }
+            }
+        }))
+    }, [customerId]);
+
     return (
         <>
-            <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <CustomModal show={showModal} centered onHide={handleClose}>
+            <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow}/>
+            <CustomModal show={showModal} centered>
                 <ModalBody>
-                    <Payments customerId={customerId} />
+                    <Payments
+                        filterOptions={filterOptions}
+                    />
                 </ModalBody>
                 <Modal.Footer>
                     <button
                         className='btn btn-warning btn-sm'
                         type={'button'}
-                        onClick={e=>handleClose(e)}>
+                        onClick={e => handleClose(e)}>
                         بستن
                     </button>
                 </Modal.Footer>

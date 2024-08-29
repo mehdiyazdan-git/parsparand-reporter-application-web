@@ -13,10 +13,10 @@ import axios from "axios";
 import {BASE_URL} from "../../config/config";
 
 
-
 const CrudComponent = ({
                            resourcePath,
                            columns,
+                           filterOptions,
                            createForm,
                            editForm,
                            hasYearSelect = false,
@@ -53,7 +53,7 @@ const CrudComponent = ({
         const search = {};
         columns.forEach((column) => {
             if (column.searchable) {
-                if (column.searchKey){
+                if (column.searchKey) {
                     search[column.searchKey] = '';
                 } else {
                     search[column.key] = '';
@@ -64,13 +64,17 @@ const CrudComponent = ({
     };
 
     const initialFilters = getInitialFilters(columns);
+
     const {
         filters,
         updateSearchParams,
         updatePagination,
         updateSorting,
         resetFilters,
-    } = useFilter(resourcePath, initialFilters);
+    } = useFilter(
+        filterOptions?.storageKey || resourcePath,
+        initialFilters,
+    );
 
     const getParams = (filters) => {
         return Object.entries(filters).reduce((params, [key, value]) => {
@@ -87,12 +91,24 @@ const CrudComponent = ({
         try {
             const response = await getAll(encodeURI(resourcePath), getParams(filters));
             setData(response.data); // Directly set the response data
-            sessionStorage.setItem(resourcePath, JSON.stringify(response.data));
         } catch (err) {
             console.error('Error fetching data:', err);
             openErrorModal(err?.message || 'An error occurred while fetching data');
         }
     }, [filters, openErrorModal, resourcePath]);
+
+    useEffect(() => {
+        if (filterOptions?.filter?.search) {
+            Object.keys(filterOptions?.filter?.search).forEach((key) => {
+                if (filters?.search[key] !== filterOptions?.filter?.search[key]) {
+                    updateSearchParams({[key]: filterOptions?.filter?.search[key]});
+                }
+            })
+            updatePagination({page : 0,size : 5})
+            updateSorting({sortBy : 'id',order : 'asc'})
+        }
+        fetchData();
+    }, [filterOptions?.filter?.search]);
 
 
     useEffect(() => {
@@ -109,18 +125,18 @@ const CrudComponent = ({
             params.page = 0;
         }
         try {
-          await axios.get(url, {
-              params: params,
-              responseType: 'blob', // Important
-          }).then((response) => {
-              const url = window.URL.createObjectURL(new Blob([response.data]));
-              const link = document.createElement('a');
-              link.href = url;
-              link.setAttribute('download', `download-all-${encodeURI(resourcePath)}.xlsx`);
-              document.body.appendChild(link);
-              link.click();
-              document.body.removeChild(link);
-          })
+            await axios.get(url, {
+                params: params,
+                responseType: 'blob', // Important
+            }).then((response) => {
+                const url = window.URL.createObjectURL(new Blob([response.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', `download-all-${encodeURI(resourcePath)}.xlsx`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            })
         } catch (err) {
             console.error('Error exporting data:', err);
             openErrorModal(err?.message || 'An error occurred while exporting data');
@@ -207,12 +223,14 @@ const CrudComponent = ({
                 resourcePath={resourcePath}
             />
 
-            {editingEntity && editForm && React.cloneElement(editForm, {
-                editingEntity,
-                show: showEditModal,
-                onUpdateEntity: handleUpdateEntity,
-                onHide: closeEditModal,
-            })}
+            {
+                editingEntity && editForm && React.cloneElement(editForm, {
+                    editingEntity,
+                    show: showEditModal,
+                    onUpdateEntity: handleUpdateEntity,
+                    onHide: closeEditModal,
+                })
+            }
 
             <ErrorModal
                 show={showErrorModal}
@@ -220,7 +238,8 @@ const CrudComponent = ({
                 errorMessage={errorMessage}
             />
         </div>
-    );
+    )
+        ;
 };
 
 CrudComponent.propTypes = {

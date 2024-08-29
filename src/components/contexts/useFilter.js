@@ -1,6 +1,18 @@
 import {useState, useEffect} from 'react';
 
-const useFilter = (resourcePath,initialFilter) => {
+const filterSchema = {
+    search: {},
+    pagination: {
+        page: 0,
+        size: 10,
+    },
+    sorting: {
+        sortBy: 'id',
+        order: 'asc',
+    },
+}
+
+const useFilter = (resourcePath, initialFilter = filterSchema) => {
     const storageKey = `filter_${resourcePath}`;
 
     const [filters, setFilters] = useState(() => {
@@ -19,7 +31,7 @@ const useFilter = (resourcePath,initialFilter) => {
             ...prevFilters,
             pagination: {
                 ...prevFilters.pagination,
-                page : 0,
+                page: 0,
             },
             search: {
                 ...prevFilters.search,

@@ -3,9 +3,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import CrudComponent from '../contexts/CrudComponent';
 import CreatePaymentForm from './CreatePaymentForm';
 import EditPaymentForm from './EditPaymentForm';
-import { formatNumber } from '../../utils/functions/formatNumber';
-import { toShamsi } from '../../utils/functions/toShamsi';
+import {formatNumber} from '../../utils/functions/formatNumber';
+import {toShamsi} from '../../utils/functions/toShamsi';
 import PropTypes from 'prop-types';
+
 const convertToPersianSubject = (subject) => {
     switch (subject) {
         case "PRODUCT":
@@ -20,11 +21,19 @@ const convertToPersianSubject = (subject) => {
             return subject;
     }
 };
-const Payments = () => {
+const Payments = ({filterOptions}) => {
     const columns = [
-        { key: 'id', title: 'شناسه', width: '5%', sortable: true },
-        { key: 'paymentDescription', title: 'توضیحات', width: '14rem', sortable: true, searchable: true },
-        { key: 'paymentDate', title: 'تاریخ', width: '11%', sortable: true, searchable: true, type: 'date', render: (item) => toShamsi(item.paymentDate) },
+        {key: 'id', title: 'شناسه', width: '5%', sortable: true},
+        {key: 'paymentDescription', title: 'توضیحات', width: '14rem', sortable: true, searchable: true},
+        {
+            key: 'paymentDate',
+            title: 'تاریخ',
+            width: '11%',
+            sortable: true,
+            searchable: true,
+            type: 'date',
+            render: (item) => toShamsi(item.paymentDate)
+        },
         {
             key: 'paymentSubject',
             title: 'موضوع',
@@ -34,21 +43,40 @@ const Payments = () => {
             render: item => convertToPersianSubject(item.paymentSubject),
             type: 'select',
             options: [
-                { value: "PRODUCT", label: 'محصول' },
-                { value: "INSURANCEDEPOSIT", label: 'سپرده بیمه' },
-                { value: "PERFORMANCEBOUND", label: 'حسن انجام کار' },
-                { value: "ADVANCEDPAYMENT", label: 'پیش پرداخت' },
+                {value: "PRODUCT", label: 'محصول'},
+                {value: "INSURANCEDEPOSIT", label: 'سپرده بیمه'},
+                {value: "PERFORMANCEBOUND", label: 'حسن انجام کار'},
+                {value: "ADVANCEDPAYMENT", label: 'پیش پرداخت'},
             ]
         },
-        { key: 'paymentAmount', title: 'مبلغ', width: '12%', sortable: true, searchable: true, subtotal: true, type: 'number', render: item => formatNumber(item.paymentAmount) },
-        { key: 'customerName', title: 'نام مشتری', width: '15%', sortable: true, searchable: true, type: 'async-select', url: 'customers/select', searchKey: 'customerId' },
+        {
+            key: 'paymentAmount',
+            title: 'مبلغ',
+            width: '12%',
+            sortable: true,
+            searchable: true,
+            subtotal: true,
+            type: 'number',
+            render: item => formatNumber(item.paymentAmount)
+        },
+        {
+            key: 'customerName',
+            title: 'نام مشتری',
+            width: '15%',
+            sortable: true,
+            searchable: true,
+            type: 'async-select',
+            url: 'customers/select',
+            searchKey: 'customerId'
+        },
     ];
     return (
         <CrudComponent
             resourcePath="payments"
             columns={columns}
-            createForm={<CreatePaymentForm />}
-            editForm={<EditPaymentForm />}
+            filterOptions={filterOptions}
+            createForm={<CreatePaymentForm/>}
+            editForm={<EditPaymentForm/>}
             hasSubTotal={true}
             hasYearSelect={true}
         />

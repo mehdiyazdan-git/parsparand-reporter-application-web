@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
 import Button from "../../utils/Button";
 import WarehouseReceipts from "./WarehouseReceipts";
 import styled from 'styled-components';
+import useFilter from "../contexts/useFilter";
 
 const ModalBody = styled(Modal.Body)`
     max-height: 70vh; /* Adjust as needed */
@@ -18,7 +19,7 @@ const CustomModal = styled(Modal)`
     .modal-dialog {
         width: auto;
         max-width: 90%; /* Adjust as needed */
-       
+
     }
 
     .modal-content {
@@ -27,39 +28,70 @@ const CustomModal = styled(Modal)`
         -webkit-backdrop-filter: blur(10px); /* For Safari support */
         border-radius: 10px;
         border: 1px solid rgba(255, 255, 255, 0.3);
-        
+
     }
 `;
 
-const WarehouseReceiptsModal = ({ customerId }) => {
-    const entityName = "not-invoiced-modal";
+const WarehouseReceiptsModal = ({customerId}) => {
 
-    const [showModal, setShowModal] = useState(false);
+        const [filterOptions,setFilterOptions] = useState( {
+            storageKey: "not-invoiced-modal",
+            filter: {
+                search: {
+                    customerId,
+                    notInvoiced: true
+                }
+            },
+            pagination: {
+                page: 0,
+                size: 5
+            },
+            sorting: {
+                sortBy: "id",
+                order: "asc"
+            }
+        })
 
-    const handleShow = () => {
-        setShowModal(true);
-    };
+        const [showModal, setShowModal] = useState(false);
 
-    const handleClose = (e) => {
-        e.preventDefault()
-        setShowModal(false);
-    };
+        const handleShow = (e) => {
+            setShowModal(true);
+        };
 
-    return (
-        <>
-            <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow} />
-            <CustomModal show={showModal} centered onHide={handleClose}>
-                <ModalBody>
-                    <WarehouseReceipts customerId={customerId} />
-                </ModalBody>
-                <Modal.Footer>
-                    <Button $variant="warning" onClick={e=>handleClose(e)}>
-                        بستن
-                    </Button>
-                </Modal.Footer>
-            </CustomModal>
-        </>
-    );
-};
+        const handleClose = (e) => {
+            setShowModal(false);
+        };
+
+        useEffect(() => {
+            setFilterOptions(prevState => ({
+                ...prevState,
+                filter: {
+                    ...prevState.filter,
+                    search: {
+                        ...prevState.filter.search,
+                        customerId,
+                        notInvoiced: true
+                    }
+                }
+            }));
+        }, [customerId, setFilterOptions]);
+
+        return (
+            <>
+                <IconEdit color="green" fontSize={"1rem"} type={"button"} onClick={handleShow}/>
+                <CustomModal show={showModal} centered>
+                    <ModalBody>
+                        <WarehouseReceipts filterOptions={filterOptions}/>
+                    </ModalBody>
+                    <Modal.Footer>
+                        <Button $variant="warning" onClick={e => handleClose(e)}>
+                            بستن
+                        </Button>
+                    </Modal.Footer>
+                </CustomModal>
+            </>
+        );
+    }
+;
 
 export default WarehouseReceiptsModal;
