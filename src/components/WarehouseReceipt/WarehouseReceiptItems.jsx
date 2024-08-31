@@ -7,6 +7,7 @@ import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, thStyle} from "../styles/styles";
 
+
 const WarehouseReceiptItems = () => {
     const [subtotal, setSubtotal] = useState(0);
     const [totalQuantity, setTotalQuantity] = useState(0);
@@ -23,17 +24,14 @@ const WarehouseReceiptItems = () => {
 
 
     useEffect(() => {
-        const newSubtotal = watchedFields.reduce((acc, item) => {
-            return acc + (parseInt(item.unitPrice, 10) || 0) * (parseInt(item.quantity, 10) || 0);
-        }, 0);
-        setSubtotal(newSubtotal);
-    }, [watchedFields]);
-
-    useEffect(() => {
         const newTotalQuantity = watchedFields.reduce((acc, item) => {
             return acc + (parseInt(item.quantity, 10) || 0);
         }, 0);
         setTotalQuantity(newTotalQuantity);
+        const newSubtotal = watchedFields.reduce((acc, item) => {
+            return acc + (parseInt(item.unitPrice, 10) || 0) * (parseInt(item.quantity, 10) || 0);
+        }, 0);
+        setSubtotal(newSubtotal);
     }, [watchedFields]);
 
     const addItem = () => {
@@ -68,7 +66,7 @@ const WarehouseReceiptItems = () => {
                         <td className="m-0 p-0" style={{ width: '50%' }}>
                             <AsyncSelectInput
                                 url={"products/select"}
-                                name={`invoiceItems[${index}].productId`}
+                                name={`warehouseReceiptItems[${index}].productId`}
                                 value={fields[index]['productId']}
                             />
                         </td>

@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useRef, useState} from 'react';
 import AsyncSelect from 'react-select/async';
 import {Controller} from 'react-hook-form';
 import {ConnectForm} from './ConnectForm';
@@ -9,6 +9,7 @@ import useHttp from "../components/contexts/useHttp";
 const AsyncSelectInput = ({name, url,onChange, value, isDisabled, label}) => {
     const [options, setOptions] = useState([]);
     const [selectedOption, setSelectedOption] = useState(null);
+    const ref = useRef();
     const {getAll} = useHttp();
     const labelStyle = useMemo(() => (
         {fontFamily: 'IRANSansBold', fontSize: '0.7rem'}
@@ -33,7 +34,7 @@ const AsyncSelectInput = ({name, url,onChange, value, isDisabled, label}) => {
             setOptions(data);
             if (value) setSelectedOption(data.find((o) => o.value === value));
         });
-    }, []);
+    }, [value]);
 
 
     return (
@@ -60,6 +61,7 @@ const AsyncSelectInput = ({name, url,onChange, value, isDisabled, label}) => {
                                 }}
                                 cacheOptions
                                 loadOptions={fetchData}
+                                ref={ref}
                                 getOptionLabel={option => option.label}
                                 getOptionValue={option => option.value}
                                 defaultOptions={options}

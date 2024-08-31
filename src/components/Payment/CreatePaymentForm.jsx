@@ -1,29 +1,22 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
 import * as Yup from "yup";
 import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 
 
 
 const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
-
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,{searchQuery});
-    }
 
     const validationSchema = Yup.object().shape({
         paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
@@ -55,14 +48,12 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
 
 
     return (
-        <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header">
-                <Modal.Title style={titleStyle}>
-                    {"ایجاد پرداخت جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+        <CustomModal size={"xl"} show={show} onHide={onHide}>
+            <Header>
+                <Title>{"ایجاد پرداخت جدید"}</Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             paymentDate: '',
@@ -119,8 +110,8 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

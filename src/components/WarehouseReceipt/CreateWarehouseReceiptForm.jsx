@@ -1,26 +1,25 @@
 import React from 'react';
 import * as Yup from "yup";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
-import CustomModal from "../../utils/CustomModal";
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.date()
-            .typeError('تاریخ رسید الزامیست.')
-            .required('تاریخ رسید الزامیست.'),
+            .typeError('تاریخ حواله الزامیست.')
+            .required('تاریخ حواله الزامیست.'),
 
         warehouseReceiptDescription: Yup.string()
             .required('توضیحات الزامیست.')
@@ -28,23 +27,19 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
             .max(255, 'توضیحات نمی‌تواند بیشتر از 255 کاراکتر باشد.'),
 
         warehouseReceiptNumber: Yup.number()
-            .typeError('شماره رسید باید عدد باشد.')
-            .integer('شماره رسید باید عدد صحیح باشد.') // Ensure it's an integer
-            .positive('شماره رسید باید مثبت باشد.')
-            .required('شماره رسید الزامیست.'),
+            .typeError('شماره حواله الزامیست.')
+            .integer('شماره حواله باید عدد صحیح باشد.')
+            .positive('شماره حواله باید مثبت باشد.')
+            .required('شماره حواله الزامیست.'),
 
         customerId: Yup.number()
-            .typeError('مشتری باید به صورت عددی انتخاب شود.') // More specific error message
-            .integer('شناسه مشتری باید عدد صحیح باشد.')
-            .positive('شناسه مشتری باید مثبت باشد.')
+            .typeError('انتخاب مشتری الزامیست.')
             .required(' انتخاب مشتری الزامیست.'),
 
         warehouseReceiptItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number()
-                    .typeError('محصول باید به صورت عددی انتخاب شود.')
-                    .integer('شناسه محصول باید عدد صحیح باشد.')
-                    .positive('شناسه محصول باید مثبت باشد.')
+                    .typeError(' انتخاب محصول الزامیست.')
                     .required(' انتخاب محصول الزامیست.'),
 
                 quantity: Yup.number()
@@ -77,13 +72,13 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
     return (
         <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header" >
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد رسید انبار جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             warehouseReceiptDate: '',
@@ -130,8 +125,8 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

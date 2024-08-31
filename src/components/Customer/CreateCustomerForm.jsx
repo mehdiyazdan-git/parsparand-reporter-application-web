@@ -1,14 +1,13 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
-import CustomModal from "../../utils/CustomModal";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -29,13 +28,13 @@ const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
 
     return (
         <CustomModal size={"xl"} show={show} >
-            <Modal.Header className="modal-header" style={headerStyle}>
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد مشتری جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             bigCustomer: false,
@@ -83,8 +82,8 @@ const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

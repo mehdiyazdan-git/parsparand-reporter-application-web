@@ -29,3 +29,41 @@ const CustomModal = styled(Modal).attrs(props => ({
           }
         `;
 export default CustomModal;
+
+export const Body = styled(Modal.Body)`
+    max-height: 75vh;
+    overflow-y: auto;
+    font-family: "IRANSans", sans-serif;
+    font-size: 0.8rem;
+    margin: 0;
+    background-color: rgba(240, 240, 240, 0.3);
+    border-radius: 0.25rem;
+    padding: 1rem;
+    line-height: 1.5;
+    color: #495057;
+    border: 1px solid #9c9c9c;
+`;
+
+export const Header = styled(Modal.Header)`
+    background-color: rgba(28, 94, 161, 0.2);
+    padding: 10px;
+    color: #fff;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-align: right;
+    text-indent: 10px;
+    font-family: "IRANSansBold", sans-serif
+`;
+
+export const Title = styled(Modal.Title)`
+    font-family: "IRANSansBold", sans-serif;
+    font-size: 0.8rem;
+    color: #fff;
+`;
+export const Container = styled.div`
+    width: 100%;
+    padding-right: calc(var(1.5rem) * 0.5);
+    padding-left: calc(var(0) * 0.5);
+    margin-right: auto;
+    margin-left: auto;
+`;

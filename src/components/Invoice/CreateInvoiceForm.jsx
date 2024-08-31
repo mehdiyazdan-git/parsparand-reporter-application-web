@@ -1,19 +1,18 @@
 import React, { useState } from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import InvoiceItems from "./InvoiceItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
-import CustomModal from "../../utils/CustomModal";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 const defaultValues = {
     dueDate: '',
@@ -99,20 +98,15 @@ const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
         onHide();
     };
 
-    const handleInvoiceStatusChange = (selectedOption) => {
-        const isContractual = selectedOption && selectedOption.value === 'CONTRACTUAL_SALES';
-        setIsContractualSales(isContractual);
-    };
-
     return (
         <CustomModal size={"xl"} show={show} >
-            <Modal.Header style={headerStyle} className="modal-header">
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد فاکتور جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={defaultValues}
                         onSubmit={onSubmit}
@@ -190,8 +184,8 @@ const CreateInvoiceForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

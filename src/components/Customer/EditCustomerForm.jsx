@@ -1,14 +1,13 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import CheckboxInput from "../../utils/CheckboxInput";
-import CustomModal from "../../utils/CustomModal";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -28,14 +27,14 @@ const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     };
 
     return (
-        <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header">
-                <Modal.Title style={titleStyle}>
-                    {"ویرایش مشتری"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+         <CustomModal size={"xl"} show={show} >
+            <Header>
+                <Title>
+                    {"ایجاد فاکتور جدید"}
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             id: editingEntity.id,
@@ -84,8 +83,8 @@ const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

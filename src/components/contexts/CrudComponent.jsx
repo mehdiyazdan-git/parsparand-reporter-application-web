@@ -90,7 +90,7 @@ const CrudComponent = ({
     const fetchData = useCallback(async () => {
         try {
             const response = await getAll(encodeURI(resourcePath), getParams(filters));
-            setData(response.data); // Directly set the response data
+            setData(response.data);
         } catch (err) {
             console.error('Error fetching data:', err);
             openErrorModal(err?.message || 'An error occurred while fetching data');

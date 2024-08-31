@@ -1,6 +1,6 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
@@ -8,15 +8,12 @@ import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
 
 const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
 
 
     const validationSchema = Yup.object().shape({
@@ -38,14 +35,12 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     };
 
     return (
-        <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header" >
-                <Modal.Title style={titleStyle}>
-                    {"ویرایش پرداخت"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+        <CustomModal size={"xl"} show={show} onHide={onHide}>
+            <Header>
+                <Title>{"فرم ویرایش پرداخت"}</Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             id: editingEntity.id,
@@ -104,8 +99,8 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

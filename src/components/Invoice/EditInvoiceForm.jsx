@@ -1,20 +1,19 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
-import CustomModal from "../../utils/CustomModal";
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
@@ -53,13 +52,13 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
     return (
         <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header" >
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ویرایش فاکتور"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             id: editingEntity.id,
@@ -148,8 +147,8 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };
