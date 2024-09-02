@@ -6,7 +6,6 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
-import useHttp from "../contexts/useHttp";
 
 const ContractItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -16,11 +15,6 @@ const ContractItems = () => {
         control,
         name: 'contractItems',
     });
-
-    const http = useHttp();
-    const productSelect = async (searchQuery = '') => {
-        return await http.get(`/products/select?searchQuery=${searchQuery}`,{});
-    }
 
     const watchedFields = useWatch({
         name: 'contractItems',
@@ -70,7 +64,11 @@ const ContractItems = () => {
                 {fields.map((field, index) => (
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '50%',...tdStyle }}>
-                            <AsyncSelectInput name={`contractItems[${index}].productId`} apiFetchFunction={productSelect} />
+                            <AsyncSelectInput
+                                url={"products/select"}
+                                name={`contractItems[${index}].productId`}
+                                value={fields[index]['productId']}
+                            />
                         </td>
                         <td className="m-0 p-0" style={{ width: '15%',...tdStyle }}>
                             <NumberInput name={`contractItems[${index}].unitPrice`} />
@@ -86,7 +84,7 @@ const ContractItems = () => {
                             />
                         </td>
                         <td className="m-0 p-0" style={{ width: '10%',...tdStyle }}>
-                            <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)} />
+                            {fields.length > 1 && <IconDeleteOutline size={25} type="button" onClick={() => removeItem(index)}/>}
                         </td>
                     </tr>
                 ))}

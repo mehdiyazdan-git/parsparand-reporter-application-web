@@ -1,6 +1,7 @@
 // src/components/Navbar.jsx
 import React from 'react';
 import styled from 'styled-components';
+import TimeDisplay from "../../utils/TimeDisplay";
 
 const NavbarContainer = styled.div`
   background-color: #305c89;
@@ -35,9 +36,7 @@ const Navbar = () => {
         <NavbarContainer>
             <NavbarBrand>پارس پرند حیان</NavbarBrand>
             <YearWrapper>
-                {/*<Row>*/}
-                {/*    <YearSelect />*/}
-                {/*</Row>*/}
+                <TimeDisplay/>
             </YearWrapper>
         </NavbarContainer>
     );

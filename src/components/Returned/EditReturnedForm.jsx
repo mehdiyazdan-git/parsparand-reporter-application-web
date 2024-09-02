@@ -99,7 +99,12 @@ const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                         <NumberInput name="unitPrice" label={"قیمت واحد"} />
                                     </Col>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"شناسه مشتری"}
+                                            url={"customers/select"}
+                                            value={editingEntity?.customerId}
+                                        />
                                     </Col>
                                 </Row>
                             </Col>

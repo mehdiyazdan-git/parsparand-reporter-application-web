@@ -1,6 +1,6 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
@@ -8,20 +8,14 @@ import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 
 import Subtotal from "../../utils/Subtotal";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+
 
 const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
-
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
 
     const validationSchema = Yup.object().shape({
         quantity: Yup.number()
@@ -58,13 +52,13 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
 
     return (
         <CustomModal size={"xl"} show={show} >
-            <Modal.Header style={headerStyle} className="modal-header">
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد مرجوعی جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             quantity: '',
@@ -81,7 +75,7 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="returnedNumber" label={"شماره "} />
+                                        <NumberInput name="returnedNumber" label={"شماره"} />
                                     </Col>
                                     <Col>
                                         <DateInput name="returnedDate" label={"تاریخ "} />
@@ -92,7 +86,13 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
                                         <TextInput name="returnedDescription" label={"توضیحات "} />
                                     </Col>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={" مشتری"} apiFetchFunction={customerSelect} />
+                                        <Col>
+                                            <AsyncSelectInput
+                                                name="customerId"
+                                                label={"شناسه مشتری"}
+                                                url={"customers/select"}
+                                            />
+                                        </Col>
                                     </Col>
                                 </Row>
                                 <Row>
@@ -115,8 +115,8 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

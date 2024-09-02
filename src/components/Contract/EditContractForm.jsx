@@ -1,49 +1,38 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
-import { TextInput } from "../../utils/TextInput";
+import {TextInput} from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
-import { Form } from "../../utils/Form";
-import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
+import {Form} from "../../utils/Form";
+import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 
 import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ContractItems from "./ContractItems";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
-const EditContractForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
+const EditContractForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,{});
-    }
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,{searchQuery});
-    }
 
     const validationSchema = Yup.object().shape({
         contractNumber: Yup.string().required('شماره قرارداد الزامیست.'),
-        contractDescription: Yup.string().required('توضیحات قرارداد الزامیست.'),
+        contractDescription: Yup.string().required('عنوان قرارداد الزامیست.'),
         startDate: Yup.string().required('تاریخ شروع الزامیست.'),
         endDate: Yup.string().required('تاریخ پایان الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
-        advancePayment: Yup.number().required('پیش پرداخت الزامیست.'),
-        insuranceDeposit: Yup.number().required('ودیعه بیمه الزامیست.'),
-        performanceBond: Yup.number().required('ضمانت اجرا الزامیست.'),
+        customerId: Yup.number().typeError('مشتری الزامیست.').required(' مشتری الزامیست.'),
         contractItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
+                productId: Yup.number().typeError('محصول الزامیست.').required(' محصول الزامیست.'),
+                quantity: Yup.number().typeError('مقدار الزامیست.').required('مقدار الزامیست.'),
+                unitPrice: Yup.number().typeError('قمت واحد الزامیست.').required('قیمت واحد الزامیست.'),
             })
-        )
+        ).min(1, 'حداقل یک آیتم الزامیست.')
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -55,19 +44,25 @@ const EditContractForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         if (data.endDate) {
             data.endDate = moment(new Date(data.endDate)).format('YYYY-MM-DD');
         }
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
+
     };
 
     return (
-        <CustomModal size={"xl"} show={show}>
-            <Modal.Header style={headerStyle} className="modal-header">
-                <Modal.Title style={titleStyle}>
+        <CustomModal size={"xl"} show={show} >
+            <Header>
+                <Title>
                     {"ویرایش قرارداد"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             id: editingEntity.id,
@@ -89,40 +84,42 @@ const EditContractForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <TextInput name="contractNumber" label={"شماره قرارداد"} />
+                                        <TextInput name="contractNumber" label={"شماره قرارداد"}/>
                                     </Col>
                                     <Col>
-                                        <DateInput name="startDate" label={"تاریخ شروع"} />
+                                        <DateInput name="startDate" label={"تاریخ شروع"}/>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <DateInput name="endDate" label={"تاریخ پایان"} />
+                                        <DateInput name="endDate" label={"تاریخ پایان"}/>
                                     </Col>
                                     <Col>
-                                        <NumberInput name="advancePayment" label={"پیش پرداخت"} />
+                                        <NumberInput name="advancePayment" label={"پیش پرداخت"}/>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
+                                        <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"}/>
                                     </Col>
                                     <Col>
-                                        <NumberInput name="performanceBond" label={"ضمانت اجرا"} />
+                                        <NumberInput name="performanceBond" label={"ضمانت اجرا"}/>
                                     </Col>
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"شناسه مشتری"}
+                                            url={"customers/select"}
+                                            value={editingEntity?.customerId}
+                                        />
                                     </Col>
                                 </Row>
-                                <TextInput name="contractDescription" label={"توضیحات قرارداد"} />
+                                <TextInput name="contractDescription" label={"توضیحات قرارداد"}/>
                             </Col>
                         </Row>
-                        <ContractItems />
+                        <ContractItems/>
                         <Button $variant="success" type={"submit"}>
                             ویرایش
                         </Button>
@@ -130,8 +127,9 @@ const EditContractForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

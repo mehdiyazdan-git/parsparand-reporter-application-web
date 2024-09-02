@@ -17,13 +17,12 @@ const MainContent = styled.div`
   background-color: transparent;
 `;
 const ContentContainer = styled.div`
-  padding: 70px 20px 20px 20px;
-  padding-right: 250px;
-  background-color: rgba(255,255,255,0.2);
-  flex-grow: 1;
-  height: 100vh; 
-  width: 100%
-  overflow-y: auto; 
+    padding: 70px 250px 20px 20px;
+    background-color: rgba(255, 255, 255, 0.2);
+    flex-grow: 1;
+    height: 100vh;
+    width: 100%
+    overflow-y: auto;
 `;
 
 

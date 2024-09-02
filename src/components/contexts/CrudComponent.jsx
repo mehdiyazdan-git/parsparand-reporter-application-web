@@ -152,7 +152,7 @@ const CrudComponent = ({
             }
         } catch (err) {
             console.error('Error creating entity:', err);
-            openErrorModal(err?.response?.data || 'An error occurred while creating the entity');
+            return err?.response?.data || 'An error occurred while creating the entity';
         }
     };
 
@@ -166,7 +166,7 @@ const CrudComponent = ({
             }
         } catch (err) {
             console.error('Error updating entity:', err);
-            openErrorModal(err?.response?.data || `An error occurred while updating the entity: ${err.response?.status}`);
+           return  err?.response?.data || `An error occurred while updating the entity: ${err.response?.status}`;
         }
     };
 

@@ -1,73 +1,68 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
-import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 
 import ContractItems from "./ContractItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
+import moment from "jalali-moment";
+
 
 const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
-    const http = useHttp();
 
-    const yearSelect = async () => {
-        return await http.get(`/years/select`,{});
-    }
-
-    const customerSelect = async (searchQuery) => {
-        return await http.get(`/customers/select`,{searchQuery});
-    }
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
         contractNumber: Yup.string().required('شماره قرارداد الزامیست.'),
-        contractDescription: Yup.string().required('توضیحات قرارداد الزامیست.'),
+        contractDescription: Yup.string().required('عنوان قرارداد الزامیست.'),
         startDate: Yup.string().required('تاریخ شروع الزامیست.'),
         endDate: Yup.string().required('تاریخ پایان الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
-        yearId: Yup.number().required('سال الزامیست.'),
-        advancePayment: Yup.number().required('پیش پرداخت الزامیست.'),
-        insuranceDeposit: Yup.number().required('ودیعه بیمه الزامیست.'),
-        performanceBond: Yup.number().required('ضمانت اجرا الزامیست.'),
+        customerId: Yup.number().typeError('مشتری الزامیست.').required(' مشتری الزامیست.'),
         contractItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
+                productId: Yup.number().typeError('محصول الزامیست.').required(' محصول الزامیست.'),
+                quantity: Yup.number().typeError('مقدار الزامیست.').required('مقدار الزامیست.'),
+                unitPrice: Yup.number().typeError('قمت واحد الزامیست.').required('قیمت واحد الزامیست.'),
             })
-        )
+        ).length(1, "حداقل یک آیتم کالا الزامی است"),
     });
-
+    // Sun Sep 01 2024 06:49:39 GMT-0700 (Pacific Daylight Time)
     const resolver = useYupValidationResolver(validationSchema);
 
     const onSubmit = async (data) => {
+
         if (data.startDate) {
-            data.startDate = moment(new Date(data.startDate)).format('YYYY-MM-DD');
+            data.startDate = moment(data.startDate).format("YYYY-MM-DD");
         }
         if (data.endDate) {
-            data.endDate = moment(new Date(data.endDate)).format('YYYY-MM-DD');
+            data.endDate = moment(data.endDate).format("YYYY-MM-DD");
         }
-        await onCreateEntity(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
         <CustomModal size={"xl"} show={show} >
-            <Modal.Header className="modal-header" style={headerStyle} >
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد قرارداد جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={{
                             contractNumber: '',
@@ -75,10 +70,9 @@ const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
                             startDate: '',
                             endDate: '',
                             customerId: '',
-                            yearId: '',
-                            advancePayment: '',
-                            insuranceDeposit: '',
-                            performanceBond: '',
+                            advancePayment: '', //percentage type ( 0.00 to 100.00) or decimal type
+                            insuranceDeposit: '',//percentage type ( 0.00 to 100.00) or decimal type
+                            performanceBond: '',//percentage type ( 0.00 to 100.00) or decimal type
                             contractItems: [
                                 {
                                     productId: '',
@@ -118,13 +112,17 @@ const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="customerId" label={"شناسه مشتری"} apiFetchFunction={customerSelect} />
-                                    </Col>
-                                    <Col>
-                                        <AsyncSelectInput name="yearId" label={"سال"} apiFetchFunction={yearSelect} />
+                                        <AsyncSelectInput
+                                            name="customerId"
+                                            label={"شناسه مشتری"}
+                                            url={"customers/select"}
+                                        />
                                     </Col>
                                 </Row>
-                                <TextInput name="contractDescription" label={"توضیحات قرارداد"} />
+                                <TextInput
+                                    name="contractDescription"
+                                    label={"توضیحات قرارداد"}
+                                />
                             </Col>
                         </Row>
                         <ContractItems />
@@ -135,8 +133,9 @@ const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
+                </Container>
+            </Body>
         </CustomModal>
     );
 };
