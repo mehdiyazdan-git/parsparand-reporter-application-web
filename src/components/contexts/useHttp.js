@@ -1,6 +1,6 @@
 import axios from 'axios';
 import {IPADDRESS, PORT} from "../../config/config";
-import useAuth from "./useAuth";
+import useAuth from "../auth/useAuth";
 
 const baseURL = `http://${IPADDRESS}:${PORT}/api`;
 

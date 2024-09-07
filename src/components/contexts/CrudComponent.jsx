@@ -194,11 +194,7 @@ const CrudComponent = ({
                 <Button $variant="primary" onClick={openCreateModal}>
                     جدید
                 </Button>
-                {/*<DownloadFile*/}
-                {/*    exportAll={false}*/}
-                {/*    fileName={resourcePath}*/}
-                {/*    params={getParams(filters)}*/}
-                {/*/>*/}
+
                 {createForm && React.cloneElement(createForm, {
                     onCreateEntity: handleCreateEntity,
                     show: showModal,

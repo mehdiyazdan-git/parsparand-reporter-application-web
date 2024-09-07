@@ -19,23 +19,22 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
         reportExplanation: Yup.string().required('توضیحات گزارش الزامیست.'),
-        yearId: Yup.number()
-            .typeError('سال باید عدد باشد.')
-            .required('سال الزامیست.'),
         reportItems: Yup.array().of(
             Yup.object().shape({
                 quantity: Yup.number()
                     .typeError('مقدار باید عدد باشد.')
+                    .positive('مقدار باید عدد مثبت باشد.')
                     .required('مقدار الزامیست.'),
                 unitPrice: Yup.number()
                     .typeError('قیمت واحد باید عدد باشد.')
+                    .positive('مقدار باید عدد مثبت باشد.')
                     .required('قیمت واحد الزامیست.'),
                 customerId: Yup.number()
-                    .typeError('شناسه مشتری باید عدد باشد.')
-                    .required('شناسه مشتری الزامیست.'),
+                    .typeError('مشتری الزامیست.')
+                    .required(' مشتری الزامیست.'),
                 warehouseReceiptId: Yup.number()
-                    .typeError('شناسه رسید انبار باید عدد باشد.')
-                    .required('شناسه رسید انبار الزامیست.'),
+                    .typeError('حواله انبار الزامیست.')
+                    .required('حواله انبار الزامیست.'),
             })
         )
     });

@@ -19,6 +19,7 @@ import AnnualReport from "./components/Report/AnnualReport";
 import YearComparisonReport from "./components/Report/YearComparisonReport";
 import ClientSummary from "./components/Report/ClientSummary";
 import MonthlyReport from "./components/Report/MonthlyReport";
+import Login from "./components/auth/Login";
 
 
 
@@ -49,6 +50,7 @@ const App = () => {
                             <Route path="/users" element={<Users />} />
                             <Route path="/returneds" element={<Returneds />} />
                             <Route path="/years" element={<Years />} />
+                            <Route path="/login" element={<Login />} />
                         </Route>
                     </Routes>
                 </AuthProvider>

@@ -59,7 +59,7 @@ const FileUpload = ({ uploadUrl, onSuccess }) => {
                 style={{ display: 'none' }}
             />
             <Button onClick={handleUpload} disabled={isLoading}>
-                {isLoading ? 'در حال آپلود...' : 'آپلود'} {/* Show loading indicator */}
+                {isLoading ? 'در حال آپلود...' : 'آپلود'}
             </Button>
             {uploadStatus && (
                 <Status isSuccess={uploadStatus === 'فایل با موفقیت آپلود شد.'}>

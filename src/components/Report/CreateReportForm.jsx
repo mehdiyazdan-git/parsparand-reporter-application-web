@@ -1,19 +1,56 @@
 import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import {Col, Modal, Row} from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
-import { TextInput } from "../../utils/TextInput";
+import {TextInput} from "../../utils/TextInput";
 import DateInput from "../../utils/DateInput";
-import { Form } from "../../utils/Form";
-import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
+import {Form} from "../../utils/Form";
+import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import {bodyStyle, headerStyle, titleStyle} from "../styles/styles";
 import ReportItems from "./ReportItems";
 import CustomModal from "../../utils/CustomModal";
+import {useFormContext} from "react-hook-form";
+
+const ReportExplanationButton = () => {
+    const {setValue, getValues} = useFormContext();
+    const {reportDate} = getValues(['reportDate'])
+    const generateText = () => {
+        let formattedDate; // Declare a variable to store the formatted date
+
+        if (reportDate instanceof Date) {
+            formattedDate = reportDate.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[0].split(',')[0];
+        } else if (typeof reportDate === 'string') { // Use 'typeof' to check for strings
+            formattedDate = new Date(reportDate).toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[0].split(',')[0];
+        }else if (moment.isMoment(reportDate)) { // Use 'typeof' to check for strings
+            formattedDate = reportDate.format('jYYYY/jM/jD');
+        }else {
+            formattedDate = "fuck"
+        }
+
+        return formattedDate
+            ? `گزارش فروش ${formattedDate}`
+            : `گزارش فروش`;
+    }
+    return (
+        <div>
+            <button
+                className="btn btn-primary"
+                onClick={(e) => {
+                    e.preventDefault()
+                    setValue("reportExplanation", generateText(reportDate))
+                }
+            }
+            >
+                تولید توضیحات گزارش
+            </button>
+        </div>
+    );
+}
 
 
-const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
+const CreateReportForm = ({onCreateEntity, show, onHide}) => {
 
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
@@ -22,16 +59,18 @@ const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
             Yup.object().shape({
                 quantity: Yup.number()
                     .typeError('مقدار باید عدد باشد.')
+                    .positive('مقدار باید عدد مثبت باشد.')
                     .required('مقدار الزامیست.'),
                 unitPrice: Yup.number()
                     .typeError('قیمت واحد باید عدد باشد.')
+                    .positive('مقدار باید عدد مثبت باشد.')
                     .required('قیمت واحد الزامیست.'),
                 customerId: Yup.number()
-                    .typeError('شناسه مشتری باید عدد باشد.')
-                    .required('شناسه مشتری الزامیست.'),
+                    .typeError('مشتری الزامیست.')
+                    .required(' مشتری الزامیست.'),
                 warehouseReceiptId: Yup.number()
-                    .typeError('شناسه رسید انبار باید عدد باشد.')
-                    .required('شناسه رسید انبار الزامیست.'),
+                    .typeError('حواله انبار الزامیست.')
+                    .required('حواله انبار الزامیست.'),
             })
         )
     });
@@ -62,7 +101,7 @@ const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
                          fontFamily: "IRANSans",
                          fontSize: "0.8rem",
                          margin: "0"
-                }}>
+                     }}>
                     <Form
                         defaultValues={{
                             reportDate: '',
@@ -83,13 +122,20 @@ const CreateReportForm = ({ onCreateEntity, show, onHide }) => {
                             <Col>
                                 <Row>
                                     <Col>
-                                        <DateInput name="reportDate" label={"تاریخ گزارش"} />
+                                        <DateInput name="reportDate" label={"تاریخ گزارش"}/>
                                     </Col>
                                 </Row>
-                                <TextInput name="reportExplanation" label={"توضیحات گزارش"} />
+                                <Row>
+                                    <Col>
+                                        <TextInput name="reportExplanation" label={"توضیحات گزارش"}/>
+                                    </Col>
+                                    <Col>
+                                        <ReportExplanationButton/>
+                                    </Col>
+                                </Row>
                             </Col>
                         </Row>
-                        <ReportItems />
+                        <ReportItems/>
                         <Button $variant="success" type={"submit"}>
                             ایجاد
                         </Button>

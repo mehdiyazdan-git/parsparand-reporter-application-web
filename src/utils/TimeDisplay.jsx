@@ -1,37 +1,22 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 
 const TimeDisplay = () => {
-    const [currentTime, setCurrentTime] = useState('');
+    const [currentTime, setCurrentTime] = useState(new Date());
 
-    useEffect(() => {
-        // Fetch the current time from an API (you can replace this with an actual API)
-        // For demonstration purposes, we'll just set a static time here.
-        const fetchCurrentTime = async () => {
-            try {
-                // Replace this with your actual API call to get the current time
-                const response = await fetch('https://worldtimeapi.org/api/timezone/Asia/Tehran');
-                const data = await response.json();
-                const {datetime} = data;
-                setCurrentTime(datetime);
-            } catch (error) {
-                console.error('Error fetching time:', error);
-            }
-        };
-
-        fetchCurrentTime();
+    useEffect(()  => {
         // Refresh the time every second
-        const intervalId = setInterval(fetchCurrentTime, 1000);
+        const intervalId = setInterval(() => {
+            setCurrentTime(new Date());
+        }, 1000);
 
         // Clean up the interval when the component unmounts
         return () => clearInterval(intervalId);
-
-
     }, []);
 
-    // Parse the received datetime string
+    // Parse the datetime
     const parsedDate = new Date(currentTime);
-    const date = parsedDate.toLocaleString('fa-IR', {timeZone: 'Asia/Tehran'}).split(' ')[0].split(',')[0];
-    const time = parsedDate.toLocaleString('fa-IR', {timeZone: 'Asia/Tehran'}).split(' ')[1];
+    const date = parsedDate.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[0].split(',')[0];
+    const time = parsedDate.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[1];
 
     return (
         <div style={{

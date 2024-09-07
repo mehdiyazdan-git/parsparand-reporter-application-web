@@ -11,12 +11,11 @@ import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomMod
 
 const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
-        bigCustomer: Yup.bool().required('گزارش ماهانه الزامیست.'),
         customerCode: Yup.string().required('کد مشتری الزامیست.'),
-        economicCode: Yup.string().required('کد اقتصادی الزامیست.'),
-        name: Yup.string().required('نام الزامیست.'),
-        nationalCode: Yup.string().required('کد ملی الزامیست.'),
-        phone: Yup.string().required('تلفن الزامیست.'),
+        name: Yup.string()
+            .min(2, 'نام باید حداقل 2 کاراکتر باشد.')
+            .max(255, 'نام باید حداکثر 50 کاراکتر باشد.')
+            .required('نام الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
