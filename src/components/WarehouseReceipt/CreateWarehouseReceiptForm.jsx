@@ -14,24 +14,6 @@ import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 
-/***
- name : CreateWarehouseReceiptForm
- props : onCreateEntity, show, onHide
- defaultValues : {
- warehouseReceiptDate: '',
- warehouseReceiptDescription: '',
- warehouseReceiptNumber: '',
- customerId: '',
- warehouseReceiptItems: [
- {
- productId: '',
- quantity: '',
- unitPrice: '',
- amount: '',
- }
- ],
- }
- ***/
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 

@@ -20,6 +20,7 @@ import YearComparisonReport from "./components/Report/YearComparisonReport";
 import ClientSummary from "./components/Report/ClientSummary";
 import MonthlyReport from "./components/Report/MonthlyReport";
 import Login from "./components/auth/Login";
+import {AppProvider} from "./components/contexts/AppProvider";
 
 
 
@@ -32,27 +33,29 @@ const App = () => {
         <QueryClientProvider client={queryClient}>
             <Router>
                 <AuthProvider>
-                    <Routes>
-                        <Route path="/" element={<Dashboard />}>
-                            <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
-                            <Route path="/products" element={<Products />} />
-                            <Route path="/reports" element={<Reports />} />
-                            <Route path="/monthly-report" element={<MonthlyReport />} />
-                            <Route path="/annual-report" element={<AnnualReport />} />
-                            <Route path="/year-comparison-report" element={<YearComparisonReport />} />
-                            <Route path="/customers" element={<Customers />} />
-                            <Route path="/client-summary" element={<ClientSummary />} />
-                            <Route path="/invoices" element={<Invoices />} />
-                            <Route path="/invoiceStatuses" element={<InvoiceStatuses />} />
-                            <Route path="/payments" element={<Payments />} />
-                            <Route path="/adjustments" element={<Adjustments />} />
-                            <Route path="/contracts" element={<Contracts />} />
-                            <Route path="/users" element={<Users />} />
-                            <Route path="/returneds" element={<Returneds />} />
-                            <Route path="/years" element={<Years />} />
-                            <Route path="/login" element={<Login />} />
-                        </Route>
-                    </Routes>
+                    <AppProvider>
+                        <Routes>
+                            <Route path="/" element={<Dashboard />}>
+                                <Route path="/warehouseReceipts" element={<WarehouseReceipts />} />
+                                <Route path="/products" element={<Products />} />
+                                <Route path="/reports" element={<Reports />} />
+                                <Route path="/monthly-report" element={<MonthlyReport />} />
+                                <Route path="/annual-report" element={<AnnualReport />} />
+                                <Route path="/year-comparison-report" element={<YearComparisonReport />} />
+                                <Route path="/customers" element={<Customers />} />
+                                <Route path="/client-summary" element={<ClientSummary />} />
+                                <Route path="/invoices" element={<Invoices />} />
+                                <Route path="/invoiceStatuses" element={<InvoiceStatuses />} />
+                                <Route path="/payments" element={<Payments />} />
+                                <Route path="/adjustments" element={<Adjustments />} />
+                                <Route path="/contracts" element={<Contracts />} />
+                                <Route path="/users" element={<Users />} />
+                                <Route path="/returneds" element={<Returneds />} />
+                                <Route path="/years" element={<Years />} />
+                                <Route path="/login" element={<Login />} />
+                            </Route>
+                        </Routes>
+                    </AppProvider>
                 </AuthProvider>
             </Router>
         </QueryClientProvider>

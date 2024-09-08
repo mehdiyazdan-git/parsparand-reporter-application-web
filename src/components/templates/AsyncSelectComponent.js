@@ -1,45 +1,37 @@
-
-import React, { useState } from 'react';
-import { useController } from 'react-hook-form';
+import React from 'react';
+import {useController, useFormContext} from 'react-hook-form';
 import AsyncSelect from 'react-select/async';
 
-const AsyncSelectComponent = ({ value, name, onChange, options, control }) => {
+const AsyncSelectComponent = ({ name, options, defaultValue, isClearable = true }) => {
+    const {control} = useFormContext();
     const {
-        field: { ref, ...inputProps },
+        field: { onChange, onBlur, value, ref },
+        fieldState: { error },
     } = useController({
         name,
         control,
-        defaultValue: value,
+        defaultValue,
     });
-
-    const [selectedOption, setSelectedOption] = useState(null);
-
-    const loadOptions = async (inputValue) => {
-        const response = await options;
-        const data = await response;
-        return data.filter((option) =>
-            option.name.toLowerCase().includes(inputValue.toLowerCase())
+    const filterOptions = (inputValue) => {
+        return options.filter((i) =>
+            i.includes(inputValue)
         );
     };
 
-    const handleOnChange = (selectedOption) => {
-        setSelectedOption(selectedOption);
-        onChange(selectedOption);
-    };
+    const promiseOptions = (inputValue) =>
+        new Promise((resolve) => {
+            resolve(filterOptions(inputValue));
+        });
 
-    return (
-        <AsyncSelect
-            cacheOptions
-            defaultOptions
-            loadOptions={loadOptions}
-            getOptionLabel={(option) => option.name}
-            getOptionValue={(option) => option.id}
-            value={selectedOption}
-            onChange={handleOnChange}
-            {...inputProps}
-        />
-    );
+    return (<AsyncSelect
+        cacheOptions
+        defaultOptions
+        loadOptions={promiseOptions}
+        onChange={onChange}
+        onBlur={onBlur}
+        value={value}
+        ref={ref}
+        isClearable={isClearable}
+    />);
 };
-
 export default AsyncSelectComponent;
-

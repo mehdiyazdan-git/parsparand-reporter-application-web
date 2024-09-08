@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import Button from "../../utils/Button";
@@ -12,11 +12,14 @@ import SelectInput from "../../utils/SelectInput";
 import * as Yup from "yup";
 import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import {AppContext} from "../contexts/AppProvider";
 
 
 
 
 const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
+
+    const { customers, products, warehouseReceipts, invoices, contracts } = useContext(AppContext);
 
     const validationSchema = Yup.object().shape({
         paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),

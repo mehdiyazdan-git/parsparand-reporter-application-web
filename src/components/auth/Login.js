@@ -64,6 +64,7 @@ const Login = () => {
                                 <button type="submit" className="btn btn-primary btn-block">
                                     ورود
                                 </button>
+
                                 {error && (
                                     <Alert variant="danger" style={{ marginTop: 10 }}>
                                         {error}

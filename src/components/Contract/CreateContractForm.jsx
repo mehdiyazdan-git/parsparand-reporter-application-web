@@ -14,6 +14,7 @@ import NumberInput from "../../utils/NumberInput";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import ErrorMessage from "../../utils/ErrorMessage";
 import moment from "jalali-moment";
+import AsyncSelectComponent from "../templates/AsyncSelectComponent";
 
 
 const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
@@ -87,6 +88,9 @@ const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
                         <Row>
                             <Col>
                                 <Row>
+                                    <AsyncSelectComponent
+                                        dataKey="customers"
+                                    />
                                     <Col>
                                         <TextInput name="contractNumber" label={"شماره قرارداد"} />
                                     </Col>

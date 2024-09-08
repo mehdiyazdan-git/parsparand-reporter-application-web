@@ -5,10 +5,11 @@ import TableFooter from './TableFooter';
 import Pagination from '../pagination/Pagination';
 import TableSearch from './TableSearch';
 import PropTypes from 'prop-types';
-import YearSelect from '../Year/YearSelect';
+
 import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
 import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
 import yearSelectStyle from '../styles/yearSelectStyle';
+import AsyncSelectSearch from "./AsyncSelectSearch";
 
 
 const Table = ({
@@ -38,7 +39,7 @@ const Table = ({
                 <div style={yearSelectStyle}>
                     <label style={yearSelectLabelStyle}>انتخاب سال</label>
                     <div style={yearSelectContainerStyle}>
-                        <YearSelect
+                        <AsyncSelectSearch
                             value={filters?.search?.jalaliYear}
                             onChange={handleYearChange}
                         />
