@@ -14,33 +14,56 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
+    const [contractFieldsVisibility, setContractFieldsVisibility] = React.useState(false);
+
     const validationSchema = Yup.object().shape({
-        dueDate: Yup.string().required('تاریخ سررسید الزامیست.'),
-        invoiceNumber: Yup.number().required('شماره فاکتور الزامیست.'),
-        issuedDate: Yup.string().required('تاریخ صدور الزامیست.'),
-        salesType: Yup.string().required('نوع فروش الزامیست.'),
-        customerId: Yup.number().required('شناسه مشتری الزامیست.'),
+        dueDate: Yup.date()
+            .transform((value, originalValue) => originalValue === '' ? null : value)
+            .required('تاریخ تحویل الزامی است'),
+        invoiceNumber: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
+        issuedDate: Yup.string()
+            .transform((value, originalValue) => originalValue === '' ? null : value)
+            .required('تاریخ صدور الزامی است'),
+        salesType: Yup.string()
+            .oneOf(['CASH_SALES', 'CONTRACTUAL_SALES'])
+            .required('نوع فروش الزامی است'),
+        contractId: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
+        customerId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست.'),
+        invoiceStatusId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
+        advancedPayment: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
+        insuranceDeposit: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
+        performanceBound: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
+        yearId: Yup.string().required('مقدار فیلد الزامیست'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().required('شناسه محصول الزامیست.'),
-                quantity: Yup.number().required('مقدار الزامیست.'),
-                unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-                warehouseReceiptId: Yup.number().required('شناسه رسید انبار الزامیست.'),
+                productId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
+                quantity: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
+                unitPrice: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
+                warehouseReceiptId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
             })
-        )
+        ).required('مقدار فیلد الزامیست').min(1, 'فاکتور باید حداقل یک آیتم داشته باشد.'),
     });
     const resolver = useYupValidationResolver(validationSchema);
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
         const formattedData = {
             ...data,
             dueDate: data.dueDate ? formatDate(data.dueDate) : null,
             issuedDate: data.issuedDate ? formatDate(data.issuedDate) : null,
         };
-        await onUpdateEntity(formattedData);
-        onHide();
+        const errorMessage = await onUpdateEntity(formattedData);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     const formatDate = (date) => {
@@ -112,7 +135,15 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                         />
                                     </Col>
                                 </Row>
-                                <ContractFields>
+                                <ContractFields onSalesTypeChange={
+                                    (value) => {
+                                        if (value === "CONTRACTUAL_SALES") {
+                                            setContractFieldsVisibility(true);
+                                        } else {
+                                            setContractFieldsVisibility(false);
+                                        }
+                                    }
+                                }>
                                     <Row>
                                         <Col>
                                             <AsyncSelectInput
@@ -147,6 +178,7 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

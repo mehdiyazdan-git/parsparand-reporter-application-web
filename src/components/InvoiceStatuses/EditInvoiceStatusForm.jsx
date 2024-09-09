@@ -7,6 +7,7 @@ import { TextInput } from "../../utils/TextInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditInvoiceStatusForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -15,9 +16,16 @@ const EditInvoiceStatusForm = ({ editingEntity, onUpdateEntity, show, onHide }) 
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -49,6 +57,7 @@ const EditInvoiceStatusForm = ({ editingEntity, onUpdateEntity, show, onHide }) 
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </div>
             </Modal.Body>
         </Modal>

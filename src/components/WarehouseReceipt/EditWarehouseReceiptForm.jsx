@@ -12,6 +12,7 @@ import NumberInput from "../../utils/NumberInput";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
@@ -31,13 +32,19 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
             data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
         }
-        console.log(data);
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -99,6 +106,7 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

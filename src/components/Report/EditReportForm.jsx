@@ -1,6 +1,6 @@
-import React, {useCallback} from 'react';
+import React from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
@@ -8,13 +8,15 @@ import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, titleStyle } from "../styles/styles";
 import ReportItems from "./ReportItems";
 import "../../App.css";
-import CustomModal from "../../utils/CustomModal";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import NumberInput from "../../utils/NumberInput";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
@@ -45,22 +47,24 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         if (data.reportDate) {
             data.reportDate = moment(new Date(data.reportDate)).format('YYYY-MM-DD');
         }
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     }
 
     return (
         <CustomModal size={"xl"} show={show}>
-            <Modal.Header  className="modal-header">
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ویرایش گزارش"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div
-                    className="container modal-body"
-                     style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}
-                >
+                </Title>
+            </Header>
+            <Body>
+                <Container>
                     <Form
                         defaultValues={editingEntity}
                         onSubmit={onSubmit}
@@ -87,8 +91,9 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
-                </div>
-            </Modal.Body>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

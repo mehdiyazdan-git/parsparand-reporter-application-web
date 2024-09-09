@@ -13,6 +13,7 @@ import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomMod
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
@@ -61,13 +62,19 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
             data.warehouseReceiptDate = moment(new Date(data.warehouseReceiptDate)).format('YYYY-MM-DD');
         }
-       await onCreateEntity(data);
-        onHide();
-        console.log(data);
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
 
     };
 
@@ -109,11 +116,16 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                                     </Col>
                                 </Row>
                                <Row>
-                                   <AsyncSelectInput
-                                       name="customerId"
-                                       label={"شناسه مشتری"}
-                                       url={"customers/select"}
-                                   />
+                                   <Col>
+                                       <AsyncSelectInput
+                                           name="customerId"
+                                           label={"شناسه مشتری"}
+                                           url={"customers/select"}
+                                       />
+                                   </Col>
+                                   <Col>
+                                       <GenerateDescriptionButton/>
+                                   </Col>
                                </Row>
                                 <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />
                             </Col>
@@ -126,6 +138,7 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

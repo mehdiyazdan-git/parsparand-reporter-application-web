@@ -12,7 +12,7 @@ const SelectContainer = styled.div`
     width: 100%;
 `;
 
-const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger}) => {
+const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger,styles}) => {
     const {getAll} = useHttp();
     const ref = useRef();
 
@@ -22,7 +22,7 @@ const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger}) => {
 
 
     // --- Functions ---
-    const loadOptions = useCallback( async (inputValue, callback) => {
+    const loadOptions = useCallback( async (inputValue = '', callback) => {
         setIsLoading(true);
         try {
             const response = await getAll(
@@ -96,7 +96,7 @@ const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger}) => {
                 isLoading={isLoading}
                 placeholder="جستجو..."
                 noOptionsMessage={() => "هیچ موردی یافت نشد."}
-                styles={getCustomSelectStyles()}
+                styles={{...getCustomSelectStyles(), ...styles}}
                 components={{ ClearIndicator }}
                 isClearable={true}
             />

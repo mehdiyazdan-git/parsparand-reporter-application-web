@@ -12,6 +12,7 @@ import {bodyStyle, headerStyle, titleStyle} from "../styles/styles";
 import ReportItems from "./ReportItems";
 import CustomModal from "../../utils/CustomModal";
 import {useFormContext} from "react-hook-form";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const ReportExplanationButton = () => {
     const {setValue, getValues} = useFormContext();
@@ -52,6 +53,8 @@ const ReportExplanationButton = () => {
 
 const CreateReportForm = ({onCreateEntity, show, onHide}) => {
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
         reportExplanation: Yup.string().required('توضیحات گزارش الزامیست.'),
@@ -78,13 +81,18 @@ const CreateReportForm = ({onCreateEntity, show, onHide}) => {
     const resolver = useYupValidationResolver(validationSchema);
 
 
-    const onSubmit = (formData) => {
+    const onSubmit = async (formData) => {
 
         if (formData.reportDate) {
             formData.reportDate = moment(new Date(formData.reportDate)).format('YYYY-MM-DD');
         }
-        onHide();
-        onCreateEntity(formData);
+        const errorMessage = await onCreateEntity(formData);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
 
     };
 
@@ -143,6 +151,7 @@ const CreateReportForm = ({onCreateEntity, show, onHide}) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </div>
             </Modal.Body>
         </CustomModal>

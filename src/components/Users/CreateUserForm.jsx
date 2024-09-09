@@ -8,8 +8,9 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import CheckboxInput from "../../utils/CheckboxInput";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
-const CreateUserForm = ({ onCreateUser, show, onHide }) => {
+const CreateUserForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         email: Yup.string().email('ایمیل معتبر نیست').required('ایمیل الزامیست.'),
         enabled: Yup.boolean().required('فعال بودن الزامیست.'),
@@ -22,9 +23,16 @@ const CreateUserForm = ({ onCreateUser, show, onHide }) => {
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
-        await onCreateUser(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -89,6 +97,7 @@ const CreateUserForm = ({ onCreateUser, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

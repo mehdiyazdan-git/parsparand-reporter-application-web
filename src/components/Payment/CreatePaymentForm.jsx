@@ -13,11 +13,14 @@ import * as Yup from "yup";
 import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import {AppContext} from "../contexts/AppProvider";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 
 
 
 const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const { customers, products, warehouseReceipts, invoices, contracts } = useContext(AppContext);
 
@@ -41,9 +44,13 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
            if (data.paymentDate) {
                data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
            }
-           await onCreateEntity(data);
-           onHide();
-           console.log(data)
+           const errorMessage = await onCreateEntity(data);
+           if (errorMessage) {
+               setErrorMessage(errorMessage);
+           } else {
+               setErrorMessage(null);
+               onHide();
+           }
        }catch (e){
            console.log(e)
        }
@@ -113,6 +120,7 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

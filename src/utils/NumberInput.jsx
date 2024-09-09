@@ -1,39 +1,49 @@
-import React, {useMemo} from 'react';
+import React, { useMemo } from 'react';
 import { Controller } from 'react-hook-form';
 import { NumericFormat } from 'react-number-format';
 import { ConnectForm } from './ConnectForm';
-import getInputStyles from "../components/styles/inputStyles";
 
-const NumberInput = ({ name, label, style,field, ...rest }) => {
-    const labelStyle = useMemo(()=>(
-        {fontFamily: 'IRANSansBold', fontSize: '0.75rem'}),[]
-    )
-    const isInFieldArray = useMemo(()=>(
-        field?.name?.includes('[') && field?.name?.includes(']')),[field?.name]);
+const NumberInput = ({ name, label, style, field, ...rest }) => {
+    const labelStyle = useMemo(
+        () => ({ fontFamily: 'IRANSansBold', fontSize: '0.75rem' }),
+        []
+    );
+
+    const isInFieldArray = useMemo(
+        () => field?.name?.includes('[') && field?.name?.includes(']'),
+        [field?.name]
+    );
+
     return (
         <div>
-            <label style={labelStyle} className="label">{label}</label>
+            <label style={labelStyle} className="label">
+                {label}
+            </label>
             <ConnectForm>
-                {({ control,setValue,values }) => (
+                {({ control, setValue, values }) => (
                     <Controller
                         control={control}
                         name={name}
-                        render={({
-                                     field,
-                                     fieldState: { invalid, error } }) => (
+                        render={({ field, fieldState: { invalid, error } }) => (
                             <>
                                 <NumericFormat
-                                    placeholder={error ? error.message : ''}
+                                    placeholder={error ? error.message : ''} // Display error message as placeholder
                                     thousandSeparator=","
                                     value={field.value}
-                                    onValueChange={({value}) => {
+                                    onValueChange={({ value }) => {
                                         if (!isInFieldArray) {
                                             setValue(name, value);
                                         } else {
                                             field.onChange(value);
                                         }
                                     }}
-                                    style={getInputStyles(invalid,error)}
+                                    className={` ${
+                                        error ? 'red-placeholder error-message' : '' // Apply red-placeholder class on error
+                                    }`}
+                                    style={{
+                                        ...style,
+                                        border: error ? '1px solid red' : '', // Add red border on error
+                                    }}
                                     {...rest}
                                 />
                             </>

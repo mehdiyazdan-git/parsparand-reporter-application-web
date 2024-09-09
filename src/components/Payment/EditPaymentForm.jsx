@@ -12,8 +12,11 @@ import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomMod
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
 
     const validationSchema = Yup.object().shape({
@@ -30,8 +33,13 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         if (data.paymentDate) {
             data.paymentDate = moment(new Date(data.paymentDate)).format('YYYY-MM-DD');
         }
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -99,6 +107,7 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

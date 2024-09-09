@@ -9,6 +9,7 @@ import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import SelectInput from "../../utils/SelectInput";
 import CustomModal from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditProductForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -20,9 +21,16 @@ const EditProductForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
-        await onUpdateEntity(data);
-        onHide();
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     const productTypeOptions = [
@@ -78,6 +86,7 @@ const EditProductForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </div>
             </Modal.Body>
         </CustomModal>

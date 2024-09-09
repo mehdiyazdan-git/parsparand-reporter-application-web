@@ -8,6 +8,7 @@ import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import CheckboxInput from "../../utils/CheckboxInput";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
@@ -19,10 +20,16 @@ const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
     });
 
     const resolver = useYupValidationResolver(validationSchema);
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const onSubmit = async (data) => {
-        await onCreateEntity(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -81,6 +88,7 @@ const CreateCustomerForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

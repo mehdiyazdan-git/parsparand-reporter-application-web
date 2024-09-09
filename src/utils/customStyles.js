@@ -1,7 +1,7 @@
 export const getCustomSelectStyles = (error) => ({
     control: (provided) => ({
         ...provided,
-        width: '100%', // Ensures the control takes up full width
+        width: '200px', // Ensures the control takes up full width
         height: '2em', // Sets a fixed height
         overflowY: 'auto', // Enables vertical scrolling if content overflows
         fontFamily: 'IRANSans',

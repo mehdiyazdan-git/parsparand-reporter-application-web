@@ -55,7 +55,6 @@ const createInvoiceSchema = () => {
         advancedPayment: Yup.number().typeError('مقدار فیلد باید عدد باشد'),
         insuranceDeposit: Yup.number().typeError('مقدار فیلد باید عدد باشد'),
         performanceBound: Yup.number().typeError('مقدار فیلد باید عدد باشد'),
-        yearId: Yup.string().required('مقدار فیلد الزامیست'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),

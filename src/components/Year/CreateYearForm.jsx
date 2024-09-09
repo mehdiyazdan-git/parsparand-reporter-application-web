@@ -7,17 +7,25 @@ import { TextInput } from "../../utils/TextInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
-const CreateYearForm = ({ onCreateYear, show, onHide }) => {
+const CreateYearForm = ({ onCreateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
         name: Yup.number().required('نام سال الزامیست.').typeError('نام سال باید عدد باشد.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
-        await onCreateYear(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -48,6 +56,7 @@ const CreateYearForm = ({ onCreateYear, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

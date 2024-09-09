@@ -120,12 +120,12 @@ html, body, #root {
 .error-message {
   color : red;
   font-family: "IRANSans", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
 }
 .red-placeholder::placeholder {
   color: red;
   font-family: "IRANSans", sans-serif;
-  font-size: 0.6rem;
+  font-size: 0.7rem;
 }
 
 
@@ -143,6 +143,7 @@ html, body, #root {
   display: flex;
   align-items: center;
   font-family: "IRANSans", sans-serif;
+  font-size: 0.8rem;
 }
 
 .date-picker-clear-button {
@@ -183,6 +184,23 @@ html, body, #root {
 .table-search-input[type="date"] {
   direction: ltr; /* Keep the direction left-to-right for date inputs */
 }
+
+/*.date-picker-input {*/
+/*  width: 100%;*/
+/*  padding: 0.2rem;*/
+/*  margin: 0;*/
+/*  height: 35px;*/
+/*  border: 1px solid #ddd;*/
+/*  border-radius: 4px;*/
+/*  font-size: 0.7rem;*/
+/*  direction: ltr;*/
+/*}*/
+/*!*on error*!*/
+/*.table-search-input.error {*/
+/*  border: 1px solid red;*/
+/*  border-radius: 4px;*/
+/*}*/
+
 
 
 

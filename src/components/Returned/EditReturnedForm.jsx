@@ -12,15 +12,10 @@ import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 
 const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
-    const http = useHttp();
-
-    const customerSelect = async (searchQuery = '') => {
-        return await http.get(`/customers/select`,searchQuery);
-    }
 
     const validationSchema = Yup.object().shape({
         quantity: Yup.number()
@@ -44,14 +39,19 @@ const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     });
 
     const resolver = useYupValidationResolver(validationSchema);
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const onSubmit = async (data) => {
         if (data.returnedDate) {
             data.returnedDate = moment(new Date(data.returnedDate)).format('YYYY-MM-DD');
         }
-        await onUpdateEntity(data);
-        onHide();
-        console.log(data)
+        const errorMessage = await onUpdateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -116,6 +116,7 @@ const EditReturnedForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </div>
             </Modal.Body>
         </CustomModal>

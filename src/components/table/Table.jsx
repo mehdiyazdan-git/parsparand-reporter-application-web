@@ -1,4 +1,4 @@
-import React, {useCallback} from 'react';
+import React, {useCallback, useContext} from 'react';
 import TableHeader from './TableHeader';
 import TableBody from './TableBody';
 import TableFooter from './TableFooter';
@@ -10,6 +10,7 @@ import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
 import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
 import yearSelectStyle from '../styles/yearSelectStyle';
 import AsyncSelectSearch from "./AsyncSelectSearch";
+import {AppContext} from "../contexts/AppProvider";
 
 
 const Table = ({
@@ -27,10 +28,13 @@ const Table = ({
                    onDeleteEntity,
                    resourcePath
                }) => {
-
-    const handleYearChange = useCallback((value) => {
-        updateSearchParams({ jalaliYear: parseInt(value, 10) });
+    /* option schema = {value: 3, label: 1402} */
+    const handleYearChange = useCallback((option) => {
+        updateSearchParams({ jalaliYear: parseInt(option?.label, 10) });
     }, [updateSearchParams]);
+
+    const {years} = useContext(AppContext);
+
 
     const tableData = data?.content || []; // Extract table data for better readability
     return (
@@ -40,8 +44,10 @@ const Table = ({
                     <label style={yearSelectLabelStyle}>انتخاب سال</label>
                     <div style={yearSelectContainerStyle}>
                         <AsyncSelectSearch
-                            value={filters?.search?.jalaliYear}
+                            url="years/select"
+                            value={years.find(year => year.value === filters?.search?.jalaliYear) || years[0]}
                             onChange={handleYearChange}
+                            styles={{width:"300px"}}
                         />
                     </div>
                 </div>

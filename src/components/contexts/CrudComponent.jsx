@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import PropTypes from 'prop-types';
 
 import useModalManager from '../../hooks/useModalManager';
@@ -11,6 +11,7 @@ import ErrorModal from './ErrorModal';
 import useHttp from './useHttp';
 import axios from "axios";
 import {BASE_URL} from "../../config/config";
+import {AppContext} from "./AppProvider";
 
 
 const CrudComponent = ({
@@ -49,6 +50,9 @@ const CrudComponent = ({
             order: 'asc',
         },
     };
+
+    const {years} = useContext(AppContext);
+
     const getInitialFilters = (columns) => {
         const search = {};
         columns.forEach((column) => {
@@ -60,6 +64,9 @@ const CrudComponent = ({
                 }
             }
         });
+        if (hasYearSelect) {
+            search.jalaliYear = years[0]?.label || '';
+        }
         return {...filterSchema, search};
     };
 

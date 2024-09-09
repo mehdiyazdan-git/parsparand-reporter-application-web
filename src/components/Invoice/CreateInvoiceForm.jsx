@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext, useMemo} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
@@ -13,7 +13,8 @@ import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
-import {useFormContext} from "react-hook-form";
+import {AppContext} from "../contexts/AppProvider";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 /***
  validation rules for create invoice form:
@@ -37,7 +38,7 @@ const defaultValues = {
     salesType: 'CASH_SALES',
     contractId: '',
     customerId: '',
-    invoiceStatusId: 1,
+    invoiceStatusId: '',
     advancedPayment: '',
     insuranceDeposit: '',
     performanceBound: '',
@@ -54,7 +55,38 @@ const defaultValues = {
 
 const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
 
+    const {years} = useContext(AppContext);
+
+    const defaultValues = useMemo(() => ({
+        dueDate: '',
+        invoiceNumber: '',
+        issuedDate: '',
+        salesType: 'CASH_SALES',
+        contractId: '',
+        customerId: '',
+        invoiceStatusId: '',
+        advancedPayment: '',
+        insuranceDeposit: '',
+        performanceBound: '',
+        yearId: years[0].value,
+        invoiceItems: [
+            {
+                productId: '',
+                quantity: '',
+                unitPrice: '',
+                warehouseReceiptId: '',
+            },
+        ],
+    }), []);
+
+// ^ The empty dependency array means this object will only be created once
+// when the component mounts, and will not change unless the component is remounted.
+
     const [contractFieldsVisibility, setContractFieldsVisibility] = React.useState(false);
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
+
 
     const validationSchema = Yup.object().shape({
         dueDate: Yup.date()
@@ -88,7 +120,21 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         {label: "فروش قراردادی", value: "CONTRACTUAL_SALES"},
     ]
 
+
     const resolver = useYupValidationResolver(validationSchema);
+
+    const getYearId = (date) => {
+
+        const jalaliYear = parseInt(new Intl.DateTimeFormat('fa-IR')
+            .format(new Date(date)).substring(0, 4), 10);
+
+        const yearId = years.find(option => option.label === jalaliYear)?.value;
+        if (yearId){
+            return yearId;
+        }else {
+            return years[0].value
+        }
+    };
 
     const onSubmit = async (data) => {
         if (data.dueDate) {
@@ -97,8 +143,15 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         if (data.issuedDate) {
             data.issuedDate = moment(new Date(data.issuedDate)).format('YYYY-MM-DD');
         }
-        await onCreateEntity(data);
-        onHide();
+        data['yearId'] = getYearId(data.issuedDate) || getYearId(new Date());
+        console.log(data)
+       const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -195,6 +248,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

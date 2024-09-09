@@ -16,6 +16,7 @@ import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
 import CustomModal from "../../utils/CustomModal";
 import useHttp from "../contexts/useHttp";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
 
@@ -46,12 +47,19 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
 
     const resolver = useYupValidationResolver(validationSchema);
 
+    const [errorMessage, setErrorMessage] = React.useState(null);
+
     const onSubmit = async (data) => {
         if (data.adjustmentDate) {
             data.adjustmentDate = moment(new Date(data.adjustmentDate)).format('YYYY-MM-DD');
         }
-        await onCreateEntity(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
 
     };
 
@@ -125,6 +133,7 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </div>
             </Modal.Body>
         </CustomModal>

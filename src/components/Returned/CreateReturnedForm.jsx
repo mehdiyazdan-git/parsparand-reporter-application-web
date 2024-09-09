@@ -13,9 +13,12 @@ import NumberInput from "../../utils/NumberInput";
 
 import Subtotal from "../../utils/Subtotal";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
+import ErrorMessage from "../../utils/ErrorMessage";
 
 
 const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
+
+    const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
         quantity: Yup.number()
@@ -46,8 +49,13 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
         if (data.returnedDate) {
             data.returnedDate = moment(new Date(data.returnedDate)).format('YYYY-MM-DD');
         }
-        await onCreateEntity(data);
-        onHide();
+        const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (
@@ -115,6 +123,7 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
                             انصراف
                         </Button>
                     </Form>
+                    {errorMessage && <ErrorMessage message={errorMessage}/>}
                 </Container>
             </Body>
         </CustomModal>

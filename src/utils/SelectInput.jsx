@@ -19,9 +19,9 @@ const SelectInput = ({ name, options, label, field, ...rest }) => {
                 <Controller
                     name={name}
                     control={control}
-                    defaultValue={options[0].value}
+                    defaultValue={options[0]?.value} // Provide a default value if available
                     render={({
-                                 field: controlledField, // Rename to avoid shadowing
+                                 field: controlledField,
                                  fieldState: { error }
                              }) => {
                         const onSelectChange = (selectedOption) => {
@@ -35,15 +35,13 @@ const SelectInput = ({ name, options, label, field, ...rest }) => {
                             <div>
                                 <label style={{ fontFamily: "IRANSansBold", fontSize: "0.75rem" }} className="label">{label}</label>
                                 <Select
-                                    {...(field || controlledField)} // Use 'field' if available, otherwise 'controlledField'
+                                    {...(field || controlledField)}
                                     options={options}
-                                    styles={getCustomSelectStyles(error)}
+                                    styles={getCustomSelectStyles(error)} // Pass the error state to your styling function
                                     value={options.find(option => option.value === (field?.value || controlledField.value))}
                                     onChange={onSelectChange}
-                                    className={error ? "error text-danger" : ""}
-                                    placeholder={error ? error.message : 'انتخاب...'}
                                     noOptionsMessage={customMessages.noOptionsMessage}
-                                    {...rest} // Pass any additional props
+                                    {...rest}
                                 />
                             </div>
                         );
