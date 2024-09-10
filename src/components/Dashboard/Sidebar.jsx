@@ -1,7 +1,6 @@
 import styled from "styled-components";
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
 
 const SidebarContainer = styled.div`  
   width: 200px;  
@@ -14,7 +13,28 @@ const SidebarContainer = styled.div`
   position: fixed;  
   top: 0;  
   right: 0; /* Adjusted for RTL */  
-  z-index: 1000;  
+  z-index: 1000;
+`;
+
+// eslint-disable-next-line no-use-before-define
+const NavLink = styled(NavLink)`
+   margin: 0;
+    padding: 10px;
+    color: white;
+    font-family: 'IRANSans, sans-serif',sans-serif;
+    font-size: 0.9rem;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-collapse: collapse;
+
+    &:hover {
+        background-color: #506071;
+        cursor: pointer;
+    }
+
+    &.active {
+        background-color: #113561 !important; 
+    },
 `;
 
 const SidebarItem = ({ to, caption, children }) =>
@@ -23,23 +43,6 @@ const SidebarItem = ({ to, caption, children }) =>
         className={({ isActive }) =>
             isActive ? 'active' : ''
         }
-        style={{
-                margin: 0,
-                padding: '10px',
-                color: 'white',
-                fontFamily: 'IRANSans, sans-serif',
-                fontSize: '0.9rem',
-                textDecoration: 'none',
-                border: '1px solid rgba(255, 255, 255, 0.3)',
-                borderCollapse: 'collapse',
-                '&:hover': {
-                        backgroundColor: '#506071',
-                        cursor: 'pointer',
-                },
-                '&.active': {
-                        backgroundColor: '#113561',
-                },
-        }}
     >
             {caption || children}
     </NavLink>

@@ -33,7 +33,7 @@ html, body, #root {
 
 
 :root {
-  --create-button-bg-color : #048FF4;
+  --create-button-bg-color : #0c6fc8;
   --create-button-fg-color : #fff;
 
   --update-button-bg-color : #0189a4;
@@ -46,6 +46,7 @@ html, body, #root {
   --back-button-fg-color : #fff;
 
   --table-header-border-color :  #ccc;
+  --table-header-bg-color : #f5f5f5;
 }
 
 .form-container {
@@ -185,21 +186,26 @@ html, body, #root {
   direction: ltr; /* Keep the direction left-to-right for date inputs */
 }
 
-/*.date-picker-input {*/
-/*  width: 100%;*/
-/*  padding: 0.2rem;*/
-/*  margin: 0;*/
-/*  height: 35px;*/
-/*  border: 1px solid #ddd;*/
-/*  border-radius: 4px;*/
-/*  font-size: 0.7rem;*/
-/*  direction: ltr;*/
-/*}*/
-/*!*on error*!*/
-/*.table-search-input.error {*/
-/*  border: 1px solid red;*/
-/*  border-radius: 4px;*/
-/*}*/
+.generate-desc-icon {
+  width: 25px;
+  height: 25px;
+  margin-right: 10px;
+  color: var(--create-button-bg-color, #ccc); /* Use a CSS variable with a fallback */
+  cursor: pointer;
+  transition: all 0.3s ease-in-out;
+  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.generate-desc-icon:hover {
+  transform: scale(1.1);
+  box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.3);
+  color: var(--bs-accordion-bg, #1a5f78);
+}
+
+.generate-desc-icon:active {
+  transform: scale(0.95);
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.1);
+}
 
 
 

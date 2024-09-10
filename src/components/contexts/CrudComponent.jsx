@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import PropTypes from 'prop-types';
 
 import useModalManager from '../../hooks/useModalManager';
@@ -25,6 +25,7 @@ const CrudComponent = ({
                        }) => {
     const [data, setData] = useState(null);
     const {getAll, post, put, del} = useHttp();
+
     const {
         showModal,
         showEditModal,
@@ -83,6 +84,8 @@ const CrudComponent = ({
         initialFilters,
     );
 
+
+
     const getParams = (filters) => {
         return Object.entries(filters).reduce((params, [key, value]) => {
             if (typeof value === 'object') {
@@ -122,9 +125,11 @@ const CrudComponent = ({
         fetchData();
     }, [fetchData]); // Use fetchData as a dependency
 
+    const exportToExcelURL = useMemo(() => `${BASE_URL}/${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`, [resourcePath]);
+
     const handleExportToExcel = async (exportAll = false) => {
 
-        const url = `${BASE_URL}/${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`;
+        // const url = `${BASE_URL}/${encodeURI(resourcePath)}/download-all-${encodeURI(resourcePath)}.xlsx`;
 
         const params = getParams(filters);
         if (exportAll) {
@@ -132,7 +137,7 @@ const CrudComponent = ({
             params.page = 0;
         }
         try {
-            await axios.get(url, {
+            await axios.get(exportToExcelURL, {
                 params: params,
                 responseType: 'blob', // Important
             }).then((response) => {
@@ -150,7 +155,7 @@ const CrudComponent = ({
         }
     };
 
-    const handleCreateEntity = async (formData) => {
+    const handleCreateEntity = useCallback( async (formData) => {
         try {
             const response = await post(encodeURI(resourcePath), formData);
             if (response?.status === 201) {
@@ -161,9 +166,9 @@ const CrudComponent = ({
             console.error('Error creating entity:', err);
             return err?.response?.data || 'An error occurred while creating the entity';
         }
-    };
+    },[closeCreateModal, fetchData, post, resourcePath]);
 
-    const handleUpdateEntity = async (formData) => {
+    const handleUpdateEntity =useCallback( async (formData) => {
         try {
             const pathVariable = formData?.id || '';
             const response = await put(`${encodeURI(resourcePath)}/${encodeURIComponent(pathVariable)}`, formData);
@@ -175,7 +180,7 @@ const CrudComponent = ({
             console.error('Error updating entity:', err);
            return  err?.response?.data || `An error occurred while updating the entity: ${err.response?.status}`;
         }
-    };
+    },[closeEditModal, fetchData, put, resourcePath]);
 
     const handleDeleteEntity = async (id) => {
         try {

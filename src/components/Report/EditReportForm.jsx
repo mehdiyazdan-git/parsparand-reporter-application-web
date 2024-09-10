@@ -13,6 +13,7 @@ import "../../App.css";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import NumberInput from "../../utils/NumberInput";
 import ErrorMessage from "../../utils/ErrorMessage";
+import GenerateReportExplanationButton from "./GenerateReportExplanationButton";
 
 const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
@@ -80,7 +81,15 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                         <DateInput name="reportDate" label={"تاریخ گزارش"} />
                                     </Col>
                                 </Row>
-                                <TextInput name="reportExplanation" label={"توضیحات گزارش"} />
+                                <Row>
+                                    <div style={{"display": "flex", "flexDirection": "row", "alignItems": "center"}}>
+                                        <Col>
+                                            <TextInput name="reportExplanation" label={"توضیحات گزارش"}/>
+                                        </Col>
+                                        <GenerateReportExplanationButton
+                                            style={{"margin": " 0 10px", display: "inline-block"}}/>
+                                    </div>
+                                </Row>
                             </Col>
                         </Row>
                         <ReportItems />

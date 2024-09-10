@@ -48,7 +48,7 @@ const AsyncSelectSearch = ({url, value,name, onChange,resetTrigger,styles}) => {
         } finally {
             setIsLoading(false);
         }
-    },[url,getAll]);
+    },[url,getAll,value]);
 
     const ClearIndicator = props => {
         const {getStyles, innerProps: {ref, ...restInnerProps},} = props;

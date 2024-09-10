@@ -11,44 +11,8 @@ import moment from "jalali-moment";
 import {bodyStyle, headerStyle, titleStyle} from "../styles/styles";
 import ReportItems from "./ReportItems";
 import CustomModal from "../../utils/CustomModal";
-import {useFormContext} from "react-hook-form";
 import ErrorMessage from "../../utils/ErrorMessage";
-
-const ReportExplanationButton = () => {
-    const {setValue, getValues} = useFormContext();
-    const {reportDate} = getValues(['reportDate'])
-    const generateText = () => {
-        let formattedDate; // Declare a variable to store the formatted date
-
-        if (reportDate instanceof Date) {
-            formattedDate = reportDate.toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[0].split(',')[0];
-        } else if (typeof reportDate === 'string') { // Use 'typeof' to check for strings
-            formattedDate = new Date(reportDate).toLocaleString('fa-IR', { timeZone: 'Asia/Tehran' }).split(' ')[0].split(',')[0];
-        }else if (moment.isMoment(reportDate)) { // Use 'typeof' to check for strings
-            formattedDate = reportDate.format('jYYYY/jM/jD');
-        }else {
-            formattedDate = "fuck"
-        }
-
-        return formattedDate
-            ? `گزارش فروش ${formattedDate}`
-            : `گزارش فروش`;
-    }
-    return (
-        <div>
-            <button
-                className="btn btn-primary"
-                onClick={(e) => {
-                    e.preventDefault()
-                    setValue("reportExplanation", generateText(reportDate))
-                }
-            }
-            >
-                تولید توضیحات گزارش
-            </button>
-        </div>
-    );
-}
+import GenerateReportExplanationButton from "./GenerateReportExplanationButton";
 
 
 const CreateReportForm = ({onCreateEntity, show, onHide}) => {
@@ -134,12 +98,13 @@ const CreateReportForm = ({onCreateEntity, show, onHide}) => {
                                     </Col>
                                 </Row>
                                 <Row>
-                                    <Col>
-                                        <TextInput name="reportExplanation" label={"توضیحات گزارش"}/>
-                                    </Col>
-                                    <Col>
-                                        <ReportExplanationButton/>
-                                    </Col>
+                                    <div style={{"display": "flex", "flexDirection": "row", "alignItems": "center"}}>
+                                        <Col>
+                                            <TextInput name="reportExplanation" label={"توضیحات گزارش"}/>
+                                        </Col>
+                                        <GenerateReportExplanationButton
+                                            style={{"margin": " 0 10px", display: "inline-block"}}/>
+                                    </div>
                                 </Row>
                             </Col>
                         </Row>

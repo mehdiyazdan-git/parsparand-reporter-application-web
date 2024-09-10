@@ -3,7 +3,7 @@ const yearSelectContainerStyle = {
     flexDirection: 'row',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    width: '100px',
+    width: 'auto',
     height: '30px',
 }
 export default yearSelectContainerStyle;

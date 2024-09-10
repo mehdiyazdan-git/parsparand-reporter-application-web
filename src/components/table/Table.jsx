@@ -30,7 +30,7 @@ const Table = ({
                }) => {
     /* option schema = {value: 3, label: 1402} */
     const handleYearChange = useCallback((option) => {
-        updateSearchParams({ jalaliYear: parseInt(option?.label, 10) });
+        updateSearchParams({ jalaliYear: option?.label });
     }, [updateSearchParams]);
 
     const {years} = useContext(AppContext);

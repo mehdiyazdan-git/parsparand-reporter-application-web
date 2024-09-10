@@ -14,6 +14,7 @@ import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import ErrorMessage from "../../utils/ErrorMessage";
+import GenerateDescriptionButton from "./GenerateWarehouseDescriptionButton";
 
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
@@ -75,8 +76,11 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
             setErrorMessage(null);
             onHide();
         }
-
     };
+    const handleClose = () => {
+        setErrorMessage(null);
+        onHide();
+    }
 
     return (
         <CustomModal size={"xl"} show={show}>
@@ -123,18 +127,23 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                                            url={"customers/select"}
                                        />
                                    </Col>
-                                   <Col>
-                                       <GenerateDescriptionButton/>
-                                   </Col>
                                </Row>
-                                <TextInput name="warehouseReceiptDescription" label={"توضیحات"} />
+                               <Row>
+                                   <div style={{"display": "flex", "flexDirection": "row", "alignItems": "center"}}>
+
+                                      <Col>
+                                          <TextInput name="warehouseReceiptDescription" label={`توضیحات `} />
+                                      </Col>
+                                       <GenerateDescriptionButton style={{"margin": " 0 10px",display: "inline-block"}}/>
+                                   </div>
+                               </Row>
                             </Col>
                         </Row>
                         <WarehouseReceiptItems/>
                         <Button $variant="success" type={"submit"}>
                             ایجاد
                         </Button>
-                        <Button onClick={onHide} $variant="warning" type="button">
+                        <Button onClick={handleClose} $variant="warning" type="button">
                             انصراف
                         </Button>
                     </Form>

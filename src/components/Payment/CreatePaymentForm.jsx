@@ -22,8 +22,6 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
 
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const { customers, products, warehouseReceipts, invoices, contracts } = useContext(AppContext);
-
     const validationSchema = Yup.object().shape({
         paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
         paymentDescription: Yup.string()

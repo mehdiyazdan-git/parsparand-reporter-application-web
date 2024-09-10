@@ -13,6 +13,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import ErrorMessage from "../../utils/ErrorMessage";
+import GenerateDescriptionButton from "./GenerateWarehouseDescriptionButton";
 
 const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
@@ -92,10 +93,15 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
                                         />
                                     </Col>
                                 </Row>
-                                <TextInput
-                                    name="warehouseReceiptDescription"
-                                    label={"توضیحات"}
-                                />
+                                <Row>
+                                    <div style={{"display": "flex", "flexDirection": "row", "alignItems": "center"}}>
+
+                                        <Col>
+                                            <TextInput name="warehouseReceiptDescription" label={`توضیحات `} />
+                                        </Col>
+                                        <GenerateDescriptionButton style={{"margin": " 0 10px",display: "inline-block"}}/>
+                                    </div>
+                                </Row>
                             </Col>
                         </Row>
                         <WarehouseReceiptItems/>

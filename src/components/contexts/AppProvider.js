@@ -24,7 +24,9 @@ const AppProvider = ({children}) => {
         sessionStorage.setItem(storageKey, JSON.stringify(value));
     };
 
+
     useEffect(() => {
+
         const fetchAllData = async () => {
             try {
                 const responses = await Promise.all([

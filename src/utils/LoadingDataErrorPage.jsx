@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from "styled-components";
 import {useAuth} from "../hooks/useAuth";
-import Button from "./Button";
+
 
 
 const ErrorPageContainer = styled.div`
