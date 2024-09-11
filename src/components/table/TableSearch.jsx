@@ -1,16 +1,26 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import SelectSearchInput from './SelectSearchInput';
 import SearchCheckboxInput from './SearchCheckboxInput';
 import SearchNumberInput from './SearchNumberInput';
 import SearchInput from './SearchInput';
 import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
-import AsyncSelectSearch from "./AsyncSelectSearch";
+import {AppContext} from "../contexts/AppProvider";
+import AsyncSelectComponent from "../templates/AsyncSelectComponent";
 
 
 const TableSearch = function ({columns, updateSearchParams, filters, resetFilter}) {
 
     const [resetAsyncSearchSelectTrigger, setResetAsyncSearchSelectTrigger] = React.useState(0);
+
+    const data = useContext(AppContext);
+
+    const getOptions = (column) => {
+        if (column.url) {
+          const dataKey = column.url.split("/")[0];
+          return data[dataKey];
+        }
+    }
 
     const handleSearchChange = (name, value) => {
         updateSearchParams({[name]: value});
@@ -46,11 +56,11 @@ const TableSearch = function ({columns, updateSearchParams, filters, resetFilter
                             onChange={(value) => handleSearchChange(column.key, value)}
                         />
                     ) : column.type === 'async-select' ? (
-                        <AsyncSelectSearch
+                        <AsyncSelectComponent
                             width={column.width}
-                            url={column.url}
+                            options={getOptions(column)}
                             name={column?.searchKey || ''}
-                            value={filters?.search[column?.key]}
+                            value={getOptions(column)?.find((option) => option.value === filters.search[column.searchKey])}
                             onChange={(value) => handleSearchChange(column.searchKey, value?.value)}
                             resetTrigger={resetAsyncSearchSelectTrigger} // Pass the reset function to AsyncSelectSearch
                         />

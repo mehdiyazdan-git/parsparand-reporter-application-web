@@ -1,37 +1,47 @@
-import React from 'react';
-import {useController, useFormContext} from 'react-hook-form';
+import React, {useEffect, useRef} from 'react';
 import AsyncSelect from 'react-select/async';
+import styled from "styled-components";
+import {getCustomSelectStyles} from "../../utils/customStyles";
 
-const AsyncSelectComponent = ({ name, options, defaultValue, isClearable = true }) => {
-    const {control} = useFormContext();
-    const {
-        field: { onChange, onBlur, value, ref },
-        fieldState: { error },
-    } = useController({
-        name,
-        control,
-        defaultValue,
-    });
-    const filterOptions = (inputValue) => {
-        return options.filter((i) =>
-            i.includes(inputValue)
-        );
-    };
+const SelectContainer = styled.div`
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 0.1rem;
+    width: 100%;
+`;
+
+const AsyncSelectComponent = ({value, options = [], onChange,name, isClearable = true, resetTrigger}) => {
+
+    const ref = useRef();
 
     const promiseOptions = (inputValue) =>
         new Promise((resolve) => {
-            resolve(filterOptions(inputValue));
+            resolve(options.filter((option) => option.label.includes(inputValue)));
         });
 
-    return (<AsyncSelect
-        cacheOptions
-        defaultOptions
-        loadOptions={promiseOptions}
-        onChange={onChange}
-        onBlur={onBlur}
-        value={value}
-        ref={ref}
-        isClearable={isClearable}
-    />);
+    useEffect(() => {
+        if (resetTrigger) ref.current.clearValue();
+    }, [resetTrigger]);
+
+    return (
+        <SelectContainer>
+            <AsyncSelect
+                cacheOptions
+                defaultOptions={options}
+                loadOptions={promiseOptions}
+                onChange={onChange}
+                value={value}
+                name={name}
+                ref={ref}
+                isClearable={isClearable}
+                loadingMessage={() => 'در حال بارگذاری...'}
+                noOptionsMessage={() => 'هیچ رکوردی یافت نشد.'}
+                placeholder="انتخاب..."
+                styles={{...getCustomSelectStyles()}}
+            />
+        </SelectContainer>
+
+    );
 };
+
 export default AsyncSelectComponent;

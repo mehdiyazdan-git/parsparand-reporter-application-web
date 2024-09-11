@@ -31,6 +31,9 @@ import ErrorMessage from "../../utils/ErrorMessage";
   - the form should have at least one item in invoiceItems
  ***/
 
+
+
+
 const defaultValues = {
     dueDate: '',
     invoiceNumber: '',
@@ -121,6 +124,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
     ]
 
 
+    const {customers,invoiceStatuses,contracts} = useContext(AppContext);
     const resolver = useYupValidationResolver(validationSchema);
 
     const getYearId = (date) => {
@@ -145,13 +149,13 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         }
         data['yearId'] = getYearId(data.issuedDate) || getYearId(new Date());
         console.log(data)
-       const errorMessage = await onCreateEntity(data);
-        if (errorMessage) {
-            setErrorMessage(errorMessage);
-        } else {
-            setErrorMessage(null);
-            onHide();
-        }
+       // const errorMessage = await onCreateEntity(data);
+       //  if (errorMessage) {
+       //      setErrorMessage(errorMessage);
+       //  } else {
+       //      setErrorMessage(null);
+       //      onHide();
+       //  }
     };
 
     return (
@@ -195,14 +199,14 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
                                         <AsyncSelectInput
                                             name="customerId"
                                             label={"مشتری"}
-                                            url={"customers/select"}
+                                            options={customers}
                                         />
                                     </Col>
                                     <Col>
                                         <AsyncSelectInput
                                             name="invoiceStatusId"
                                             label={"وضعیت فاکتور"}
-                                            url={"invoice-statuses/select"}
+                                            options={invoiceStatuses}
                                         />
                                     </Col>
                                 </Row>
@@ -220,7 +224,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
                                             <AsyncSelectInput
                                                 name="contractId"
                                                 label={" قرارداد"}
-                                                url={"contracts/select"}
+                                                options={contracts}
                                             />
                                         </Col>
                                     </Row>

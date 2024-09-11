@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -7,6 +7,7 @@ import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
 import useHttp from "../contexts/useHttp";
+import {AppContext} from "../contexts/AppProvider";
 
 const InvoiceItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -16,6 +17,7 @@ const InvoiceItems = () => {
         control,
         name: 'invoiceItems',
     });
+    const {products,warehouseReceipts} = useContext(AppContext);
 
     const watchedFields = useWatch({
         name: 'invoiceItems',
@@ -68,14 +70,14 @@ const InvoiceItems = () => {
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
                             <AsyncSelectInput
-                                url={"products/select"}
+                                options={products}
                                 name={`invoiceItems[${index}].productId`}
                                 value={fields[index]['productId']}
                             />
                         </td>
                         <td className="m-0 p-0" style={{ width: '25%' , ...tdStyle }}>
                             <AsyncSelectInput
-                                url={"warehouse-receipts/select"}
+                                options={warehouseReceipts}
                                 name={`invoiceItems[${index}].warehouseReceiptId`}
                                 value={fields[index]['warehouseReceiptId']}
                             />

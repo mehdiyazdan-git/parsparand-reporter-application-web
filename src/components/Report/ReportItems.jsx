@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, {useCallback, useEffect, useState, useMemo, useContext} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -6,6 +6,7 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
+import {AppContext} from "../contexts/AppProvider";
 
 
 const ReportItems = () => {
@@ -21,6 +22,7 @@ const ReportItems = () => {
         name: 'reportItems',
         control
     });
+    const {customers,warehouseReceipts} = useContext(AppContext);
 
     useEffect(() => {
         const calculateTotals = () => {
@@ -56,7 +58,7 @@ const ReportItems = () => {
         <tr key={field.id}>
             <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
                 <AsyncSelectInput
-                    url={"customers/select"}
+                    options={customers}
                     name={`reportItems[${index}].customerId`}
                     value={fields[index]['customerId']}
                     // onChange has already been passed by form context. No need to pass it again
@@ -64,7 +66,7 @@ const ReportItems = () => {
             </td>
             <td className="m-0 p-0" style={{ width: '25%',...tdStyle}}>
                 <AsyncSelectInput
-                    url={"warehouse-receipts/select"}
+                    options={warehouseReceipts}
                     name={`reportItems[${index}].warehouseReceiptId`}
                     value={fields[index]['warehouseReceiptId']}
                     // onChange has already been passed by form context. No need to pass it again

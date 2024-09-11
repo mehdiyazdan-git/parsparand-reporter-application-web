@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -6,6 +6,7 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, thStyle} from "../styles/styles";
+import {AppContext} from "../contexts/AppProvider";
 
 
 const WarehouseReceiptItems = () => {
@@ -21,6 +22,7 @@ const WarehouseReceiptItems = () => {
         name: 'warehouseReceiptItems',
         control
     });
+    const {products} = useContext(AppContext);
 
 
     useEffect(() => {
@@ -65,7 +67,7 @@ const WarehouseReceiptItems = () => {
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '50%' }}>
                             <AsyncSelectInput
-                                url={"products/select"}
+                                options={products}
                                 name={`warehouseReceiptItems[${index}].productId`}
                                 value={fields[index]['productId']}
                             />

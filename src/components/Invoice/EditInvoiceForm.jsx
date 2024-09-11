@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -15,6 +15,7 @@ import InvoiceItems from "./InvoiceItems";
 import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import ErrorMessage from "../../utils/ErrorMessage";
+import {AppContext} from "../contexts/AppProvider";
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
@@ -48,6 +49,8 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         ).required('مقدار فیلد الزامیست').min(1, 'فاکتور باید حداقل یک آیتم داشته باشد.'),
     });
     const resolver = useYupValidationResolver(validationSchema);
+
+    const {customers,contracts,invoiceStatuses} = useContext(AppContext);
 
     const [errorMessage, setErrorMessage] = React.useState(null);
 
@@ -129,9 +132,17 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                     <Col>
                                         <AsyncSelectInput
                                             name="customerId"
-                                            label={"شناسه مشتری"}
-                                            url={"customers/select"}
+                                            label={"مشتری"}
+                                            options={customers}
                                             value={editingEntity?.customerId}
+                                        />
+                                    </Col>
+                                    <Col>
+                                        <AsyncSelectInput
+                                            name="invoiceStatusId"
+                                            label={"وضعیت فاکتور"}
+                                            options={invoiceStatuses}
+                                            value={editingEntity?.invoiceStatusId}
                                         />
                                     </Col>
                                 </Row>
@@ -149,7 +160,7 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                             <AsyncSelectInput
                                                 name="contractId"
                                                 label={" قرارداد"}
-                                                url={"contracts/select"}
+                                                options={contracts}
                                             />
                                         </Col>
                                     </Row>

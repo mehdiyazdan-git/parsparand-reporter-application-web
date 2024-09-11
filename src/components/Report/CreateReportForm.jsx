@@ -15,9 +15,11 @@ import ErrorMessage from "../../utils/ErrorMessage";
 import GenerateReportExplanationButton from "./GenerateReportExplanationButton";
 
 
+
 const CreateReportForm = ({onCreateEntity, show, onHide}) => {
 
     const [errorMessage, setErrorMessage] = React.useState(null);
+
 
     const validationSchema = Yup.object().shape({
         reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
@@ -39,7 +41,7 @@ const CreateReportForm = ({onCreateEntity, show, onHide}) => {
                     .typeError('حواله انبار الزامیست.')
                     .required('حواله انبار الزامیست.'),
             })
-        )
+        ).min( 1,'حداقل یک آیتم گزارش باید وجود داشته باشد.')
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -50,6 +52,7 @@ const CreateReportForm = ({onCreateEntity, show, onHide}) => {
         if (formData.reportDate) {
             formData.reportDate = moment(new Date(formData.reportDate)).format('YYYY-MM-DD');
         }
+        // console.log(formData)
         const errorMessage = await onCreateEntity(formData);
         if (errorMessage) {
             setErrorMessage(errorMessage);

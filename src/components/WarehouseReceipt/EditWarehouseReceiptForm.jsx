@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
@@ -14,6 +14,7 @@ import WarehouseReceiptItems from "./WarehouseReceiptItems";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import ErrorMessage from "../../utils/ErrorMessage";
 import GenerateDescriptionButton from "./GenerateWarehouseDescriptionButton";
+import {AppContext} from "../contexts/AppProvider";
 
 const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
@@ -28,12 +29,14 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
                 unitPrice: Yup.number().typeError("قیمت واحد الزامی است").required("قیمت واحد الزامی است"),
                 productId: Yup.number().typeError("نام محصول الزامی است").required("نام محصول الزامی است"),
             })
-        ).length(1, "حداقل یک آیتم کالا الزامی است")
+        ).min(1, "حداقل یک آیتم کالا الزامی است")
     });
 
     const resolver = useYupValidationResolver(validationSchema);
 
     const [errorMessage, setErrorMessage] = React.useState(null);
+
+    const {customers} = useContext(AppContext);
 
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
@@ -88,7 +91,7 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
                                         <AsyncSelectInput
                                             name="customerId"
                                             label={"شناسه مشتری"}
-                                            url={"customers/select"}
+                                            options={customers}
                                             value={editingEntity?.customerId}
                                         />
                                     </Col>

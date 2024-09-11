@@ -10,6 +10,7 @@ const AppProvider = ({children}) => {
     const [invoices, setInvoices] = useState([]);
     const [contracts, setContracts] = useState([]);
     const [years, setYears] = useState([]);
+    const [invoiceStatuses, setInvoiceStatuses] = useState([]);
 
     const BASE_URL = 'http://localhost:9090/api';
 
@@ -34,8 +35,9 @@ const AppProvider = ({children}) => {
                     api.get('/products/select',{params : {'searchQuery' : ""}}),
                     api.get('/warehouse-receipts/select'),
                     api.get('/invoices/select',{params : {'searchQuery' : ""}}),
-                    api.get('/contracts/select'),
+                    api.get('/contracts/select',{params : {'searchQuery' : ""}}),
                     api.get('/years/select'),
+                    api.get('/invoice-statuses/select'),
                 ]);
 
                 setCustomers(formatArray(responses[0].data));
@@ -44,6 +46,7 @@ const AppProvider = ({children}) => {
                 setInvoices(formatArray(responses[3].data));
                 setContracts(formatArray(responses[4].data));
                 setYears(formatArray(responses[5].data));
+                setInvoiceStatuses(formatArray(responses[6].data));
 
                 persistInSessionStorage('customers', formatArray(responses[0].data));
                 persistInSessionStorage('products', formatArray(responses[1].data));
@@ -51,6 +54,7 @@ const AppProvider = ({children}) => {
                 persistInSessionStorage('invoices', formatArray(responses[3].data));
                 persistInSessionStorage('contracts', formatArray(responses[4].data));
                 persistInSessionStorage('years', formatArray(responses[5].data));
+                persistInSessionStorage('invoiceStatuses', formatArray(responses[6].data));
             } catch (error) {
                 console.error(error);
             }
@@ -66,7 +70,8 @@ const AppProvider = ({children}) => {
             warehouseReceipts,
             invoices,
             contracts,
-            years
+            years,
+            invoiceStatuses,
         }}>
             {children}
         </AppContext.Provider>

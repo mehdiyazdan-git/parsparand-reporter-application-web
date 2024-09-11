@@ -9,8 +9,8 @@ import PropTypes from 'prop-types';
 import yearSelectLabelStyle from '../styles/yearSelectLabelStyle';
 import yearSelectContainerStyle from '../styles/yearSelectContainerStyle';
 import yearSelectStyle from '../styles/yearSelectStyle';
-import AsyncSelectSearch from "./AsyncSelectSearch";
 import {AppContext} from "../contexts/AppProvider";
+import AsyncSelectComponent from "../templates/AsyncSelectComponent";
 
 
 const Table = ({
@@ -30,24 +30,26 @@ const Table = ({
                }) => {
     /* option schema = {value: 3, label: 1402} */
     const handleYearChange = useCallback((option) => {
-        updateSearchParams({ jalaliYear: option?.label });
+        updateSearchParams({ ['jalaliYear']: option?.label });
     }, [updateSearchParams]);
 
     const {years} = useContext(AppContext);
 
 
-    const tableData = data?.content || []; // Extract table data for better readability
+
+    const tableData = data?.content || [];
     return (
-        <div className="table-container"> {/* Added a container for better styling */}
+        <div className="table-container">
             {hasYearSelect && (
                 <div style={yearSelectStyle}>
                     <label style={yearSelectLabelStyle}>انتخاب سال</label>
                     <div style={yearSelectContainerStyle}>
-                        <AsyncSelectSearch
-                            url="years/select"
-                            value={years.find(year => year.value === filters?.search?.jalaliYear) || years[0]}
+
+                        <AsyncSelectComponent
+                            options={years}
+                            value={years.find((item) => item.label === filters?.search?.['jalaliYear'])}
                             onChange={handleYearChange}
-                            styles={{width:"300px"}}
+                            width={'500px'}
                         />
                     </div>
                 </div>

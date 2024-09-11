@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import * as Yup from "yup";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
@@ -15,6 +15,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import ErrorMessage from "../../utils/ErrorMessage";
 import GenerateDescriptionButton from "./GenerateWarehouseDescriptionButton";
+import {AppContext} from "../contexts/AppProvider";
 
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
@@ -64,6 +65,8 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
     const resolver = useYupValidationResolver(validationSchema);
 
     const [errorMessage, setErrorMessage] = React.useState(null);
+
+    const {customers} = useContext(AppContext);
 
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
@@ -124,7 +127,7 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                                        <AsyncSelectInput
                                            name="customerId"
                                            label={"شناسه مشتری"}
-                                           url={"customers/select"}
+                                           options={customers}
                                        />
                                    </Col>
                                </Row>
