@@ -13,13 +13,36 @@ import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditUserForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
-        email: Yup.string().email('ایمیل معتبر نیست').required('ایمیل الزامیست.'),
-        enabled: Yup.boolean().required('فعال بودن الزامیست.'),
-        firstname: Yup.string().required('نام الزامیست.'),
-        lastname: Yup.string().required('نام خانوادگی الزامیست.'),
-        password: Yup.string().required('رمز عبور الزامیست.'),
-        role: Yup.string().required('نقش الزامیست.'),
-        username: Yup.string().required('نام کاربری الزامیست.'),
+        email: Yup.string()
+            .email('ایمیل معتبر نیست')
+            .required('ایمیل الزامیست.'),
+
+        enabled: Yup.boolean()
+            .required('فعال بودن الزامیست.'),
+
+        firstname: Yup.string()
+            .required('نام الزامیست.')
+            .min(2, 'نام باید حداقل 2 کاراکتر داشته باشد.') // Minimum length for firstname
+            .max(50, 'نام نمی‌تواند بیش از 50 کاراکتر داشته باشد.'), // Maximum length for firstname
+
+        lastname: Yup.string()
+            .required('نام خانوادگی الزامیست.')
+            .min(2, 'نام خانوادگی باید حداقل 2 کاراکتر داشته باشد.') // Minimum length for lastname
+            .max(50, 'نام خانوادگی نمی‌تواند بیش از 50 کاراکتر داشته باشد.'), // Maximum length for lastname
+
+        password: Yup.string()
+            .required('رمز عبور الزامیست.')
+            .min(6, 'رمز عبور باید حداقل 6 کاراکتر داشته باشد.'), // Minimum length for password
+        // You can add more complex password validation rules here if needed
+
+        role: Yup.string()
+            .required('نقش الزامیست.')
+            .oneOf(['admin', 'user'], 'نقش باید "admin" یا "user" باشد.'), // Ensure role is one of the allowed values
+
+        username: Yup.string()
+            .required('نام کاربری الزامیست.')
+            .min(3, 'نام کاربری باید حداقل 3 کاراکتر داشته باشد.') // Minimum length for username
+            .max(20, 'نام کاربری نمی‌تواند بیش از 20 کاراکتر داشته باشد.'), // Maximum length for username
     });
 
     const resolver = useYupValidationResolver(validationSchema);

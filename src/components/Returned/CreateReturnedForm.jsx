@@ -24,23 +24,33 @@ const CreateReturnedForm = ({ onCreateEntity, show, onHide }) => {
         quantity: Yup.number()
             .typeError('مقدار باید عدد باشد.')
             .positive('مقدار باید مثبت باشد.')
+            .max(1000000, 'مقدار نمی‌تواند بیشتر از 1,000,000 باشد.')
             .required('مقدار الزامیست.'),
         unitPrice: Yup.number()
             .typeError('قیمت واحد باید عدد باشد.')
             .positive('قیمت واحد باید مثبت باشد.')
+            .max(1000000000, 'قیمت واحد نمی‌تواند بیشتر از 1,000,000,000 باشد.')
             .required('قیمت واحد الزامیست.'),
-        returnedDate: Yup.string().required('تاریخ الزامیست.'),
+        returnedDate: Yup.date()
+            .typeError('تاریخ باید یک تاریخ معتبر باشد.')
+            .max(new Date(), 'تاریخ نمی‌تواند در آینده باشد.')
+            .required('تاریخ الزامیست.'),
         returnedDescription: Yup.string()
-            .max(255, 'توضیحات نمیتواند بیشتر از 255 کاراکتر باشد.')
-            .min(3, 'توضیحات نمیتواند کمتر از 3 کاراکتر باشد.')
-            .required('توضیحات  الزامیست.'),
+            .trim()
+            .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
+            .max(255, 'توضیحات نمی‌تواند بیشتر از 255 کاراکتر باشد.')
+            .required('توضیحات الزامیست.'),
         returnedNumber: Yup.number()
             .typeError('شماره مرجوعی باید عدد باشد.')
-            .integer('شماره مرجوی باید عدد صحیح باشد.')
-            .required('شماره  الزامیست.'),
+            .integer('شماره مرجوعی باید عدد صحیح باشد.')
+            .positive('شماره مرجوعی باید مثبت باشد.')
+            .max(1000000, 'شماره مرجوعی نمی‌تواند بیشتر از 1,000,000 باشد.')
+            .required('شماره مرجوعی الزامیست.'),
         customerId: Yup.number()
-            .typeError('مشتری الزامیست.')
-            .required(' مشتری الزامیست.'),
+            .typeError('مشتری باید انتخاب شود.')
+            .positive('شناسه مشتری باید عددی مثبت باشد.')
+            .integer('شناسه مشتری باید عدد صحیح باشد.')
+            .required('انتخاب مشتری الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);

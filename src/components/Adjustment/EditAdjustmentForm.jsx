@@ -30,13 +30,38 @@ const EditAdjustmentForm = ({ editingEntity, onUpdateEntity, show, onHide,entity
 
 
     const validationSchema = Yup.object().shape({
-        adjustmentType: Yup.string().required('نوع تعدیل الزامیست.'),
-        description: Yup.string().required('توضیحات الزامیست.'),
-        quantity: Yup.number().required('مقدار الزامیست.'),
-        unitPrice: Yup.number().required('قیمت واحد الزامیست.'),
-        invoiceId: Yup.number().required('شناسه فاکتور الزامیست.'),
-        adjustmentDate: Yup.string().required('تاریخ تعدیل الزامیست.'),
-        adjustmentNumber: Yup.number().required('شماره تعدیل الزامیست.'),
+        adjustmentType: Yup.string()
+            .oneOf(['POSITIVE', 'NEGATIVE'], 'نوع تعدیل باید مثبت یا منفی باشد.')
+            .required('نوع تعدیل الزامیست.'),
+        description: Yup.string()
+            .trim()
+            .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
+            .max(500, 'توضیحات نباید بیشتر از 500 کاراکتر باشد.')
+            .required('توضیحات الزامیست.'),
+        quantity: Yup.number()
+            .typeError('مقدار باید عدد باشد.')
+            .positive('مقدار باید مثبت باشد.')
+            .max(1000000, 'مقدار نمی‌تواند بیشتر از 1,000,000 باشد.')
+            .required('مقدار الزامیست.'),
+        unitPrice: Yup.number()
+            .typeError('قیمت واحد باید عدد باشد.')
+            .positive('قیمت واحد باید مثبت باشد.')
+            .max(1000000000, 'قیمت واحد نمی‌تواند بیشتر از 1,000,000,000 باشد.')
+            .required('قیمت واحد الزامیست.'),
+        invoiceId: Yup.number()
+            .integer('شناسه فاکتور باید عدد صحیح باشد.')
+            .positive('شناسه فاکتور باید مثبت باشد.')
+            .required('شناسه فاکتور الزامیست.'),
+        adjustmentDate: Yup.date()
+            .typeError('تاریخ تعدیل باید یک تاریخ معتبر باشد.')
+            .max(new Date(), 'تاریخ تعدیل نمی‌تواند در آینده باشد.')
+            .required('تاریخ تعدیل الزامیست.'),
+        adjustmentNumber: Yup.number()
+            .typeError('شماره تعدیل باید عدد باشد.')
+            .integer('شماره تعدیل باید عدد صحیح باشد.')
+            .positive('شماره تعدیل باید مثبت باشد.')
+            .max(1000000, 'شماره تعدیل نمی‌تواند بیشتر از 1,000,000 باشد.')
+            .required('شماره تعدیل الزامیست.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);

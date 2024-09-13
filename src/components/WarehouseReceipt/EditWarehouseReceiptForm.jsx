@@ -19,17 +19,58 @@ import {AppContext} from "../contexts/AppProvider";
 const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
     const validationSchema = Yup.object().shape({
-        warehouseReceiptDate: Yup.date().required("تاریخ رسید انبار الزامی است"),
-        warehouseReceiptDescription: Yup.string().required("توضیحات رسید انبار الزامی است"),
-        warehouseReceiptNumber: Yup.number().typeError("شماره رسید انبار الزامی است").required("شماره رسید انبار الزامی است"),
-        customerId: Yup.number().typeError("نام مشتری الزامی است").required("نام مشتری الزامی است"),
+        warehouseReceiptDate: Yup.date()
+            .typeError('تاریخ رسید باید یک تاریخ معتبر باشد.')
+            .required('تاریخ رسید الزامی است.')
+            .max(new Date(), 'تاریخ رسید نمی‌تواند در آینده باشد.'),
+
+        warehouseReceiptDescription: Yup.string()
+            .trim()
+            .required('توضیحات الزامی است.')
+            .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
+            .max(255, 'توضیحات نمی‌تواند بیشتر از 255 کاراکتر باشد.'),
+
+        warehouseReceiptNumber: Yup.number()
+            .typeError('شماره رسید باید یک عدد باشد.')
+            .integer('شماره رسید باید عدد صحیح باشد.')
+            .positive('شماره رسید باید مثبت باشد.')
+            .required('شماره رسید الزامی است.'),
+
+        customerId: Yup.number()
+            .typeError('لطفاً یک مشتری انتخاب کنید.')
+            .integer('شناسه مشتری باید یک عدد صحیح باشد.')
+            .positive('شناسه مشتری باید مثبت باشد.')
+            .required('انتخاب مشتری الزامی است.'),
+
         warehouseReceiptItems: Yup.array().of(
             Yup.object().shape({
-                quantity: Yup.number().typeError("مقدار الزامی است").required("مقدار الزامی است"),
-                unitPrice: Yup.number().typeError("قیمت واحد الزامی است").required("قیمت واحد الزامی است"),
-                productId: Yup.number().typeError("نام محصول الزامی است").required("نام محصول الزامی است"),
+                productId: Yup.number()
+                    .typeError('لطفاً یک محصول انتخاب کنید.')
+                    .integer('شناسه محصول باید یک عدد صحیح باشد.')
+                    .positive('شناسه محصول باید مثبت باشد.')
+                    .required('انتخاب محصول الزامی است.'),
+
+                quantity: Yup.number()
+                    .typeError('مقدار باید یک عدد باشد.')
+                    .integer('مقدار باید عدد صحیح باشد.')
+                    .positive('مقدار باید مثبت باشد.')
+                    .required('وارد کردن مقدار الزامی است.'),
+
+                unitPrice: Yup.number()
+                    .typeError('قیمت واحد باید یک عدد باشد.')
+                    .positive('قیمت واحد باید مثبت باشد.')
+                    .test('is-decimal', 'قیمت واحد باید حداکثر دو رقم اعشار داشته باشد.',
+                        (value) => (value + "").match(/^\d+(\.\d{1,2})?$/))
+                    .required('وارد کردن قیمت واحد الزامی است.'),
+
+                amount: Yup.number()
+                    .test('is-product', 'مبلغ کل باید برابر با حاصل‌ضرب مقدار در قیمت واحد باشد.',
+                        function(value) {
+                            const { quantity, unitPrice } = this.parent;
+                            return value === quantity * unitPrice;
+                        })
             })
-        ).min(1, "حداقل یک آیتم کالا الزامی است")
+        ).min(1, 'حداقل یک قلم کالا باید وارد شود.')
     });
 
     const resolver = useYupValidationResolver(validationSchema);

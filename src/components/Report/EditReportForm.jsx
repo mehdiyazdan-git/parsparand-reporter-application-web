@@ -20,26 +20,41 @@ const EditReportForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
-        reportDate: Yup.string().required('تاریخ گزارش الزامیست.'),
-        reportExplanation: Yup.string().required('توضیحات گزارش الزامیست.'),
+        reportDate: Yup.date()
+            .typeError('تاریخ گزارش باید یک تاریخ معتبر باشد.')
+            .max(new Date(), 'تاریخ گزارش نمی‌تواند در آینده باشد.')
+            .required('تاریخ گزارش الزامیست.'),
+        reportExplanation: Yup.string()
+            .trim()
+            .min(10, 'توضیحات گزارش باید حداقل 10 کاراکتر باشد.')
+            .max(500, 'توضیحات گزارش نباید بیشتر از 500 کاراکتر باشد.')
+            .required('توضیحات گزارش الزامیست.'),
         reportItems: Yup.array().of(
             Yup.object().shape({
                 quantity: Yup.number()
                     .typeError('مقدار باید عدد باشد.')
                     .positive('مقدار باید عدد مثبت باشد.')
+                    .max(1000000, 'مقدار نمی‌تواند بیشتر از 1,000,000 باشد.')
                     .required('مقدار الزامیست.'),
                 unitPrice: Yup.number()
                     .typeError('قیمت واحد باید عدد باشد.')
-                    .positive('مقدار باید عدد مثبت باشد.')
+                    .positive('قیمت واحد باید عدد مثبت باشد.')
+                    .max(1000000000, 'قیمت واحد نمی‌تواند بیشتر از 1,000,000,000 باشد.')
                     .required('قیمت واحد الزامیست.'),
                 customerId: Yup.number()
-                    .typeError('مشتری الزامیست.')
-                    .required(' مشتری الزامیست.'),
+                    .typeError('مشتری باید انتخاب شود.')
+                    .positive('شناسه مشتری باید عددی مثبت باشد.')
+                    .integer('شناسه مشتری باید عدد صحیح باشد.')
+                    .required('انتخاب مشتری الزامیست.'),
                 warehouseReceiptId: Yup.number()
-                    .typeError('حواله انبار الزامیست.')
-                    .required('حواله انبار الزامیست.'),
+                    .typeError('حواله انبار باید انتخاب شود.')
+                    .positive('شناسه حواله انبار باید عددی مثبت باشد.')
+                    .integer('شناسه حواله انبار باید عدد صحیح باشد.')
+                    .required('انتخاب حواله انبار الزامیست.'),
             })
         )
+            .min(1, 'حداقل یک آیتم گزارش باید وجود داشته باشد.')
+            .required('حداقل یک آیتم گزارش الزامی است.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);

@@ -14,11 +14,13 @@ const SelectInput = ({ name, options, label, field, ...rest }) => {
                 control={control}
                 defaultValue={field?.value || options[0].value}
                 rules={{ required: field?.required }}
-                render={({ field: { onChange, value },fieldState : {error} }) => (
+                render={({ field: { onChange, value },
+                             fieldState : {error} }) => (
                     <Select
                         options={options}
-                        value={options.find(option => option.value === value) || options[0]}
+                        value={options.find(option => option.value === value)}
                         onChange={option => onChange(option?.value)}
+                        placeholder={error ? error?.message : 'انتخاب...'}
                         styles={getCustomSelectStyles(error)}
                         {...rest}
                     />

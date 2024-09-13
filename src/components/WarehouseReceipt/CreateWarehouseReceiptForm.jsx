@@ -22,44 +22,57 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.date()
-            .typeError('تاریخ حواله الزامیست.')
-            .required('تاریخ حواله الزامیست.'),
+            .typeError('تاریخ رسید باید یک تاریخ معتبر باشد.')
+            .required('تاریخ رسید الزامی است.')
+            .max(new Date(), 'تاریخ رسید نمی‌تواند در آینده باشد.'),
 
         warehouseReceiptDescription: Yup.string()
-            .required('توضیحات الزامیست.')
+            .trim()
+            .required('توضیحات الزامی است.')
             .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
             .max(255, 'توضیحات نمی‌تواند بیشتر از 255 کاراکتر باشد.'),
 
         warehouseReceiptNumber: Yup.number()
-            .typeError('شماره حواله الزامیست.')
-            .integer('شماره حواله باید عدد صحیح باشد.')
-            .positive('شماره حواله باید مثبت باشد.')
-            .required('شماره حواله الزامیست.'),
+            .typeError('شماره رسید باید یک عدد باشد.')
+            .integer('شماره رسید باید عدد صحیح باشد.')
+            .positive('شماره رسید باید مثبت باشد.')
+            .required('شماره رسید الزامی است.'),
 
         customerId: Yup.number()
-            .typeError('انتخاب مشتری الزامیست.')
-            .required(' انتخاب مشتری الزامیست.'),
+            .typeError('لطفاً یک مشتری انتخاب کنید.')
+            .integer('شناسه مشتری باید یک عدد صحیح باشد.')
+            .positive('شناسه مشتری باید مثبت باشد.')
+            .required('انتخاب مشتری الزامی است.'),
 
         warehouseReceiptItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number()
-                    .typeError(' انتخاب محصول الزامیست.')
-                    .required(' انتخاب محصول الزامیست.'),
+                    .typeError('لطفاً یک محصول انتخاب کنید.')
+                    .integer('شناسه محصول باید یک عدد صحیح باشد.')
+                    .positive('شناسه محصول باید مثبت باشد.')
+                    .required('انتخاب محصول الزامی است.'),
 
                 quantity: Yup.number()
-                    .typeError('مقدار باید عدد باشد.')
+                    .typeError('مقدار باید یک عدد باشد.')
                     .integer('مقدار باید عدد صحیح باشد.')
                     .positive('مقدار باید مثبت باشد.')
-                    .required('مقدار الزامیست.'),
+                    .required('وارد کردن مقدار الزامی است.'),
 
                 unitPrice: Yup.number()
-                    .typeError('قیمت واحد باید عدد باشد.')
+                    .typeError('قیمت واحد باید یک عدد باشد.')
                     .positive('قیمت واحد باید مثبت باشد.')
-                    .required('قیمت واحد الزامیست.'),
+                    .test('is-decimal', 'قیمت واحد باید حداکثر دو رقم اعشار داشته باشد.',
+                        (value) => (value + "").match(/^\d+(\.\d{1,2})?$/))
+                    .required('وارد کردن قیمت واحد الزامی است.'),
 
-                // 'amount' is calculated, so it doesn't need validation here
+                amount: Yup.number()
+                    .test('is-product', 'مبلغ کل باید برابر با حاصل‌ضرب مقدار در قیمت واحد باشد.',
+                        function(value) {
+                            const { quantity, unitPrice } = this.parent;
+                            return value === quantity * unitPrice;
+                        })
             })
-        ).min(1, 'حداقل یک قلم کالا باید وارد شود.') // Ensure at least one item is added
+        ).min(1, 'حداقل یک قلم کالا باید وارد شود.')
     });
 
     const resolver = useYupValidationResolver(validationSchema);

@@ -16,68 +16,28 @@ import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomMod
 import {AppContext} from "../contexts/AppProvider";
 import ErrorMessage from "../../utils/ErrorMessage";
 
-/***
- validation rules for create invoice form:
-  - advancedPayment and insuranceDeposit and performanceBound and contractId are optional
-    * they rendered only if salesType is CONTRACTUAL_SALES
-  - yearId, customerId, invoiceStatusId and contractId are type of async-select
-  - issueDate and dueDate are type of date and the input field is datepicker of type react-multi-date-picker'
-   *   the output of this component is a string in format of 'YYYY-MM-DD'
-  - invoiceNumber is type of number
-  - salesType is type of select
-  - invoiceItems is type of array of objects and each object has productId, quantity and unitPrice
-  - productId, quantity and unitPrice are type of number
-  - warehouseReceiptId is type of async-select
-  - the form should have at least one item in invoiceItems
- ***/
-
-
-
-
-const defaultValues = {
-    dueDate: '',
-    invoiceNumber: '',
-    issuedDate: '',
-    salesType: 'CASH_SALES',
-    contractId: '',
-    customerId: '',
-    invoiceStatusId: '',
-    advancedPayment: '',
-    insuranceDeposit: '',
-    performanceBound: '',
-    yearId: '',
-    invoiceItems: [
-        {
-            productId: '',
-            quantity: '',
-            unitPrice: '',
-            warehouseReceiptId: '',
-        }
-    ],
-}
-
 const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
 
     const {years} = useContext(AppContext);
 
     const defaultValues = useMemo(() => ({
-        dueDate: '',
-        invoiceNumber: '',
-        issuedDate: '',
-        salesType: 'CASH_SALES',
-        contractId: '',
-        customerId: '',
-        invoiceStatusId: '',
-        advancedPayment: '',
-        insuranceDeposit: '',
-        performanceBound: '',
-        yearId: years[0].value,
+        dueDate: '', // jalali date like 1403/03/21
+        invoiceNumber: '', // required positive rounded integer number
+        issuedDate: '', // jalali date like 1403/03/21
+        salesType: '', // should be in ['CASH_SALES', 'CONTRACTUAL_SALES']
+        contractId: '', // not required, but if provided, it should be a valid contract id
+        customerId: '', // required, it should be a valid customer id
+        invoiceStatusId: '', // required, it should be a valid invoice status id
+        advancedPayment: '', // positive rounded integer number
+        insuranceDeposit: '', // positive rounded integer number
+        performanceBound: '', // positive rounded integer number
+        yearId: '', // not required, but if provided, it should be a valid year id
         invoiceItems: [
             {
-                productId: '',
-                quantity: '',
-                unitPrice: '',
-                warehouseReceiptId: '',
+                productId: '', // not required, but if provided, it should be a valid product id
+                quantity: '', // required positive rounded integer number
+                unitPrice: '', // required positive rounded integer or non-integer number
+                warehouseReceiptId: '', // required, it should be a valid warehouse receipt id
             },
         ],
     }), []);
@@ -94,29 +54,97 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
     const validationSchema = Yup.object().shape({
         dueDate: Yup.date()
             .transform((value, originalValue) => originalValue === '' ? null : value)
-            .required('تاریخ تحویل الزامی است'),
-        invoiceNumber: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-        issuedDate: Yup.string()
+            .required('تاریخ سررسید الزامی است')
+            .min(Yup.ref('issuedDate'), 'تاریخ سررسید نمی‌تواند قبل از تاریخ صدور باشد.'), // Due date must be after issued date
+        invoiceNumber: Yup.number()
+            .typeError('شماره فاکتور باید عدد باشد')
+            .required('شماره فاکتور الزامیست')
+            .positive('شماره فاکتور باید مثبت باشد')
+            .integer('شماره فاکتور باید عدد صحیح باشد'),
+        issuedDate: Yup.date() // Use Yup.date for date validation
             .transform((value, originalValue) => originalValue === '' ? null : value)
-            .required('تاریخ صدور الزامی است'),
+            .required('تاریخ صدور الزامی است')
+            .max(new Date(), 'تاریخ صدور نمی‌تواند در آینده باشد.'), // Issued date cannot be in the future
         salesType: Yup.string()
-            .oneOf(['CASH_SALES', 'CONTRACTUAL_SALES'])
-            .required('نوع فروش الزامی است'),
-        contractId: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
-        customerId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست.'),
-        invoiceStatusId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-        advancedPayment: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
-        insuranceDeposit: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
-        performanceBound: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
-        yearId: Yup.string().required('مقدار فیلد الزامیست'),
-        invoiceItems: Yup.array().of(
-            Yup.object().shape({
-                productId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-                quantity: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-                unitPrice: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-                warehouseReceiptId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),
-            })
-        ).required('مقدار فیلد الزامیست').min(1, 'فاکتور باید حداقل یک آیتم داشته باشد.'),
+            .required('نوع فروش الزامی است') // salesType must be either 'CASH_SALES' or 'CONTRACTUAL_SALES'
+            .oneOf(['CASH_SALES', 'CONTRACTUAL_SALES'], 'نوع فروش باید از نوع نقدی یا قراردادی باشد'),
+        contractId: contractFieldsVisibility && Yup.number()
+            .when('salesType', {
+                is: 'CONTRACTUAL_SALES',
+                then: Yup.number().typeError('شناسه قرارداد باید عدد باشد').required('شناسه قرارداد الزامیست'),
+                otherwise: Yup.number().nullable().notRequired(), // Allow null if not contractual sales
+            }),
+        customerId: Yup.number()
+            .typeError('شناسه مشتری باید عدد باشد')
+            .required('شناسه مشتری الزامیست')
+            .positive('شناسه مشتری باید مثبت باشد')
+            .integer('شناسه مشتری باید عدد صحیح باشد'),
+        invoiceStatusId: Yup.number()
+            .typeError('شناسه وضعیت فاکتور باید عدد باشد')
+            .required('شناسه وضعیت فاکتور الزامیست')
+            .positive('شناسه وضعیت فاکتور باید مثبت باشد')
+            .integer('شناسه وضعیت فاکتور باید عدد صحیح باشد'),
+        advancedPayment: contractFieldsVisibility && Yup.number()
+            .when('salesType', {
+                is: 'CONTRACTUAL_SALES',
+                then: Yup.number()
+                    .typeError('پیش پرداخت باید عدد باشد')
+                    .min(0, 'پیش پرداخت نمی‌تواند منفی باشد')
+                    .integer('پیش پرداخت باید عدد صحیح باشد'),
+                otherwise: Yup.number().nullable().notRequired(),
+            }),
+        insuranceDeposit: contractFieldsVisibility && Yup.number()
+            .when('salesType', {
+                is: 'CONTRACTUAL_SALES',
+                then: Yup.number()
+                    .typeError('ودیعه بیمه باید عدد باشد')
+                    .min(0, 'ودیعه بیمه نمی‌تواند منفی باشد')
+                    .integer('ودیعه بیمه باید عدد صحیح باشد'),
+                otherwise: Yup.number().nullable().notRequired(),
+            }),
+        performanceBound: contractFieldsVisibility && Yup.number()
+            .when('salesType', {
+                is: 'CONTRACTUAL_SALES',
+                then: Yup.number()
+                    .typeError('ضمانت اجرا باید عدد باشد')
+                    .min(0, 'ضمانت اجرا نمی‌تواند منفی باشد')
+                    .integer('ضمانت اجرا باید عدد صحیح باشد'),
+                otherwise: Yup.number().nullable().notRequired(),
+            }),
+        yearId: Yup.number() // Assuming yearId is a number
+            .typeError('شناسه سال باید عدد باشد')
+            .required('شناسه سال الزامیست')
+            .positive('شناسه سال باید مثبت باشد')
+            .integer('شناسه سال باید عدد صحیح باشد'),
+        invoiceItems: Yup.array()
+            .of(
+                Yup.object().shape({
+                    productId: Yup.number()
+                        .typeError('شناسه محصول باید عدد باشد')
+                        .required('شناسه محصول الزامیست')
+                        .positive('شناسه محصول باید مثبت باشد')
+                        .integer('شناسه محصول باید عدد صحیح باشد'),
+
+                    quantity: Yup.number()
+                        .typeError('مقدار باید عدد باشد')
+                        .required('مقدار الزامیست')
+                        .positive('مقدار باید مثبت باشد')
+                        .integer('مقدار باید عدد صحیح باشد'),
+
+                    unitPrice: Yup.number()
+                        .typeError('قیمت واحد باید عدد باشد')
+                        .required('قیمت واحد الزامیست')
+                        .positive('قیمت واحد باید مثبت باشد'),
+
+                    warehouseReceiptId: Yup.number()
+                        .typeError('شناسه رسید انبار باید عدد باشد')
+                        .required('شناسه رسید انبار الزامیست')
+                        .positive('شناسه رسید انبار باید مثبت باشد')
+                        .integer('شناسه رسید انبار باید عدد صحیح باشد'),
+                })
+            )
+            .required('آیتم‌های فاکتور الزامیست')
+            .min(1, 'فاکتور باید حداقل یک آیتم داشته باشد.'),
     });
     const salesTypeOptions = [
         {label: "فروش نقدی", value: "CASH_SALES"},
@@ -141,6 +169,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
     };
 
     const onSubmit = async (data) => {
+        console.log(data)
         if (data.dueDate) {
             data.dueDate = moment(new Date(data.dueDate)).format('YYYY-MM-DD');
         }
@@ -148,7 +177,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
             data.issuedDate = moment(new Date(data.issuedDate)).format('YYYY-MM-DD');
         }
         data['yearId'] = getYearId(data.issuedDate) || getYearId(new Date());
-        console.log(data)
+
        // const errorMessage = await onCreateEntity(data);
        //  if (errorMessage) {
        //      setErrorMessage(errorMessage);

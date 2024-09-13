@@ -1,6 +1,6 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Col, Modal, Row } from "react-bootstrap";
+import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
 import Button from "../../utils/Button";
 import { TextInput } from "../../utils/TextInput";
@@ -8,40 +8,52 @@ import DateInput from "../../utils/DateInput";
 import { Form } from "../../utils/Form";
 import { useYupValidationResolver } from "../../hooks/useYupValidationResolver";
 import moment from "jalali-moment";
-import { bodyStyle, headerStyle, titleStyle } from "../styles/styles";
+import { bodyStyle} from "../styles/styles";
 
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import Subtotal from "../../utils/Subtotal";
-import CustomModal from "../../utils/CustomModal";
-import useHttp from "../contexts/useHttp";
+import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import ErrorMessage from "../../utils/ErrorMessage";
+import {AppContext} from "../contexts/AppProvider";
 
-const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
 
-    const {methods} = useHttp();
-
-    const selectInvoices = async (inputValue) => {
-        const response = await methods.get(`invoice/get-invoices?search=${inputValue}`);
-        return response.data;
-    };
+const CreateAdjustmentForm = ({ onCreateEntity, show, onHide }) => {
+    const {invoices} = useContext(AppContext);
 
     const validationSchema = Yup.object().shape({
-        adjustmentType: Yup.string().required('نوع تعدیل الزامیست.'),
-        description: Yup.string().required('توضیحات الزامیست.'),
+        adjustmentType: Yup.string()
+            .oneOf(['POSITIVE', 'NEGATIVE'], 'نوع تعدیل باید مثبت یا منفی باشد.')
+            .required('نوع تعدیل الزامیست.'),
+        description: Yup.string()
+            .trim()
+            .min(3, 'توضیحات باید حداقل 3 کاراکتر باشد.')
+            .max(500, 'توضیحات نباید بیشتر از 500 کاراکتر باشد.')
+            .required('توضیحات الزامیست.'),
         quantity: Yup.number()
             .typeError('مقدار باید عدد باشد.')
             .positive('مقدار باید مثبت باشد.')
+            .max(1000000, 'مقدار نمی‌تواند بیشتر از 1,000,000 باشد.')
             .required('مقدار الزامیست.'),
         unitPrice: Yup.number()
             .typeError('قیمت واحد باید عدد باشد.')
             .positive('قیمت واحد باید مثبت باشد.')
+            .max(1000000000, 'قیمت واحد نمی‌تواند بیشتر از 1,000,000,000 باشد.')
             .required('قیمت واحد الزامیست.'),
-        invoiceId: Yup.number().required('شناسه فاکتور الزامیست.'),
-        adjustmentDate: Yup.string().required('تاریخ تعدیل الزامیست.'),
+        invoiceId: Yup.number()
+            .integer('شناسه فاکتور باید عدد صحیح باشد.')
+            .positive('شناسه فاکتور باید مثبت باشد.')
+            .required('شناسه فاکتور الزامیست.'),
+        adjustmentDate: Yup.date()
+            .typeError('تاریخ تعدیل باید یک تاریخ معتبر باشد.')
+            .max(new Date(), 'تاریخ تعدیل نمی‌تواند در آینده باشد.')
+            .required('تاریخ تعدیل الزامیست.'),
         adjustmentNumber: Yup.number()
             .typeError('شماره تعدیل باید عدد باشد.')
+            .integer('شماره تعدیل باید عدد صحیح باشد.')
+            .positive('شماره تعدیل باید مثبت باشد.')
+            .max(1000000, 'شماره تعدیل نمی‌تواند بیشتر از 1,000,000 باشد.')
             .required('شماره تعدیل الزامیست.'),
     });
 
@@ -65,13 +77,13 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
 
     return (
         <CustomModal size={"xl"} show={show} >
-            <Modal.Header className="modal-header" style={headerStyle} >
-                <Modal.Title style={titleStyle}>
+            <Header>
+                <Title>
                     {"ایجاد تعدیل جدید"}
-                </Modal.Title>
-            </Modal.Header>
-            <Modal.Body style={bodyStyle}>
-                <div className="container modal-body" style={{ fontFamily: "IRANSans", fontSize: "0.8rem", margin: "0" }}>
+                </Title>
+            </Header>
+            <Body style={bodyStyle}>
+                <Container>
                     <Form
                         defaultValues={{
                             adjustmentType: 'POSITIVE',
@@ -105,7 +117,10 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
                                 </Row>
                                 <Row>
                                     <Col>
-                                        <AsyncSelectInput name="invoiceId" label={"شناسه فاکتور"} apiFetchFunction={selectInvoices} />
+                                        <AsyncSelectInput
+                                            name="invoiceId"
+                                            label={"شناسه فاکتور"}
+                                            options={invoices} />
                                     </Col>
                                     <Col>
                                         <DateInput name="adjustmentDate" label={"تاریخ تعدیل"} />
@@ -134,8 +149,8 @@ const CreateAdjustmentForm = ({ onCreateEntity, show, onHide,entityName }) => {
                         </Button>
                     </Form>
                     {errorMessage && <ErrorMessage message={errorMessage}/>}
-                </div>
-            </Modal.Body>
+                </Container>
+            </Body>
         </CustomModal>
     );
 };

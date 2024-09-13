@@ -46,7 +46,7 @@ const AsyncSelectInput = ({ name, options = [], isClearable = true, resetTrigger
                            isClearable={isClearable}
                            loadingMessage={() => 'در حال بارگذاری...'}
                            noOptionsMessage={() => 'هیچ رکوردی یافت نشد.'}
-                           placeholder="انتخاب..."
+                           placeholder={error ? error?.message : 'مقدار را انتخاب کنید.'}
                            menuPortalTarget={document.body}
                            menuPosition="fixed"
                            isDisabled={isDisabled}
@@ -54,6 +54,7 @@ const AsyncSelectInput = ({ name, options = [], isClearable = true, resetTrigger
                            value={options.find(option => option.value === field.value)}
                            styles={{
                                ...getCustomSelectStyles(error),
+                               border : error ? '1px solid red' : '1px solid #ced4da',
                                boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
                                menuPortal: (base) => ({...base, zIndex: 9999}),
                            }}

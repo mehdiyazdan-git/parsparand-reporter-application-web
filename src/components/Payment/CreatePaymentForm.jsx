@@ -12,27 +12,46 @@ import SelectInput from "../../utils/SelectInput";
 import * as Yup from "yup";
 import {useYupValidationResolver} from "../../hooks/useYupValidationResolver";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
-import {AppContext} from "../contexts/AppProvider";
 import ErrorMessage from "../../utils/ErrorMessage";
+import {AppContext} from "../contexts/AppProvider";
 
 
 
 
 const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
+    const {customers} = useContext(AppContext);
 
     const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
-        paymentDate: Yup.string().required('تاریخ پرداخت الزامیست.'),
+        paymentDate: Yup.date()
+            .typeError('تاریخ پرداخت باید یک تاریخ معتبر باشد.')
+            .required('تاریخ پرداخت الزامی است.')
+            .max(new Date(), 'تاریخ پرداخت نمی‌تواند در آینده باشد.'),
+
         paymentDescription: Yup.string()
+            .trim()
+            .min(3, 'توضیحات پرداخت باید حداقل 3 کاراکتر باشد.')
             .max(255, 'توضیحات پرداخت نباید بیشتر از 255 کاراکتر باشد.')
-            .typeError('توضیحات پرداخت باید باید متن باشد.')
-            .required('توضیحات پرداخت الزامیست.'),
-        customerId: Yup.number().required('مشتری الزامیست.'),
+            .required('توضیحات پرداخت الزامی است.'),
+
+        customerId: Yup.number()
+            .typeError('لطفاً یک مشتری انتخاب کنید.')
+            .integer('شناسه مشتری باید یک عدد صحیح باشد.')
+            .positive('شناسه مشتری باید مثبت باشد.')
+            .required('انتخاب مشتری الزامی است.'),
+
         paymentAmount: Yup.number()
-            .typeError('مبلغ پرداخت باید باید عدد باشد.')
-            .positive('مبلغ پرداخت باید عدد مثبت باشد.')
-            .required('مبلغ پرداخت الزامیست.'),
+            .typeError('مبلغ پرداخت باید یک عدد باشد.')
+            .positive('مبلغ پرداخت باید بیشتر از صفر باشد.')
+            .required('وارد کردن مبلغ پرداخت الزامی است.')
+            .test('is-decimal', 'مبلغ پرداخت باید حداکثر دو رقم اعشار داشته باشد.',
+                (value) => (value + "").match(/^\d+(\.\d{1,2})?$/)),
+
+        paymentSubject: Yup.string()
+            .oneOf(['PRODUCT', 'INSURANCEDEPOSIT', 'PERFORMANCEBOUND', 'ADVANCEDPAYMENT'],
+                'لطفاً یک موضوع پرداخت معتبر انتخاب کنید.')
+            .required('انتخاب موضوع پرداخت الزامی است.'),
     });
 
     const resolver = useYupValidationResolver(validationSchema);
@@ -88,7 +107,7 @@ const CreatePaymentForm = ({ onCreateEntity, show, onHide }) => {
                                         <AsyncSelectInput
                                             name="customerId"
                                             label={"شناسه مشتری"}
-                                            url={"customers/select"}
+                                            options={customers}
                                         />
                                     </Col>
                                 </Row>

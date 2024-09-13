@@ -12,11 +12,27 @@ import ErrorMessage from "../../utils/ErrorMessage";
 
 const EditCustomerForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     const validationSchema = Yup.object().shape({
-        customerCode: Yup.string().required('کد مشتری الزامیست.'),
+        customerCode: Yup.string()
+            .trim()
+            .matches(/^[A-Za-z0-9-]+$/, 'کد مشتری باید شامل حروف، اعداد و خط تیره باشد.')
+            .min(3, 'کد مشتری باید حداقل 3 کاراکتر باشد.')
+            .max(20, 'کد مشتری نباید بیشتر از 20 کاراکتر باشد.')
+            .required('کد مشتری الزامیست.'),
+        bigCustomer: Yup.boolean(),
+        economicCode: Yup.string()
+            .matches(/^\d{12}$/, 'کد اقتصادی باید 12 رقم باشد.')
+            .nullable(),
         name: Yup.string()
+            .trim()
             .min(2, 'نام باید حداقل 2 کاراکتر باشد.')
-            .max(255, 'نام باید حداکثر 50 کاراکتر باشد.')
+            .max(255, 'نام نباید بیشتر از 255 کاراکتر باشد.')
             .required('نام الزامیست.'),
+        nationalCode: Yup.string()
+            .matches(/^\d{10}$/, 'کد ملی باید 10 رقم باشد.')
+            .nullable(),
+        phone: Yup.string()
+            .matches(/^[0-9]{11}$/, 'شماره تلفن باید 11 رقم باشد.')
+            .nullable(),
     });
 
     const resolver = useYupValidationResolver(validationSchema);

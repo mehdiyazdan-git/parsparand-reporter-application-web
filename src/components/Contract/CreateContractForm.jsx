@@ -22,18 +22,67 @@ const CreateContractForm = ({ onCreateEntity, show, onHide }) => {
     const [errorMessage, setErrorMessage] = React.useState(null);
 
     const validationSchema = Yup.object().shape({
-        contractNumber: Yup.string().required('شماره قرارداد الزامیست.'),
-        contractDescription: Yup.string().required('عنوان قرارداد الزامیست.'),
-        startDate: Yup.string().required('تاریخ شروع الزامیست.'),
-        endDate: Yup.string().required('تاریخ پایان الزامیست.'),
-        customerId: Yup.number().typeError('مشتری الزامیست.').required(' مشتری الزامیست.'),
+        contractNumber: Yup.string()
+            .trim()
+            .matches(/^[A-Za-z0-9-]+$/, 'شماره قرارداد باید شامل حروف، اعداد و خط تیره باشد.')
+            .min(3, 'شماره قرارداد باید حداقل 3 کاراکتر باشد.')
+            .max(20, 'شماره قرارداد نباید بیشتر از 20 کاراکتر باشد.')
+            .required('شماره قرارداد الزامیست.'),
+        contractDescription: Yup.string()
+            .trim()
+            .min(10, 'توضیحات قرارداد باید حداقل 10 کاراکتر باشد.')
+            .max(500, 'توضیحات قرارداد نباید بیشتر از 500 کاراکتر باشد.')
+            .required('توضیحات قرارداد الزامیست.'),
+        startDate: Yup.date()
+            .typeError('تاریخ شروع باید یک تاریخ معتبر باشد.')
+            .min(new Date(), 'تاریخ شروع نمی‌تواند در گذشته باشد.')
+            .required('تاریخ شروع الزامیست.'),
+        endDate: Yup.date()
+            .typeError('تاریخ پایان باید یک تاریخ معتبر باشد.')
+            .min(
+                Yup.ref('startDate'),
+                'تاریخ پایان باید بعد از تاریخ شروع باشد.'
+            )
+            .required('تاریخ پایان الزامیست.'),
+        customerId: Yup.number()
+            .typeError('مشتری باید انتخاب شود.')
+            .positive('شناسه مشتری باید عددی مثبت باشد.')
+            .integer('شناسه مشتری باید عدد صحیح باشد.')
+            .required('انتخاب مشتری الزامیست.'),
+        advancePayment: Yup.number()
+            .typeError('پیش پرداخت باید عدد باشد.')
+            .min(0, 'پیش پرداخت نمی‌تواند منفی باشد.')
+            .max(100, 'پیش پرداخت نمی‌تواند بیشتر از 100 درصد باشد.')
+            .nullable(),
+        insuranceDeposit: Yup.number()
+            .typeError('ودیعه بیمه باید عدد باشد.')
+            .min(0, 'ودیعه بیمه نمی‌تواند منفی باشد.')
+            .max(100, 'ودیعه بیمه نمی‌تواند بیشتر از 100 درصد باشد.')
+            .nullable(),
+        performanceBond: Yup.number()
+            .typeError('ضمانت اجرا باید عدد باشد.')
+            .min(0, 'ضمانت اجرا نمی‌تواند منفی باشد.')
+            .max(100, 'ضمانت اجرا نمی‌تواند بیشتر از 100 درصد باشد.')
+            .nullable(),
         contractItems: Yup.array().of(
             Yup.object().shape({
-                productId: Yup.number().typeError('محصول الزامیست.').required(' محصول الزامیست.'),
-                quantity: Yup.number().typeError('مقدار الزامیست.').required('مقدار الزامیست.'),
-                unitPrice: Yup.number().typeError('قمت واحد الزامیست.').required('قیمت واحد الزامیست.'),
+                productId: Yup.number()
+                    .typeError('محصول باید انتخاب شود.')
+                    .positive('شناسه محصول باید عددی مثبت باشد.')
+                    .integer('شناسه محصول باید عدد صحیح باشد.')
+                    .required('انتخاب محصول الزامیست.'),
+                quantity: Yup.number()
+                    .typeError('مقدار باید عدد باشد.')
+                    .positive('مقدار باید عددی مثبت باشد.')
+                    .required('مقدار الزامیست.'),
+                unitPrice: Yup.number()
+                    .typeError('قیمت واحد باید عدد باشد.')
+                    .positive('قیمت واحد باید عددی مثبت باشد.')
+                    .required('قیمت واحد الزامیست.'),
             })
-        ).length(1, "حداقل یک آیتم کالا الزامی است"),
+        )
+            .min(1, "حداقل یک آیتم کالا الزامی است")
+            .required('حداقل یک آیتم کالا الزامی است'),
     });
     // Sun Sep 01 2024 06:49:39 GMT-0700 (Pacific Daylight Time)
     const resolver = useYupValidationResolver(validationSchema);
