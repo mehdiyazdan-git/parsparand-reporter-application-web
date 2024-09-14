@@ -42,8 +42,16 @@ const NumberInput = ({ name, label, style, field, ...rest }) => {
                                     }`}
                                     style={{
                                         ...style,
-                                        border: error ? '1px solid red' : '', // Add red border on error
-                                    }}
+                                        border: error ? '1px solid red' : '',
+                                        fontFamily: 'IRANSans',
+                                        fontSize: '0.8rem',
+                                        padding: '0.5rem',
+                                        margin: '0',
+                                        width: '100%',
+                                        borderRadius: '0.25rem',
+                                        borderColor: 'rgb(209, 213, 219)',
+                                        background : 'rgba(255, 255, 255, 0.4)'
+                                        }}
                                     {...rest}
                                 />
                             </>

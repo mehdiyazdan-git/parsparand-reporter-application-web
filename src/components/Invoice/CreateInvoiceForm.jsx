@@ -111,11 +111,6 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
                     .integer('ضمانت اجرا باید عدد صحیح باشد'),
                 otherwise: Yup.number().nullable().notRequired(),
             }),
-        yearId: Yup.number() // Assuming yearId is a number
-            .typeError('شناسه سال باید عدد باشد')
-            .required('شناسه سال الزامیست')
-            .positive('شناسه سال باید مثبت باشد')
-            .integer('شناسه سال باید عدد صحیح باشد'),
         invoiceItems: Yup.array()
             .of(
                 Yup.object().shape({
@@ -178,13 +173,13 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         }
         data['yearId'] = getYearId(data.issuedDate) || getYearId(new Date());
 
-       // const errorMessage = await onCreateEntity(data);
-       //  if (errorMessage) {
-       //      setErrorMessage(errorMessage);
-       //  } else {
-       //      setErrorMessage(null);
-       //      onHide();
-       //  }
+       const errorMessage = await onCreateEntity(data);
+        if (errorMessage) {
+            setErrorMessage(errorMessage);
+        } else {
+            setErrorMessage(null);
+            onHide();
+        }
     };
 
     return (

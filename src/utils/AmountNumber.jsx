@@ -7,7 +7,7 @@ const style = {
     textIndent:"0.5rem",
     padding:"0.1rem",
     borderRadius: "0.25rem",
-    fontSize: "0.7rem",
+    fontSize: "0.8rem",
     lineHeight: "1.0rem",
     color: "#334155",
     boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",

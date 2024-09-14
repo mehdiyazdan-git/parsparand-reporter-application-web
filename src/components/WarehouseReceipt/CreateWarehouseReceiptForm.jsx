@@ -24,7 +24,10 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
         warehouseReceiptDate: Yup.date()
             .typeError('تاریخ رسید باید یک تاریخ معتبر باشد.')
             .required('تاریخ رسید الزامی است.')
-            .max(new Date(), 'تاریخ رسید نمی‌تواند در آینده باشد.'),
+            .max(
+                moment().endOf('day').toDate(), // Set max to the end of today
+                'تاریخ رسید نمی‌تواند در آینده باشد.'
+            ),
 
         warehouseReceiptDescription: Yup.string()
             .trim()
@@ -64,13 +67,6 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
                     .test('is-decimal', 'قیمت واحد باید حداکثر دو رقم اعشار داشته باشد.',
                         (value) => (value + "").match(/^\d+(\.\d{1,2})?$/))
                     .required('وارد کردن قیمت واحد الزامی است.'),
-
-                amount: Yup.number()
-                    .test('is-product', 'مبلغ کل باید برابر با حاصل‌ضرب مقدار در قیمت واحد باشد.',
-                        function(value) {
-                            const { quantity, unitPrice } = this.parent;
-                            return value === quantity * unitPrice;
-                        })
             })
         ).min(1, 'حداقل یک قلم کالا باید وارد شود.')
     });
