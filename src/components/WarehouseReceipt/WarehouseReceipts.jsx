@@ -6,6 +6,7 @@ import EditWarehouseReceiptForm from './EditWarehouseReceiptForm';
 import {toShamsi} from '../../utils/functions/toShamsi';
 import {formatNumber} from '../../utils/functions/formatNumber';
 
+
 const WarehouseReceipts = ({filterOptions}) => {
     const columns = useMemo(() => [
         {key: 'id', title: 'شناسه', width: '3%', sortable: true},

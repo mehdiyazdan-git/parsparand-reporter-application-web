@@ -64,6 +64,7 @@ const Sidebar = () => {
             <SidebarItem to="/contracts" caption="قراردادها" />
             <SidebarItem to="/users" caption="کاربران" />
             <SidebarItem to="/returneds" caption="مرجوعی ها" />
+            <SidebarItem to="/vat-rates" caption="جدول مالیات" />
             <SidebarItem to="/years" caption="سال ها" />
             <SidebarItem to="/login" caption="login" />
         </SidebarContainer>

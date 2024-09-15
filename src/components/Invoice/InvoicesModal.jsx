@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import Modal from 'react-bootstrap/Modal';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import IconEdit from "../assets/icons/IconEdit";
@@ -6,7 +6,6 @@ import Button from "../../utils/Button";
 import Invoices from "./Invoices";
 
 import styled from 'styled-components';
-import useHttp from "../contexts/useHttp";
 
 const ModalBody = styled(Modal.Body)`
   max-height: 70vh; /* Adjust as needed */

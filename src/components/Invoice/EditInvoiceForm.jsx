@@ -1,4 +1,4 @@
-import React, {useContext} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -38,7 +38,6 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         advancedPayment: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
         insuranceDeposit: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
         performanceBound: contractFieldsVisibility && Yup.number().typeError('مقدار فیلد باید عدد باشد').notRequired(),
-        yearId: Yup.string().required('مقدار فیلد الزامیست'),
         invoiceItems: Yup.array().of(
             Yup.object().shape({
                 productId: Yup.number().typeError('مقدار فیلد باید عدد باشد').required('مقدار فیلد الزامیست'),

@@ -52,7 +52,7 @@ const CrudComponent = ({
         },
     };
 
-    const {years} = useContext(AppContext);
+    const {years,refreshSource} = useContext(AppContext);
 
     const getInitialFilters = (columns) => {
         const search = {};
@@ -160,6 +160,7 @@ const CrudComponent = ({
             const response = await post(encodeURI(resourcePath), formData);
             if (response?.status === 201) {
                 await fetchData();
+                refreshSource(resourcePath);
                 closeCreateModal();
             }
         } catch (err) {
@@ -174,6 +175,7 @@ const CrudComponent = ({
             const response = await put(`${encodeURI(resourcePath)}/${encodeURIComponent(pathVariable)}`, formData);
             if (response?.status === 200) {
                 await fetchData();
+                refreshSource(resourcePath);
                 closeEditModal();
             }
         } catch (err) {
@@ -187,6 +189,7 @@ const CrudComponent = ({
             const response = await del(`${encodeURI(resourcePath)}/${id}`);
             if (response?.status === 204) {
                 await fetchData();
+                refreshSource(resourcePath);
             }
         } catch (err) {
             console.error('Error deleting entity:', err);

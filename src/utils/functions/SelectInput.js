@@ -1,17 +1,9 @@
 import React, { useMemo } from 'react';
 import Select from "react-select";
 import { Controller } from "react-hook-form";
-import { ConnectForm } from "./ConnectForm";
-import { getCustomSelectStyles } from "./customStyles";
+import {ConnectForm} from "../ConnectForm";
+import {getCustomSelectStyles} from "../customStyles";
 
-
-/*
-    name : SelectInput
-    type: Functional Component
-    used libraries: react-select, react-hook-form
-    props : name, options, label, field, ...rest
-    form conncting type : useFormContext , control
-* */
 
 const SelectInput = ({ name, options, label, field, ...rest }) => {
     const customMessages = {

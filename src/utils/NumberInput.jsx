@@ -44,7 +44,7 @@ const NumberInput = ({ name, label, style, field, ...rest }) => {
                                         ...style,
                                         border: error ? '1px solid red' : '',
                                         fontFamily: 'IRANSans',
-                                        fontSize: '0.8rem',
+                                        fontSize: '0.78rem',
                                         padding: '0.5rem',
                                         margin: '0',
                                         width: '100%',

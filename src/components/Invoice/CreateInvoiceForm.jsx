@@ -1,4 +1,4 @@
-import React, {useContext, useMemo} from 'react';
+import React, {useContext, useEffect, useMemo, useState} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
@@ -61,19 +61,21 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
             .required('شماره فاکتور الزامیست')
             .positive('شماره فاکتور باید مثبت باشد')
             .integer('شماره فاکتور باید عدد صحیح باشد'),
-        issuedDate: Yup.date() // Use Yup.date for date validation
-            .transform((value, originalValue) => originalValue === '' ? null : value)
-            .required('تاریخ صدور الزامی است')
-            .max(new Date(), 'تاریخ صدور نمی‌تواند در آینده باشد.'), // Issued date cannot be in the future
+        issuedDate:Yup.date()
+            .typeError('تاریخ فاکتور باید یک تاریخ معتبر باشد.')
+            .required('تاریخ فاکتور الزامی است.')
+            .max(
+                moment().endOf('day').toDate(), // Set max to the end of today
+                'تاریخ فاکتور نمی‌تواند در آینده باشد.'
+            ),
         salesType: Yup.string()
             .required('نوع فروش الزامی است') // salesType must be either 'CASH_SALES' or 'CONTRACTUAL_SALES'
             .oneOf(['CASH_SALES', 'CONTRACTUAL_SALES'], 'نوع فروش باید از نوع نقدی یا قراردادی باشد'),
         contractId: contractFieldsVisibility && Yup.number()
-            .when('salesType', {
-                is: 'CONTRACTUAL_SALES',
-                then: Yup.number().typeError('شناسه قرارداد باید عدد باشد').required('شناسه قرارداد الزامیست'),
-                otherwise: Yup.number().nullable().notRequired(), // Allow null if not contractual sales
-            }),
+            .typeError('شناسه قرارداد باید عدد باشد')
+            .required('شناسه قرارداد الزامیست')
+            .positive('شناسه قرارداد باید مثبت باشد')
+            .integer('شناسه قرارداد باید عدد صحیح باشد'),
         customerId: Yup.number()
             .typeError('شناسه مشتری باید عدد باشد')
             .required('شناسه مشتری الزامیست')
@@ -85,32 +87,17 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
             .positive('شناسه وضعیت فاکتور باید مثبت باشد')
             .integer('شناسه وضعیت فاکتور باید عدد صحیح باشد'),
         advancedPayment: contractFieldsVisibility && Yup.number()
-            .when('salesType', {
-                is: 'CONTRACTUAL_SALES',
-                then: Yup.number()
-                    .typeError('پیش پرداخت باید عدد باشد')
-                    .min(0, 'پیش پرداخت نمی‌تواند منفی باشد')
-                    .integer('پیش پرداخت باید عدد صحیح باشد'),
-                otherwise: Yup.number().nullable().notRequired(),
-            }),
+            .typeError('پیش پرداخت باید عدد باشد')
+            .min(0, 'پیش پرداخت نمی‌تواند منفی باشد')
+            .integer('پیش پرداخت باید عدد صحیح باشد'),
         insuranceDeposit: contractFieldsVisibility && Yup.number()
-            .when('salesType', {
-                is: 'CONTRACTUAL_SALES',
-                then: Yup.number()
-                    .typeError('ودیعه بیمه باید عدد باشد')
-                    .min(0, 'ودیعه بیمه نمی‌تواند منفی باشد')
-                    .integer('ودیعه بیمه باید عدد صحیح باشد'),
-                otherwise: Yup.number().nullable().notRequired(),
-            }),
+            .typeError('پرداخت بیمه باید عدد باشد')
+            .min(0, 'پرداخت بیمه نمی‌تواند منفی باشد')
+            .integer('پرداخت بیمه باید عدد صحیح باشد'),
         performanceBound: contractFieldsVisibility && Yup.number()
-            .when('salesType', {
-                is: 'CONTRACTUAL_SALES',
-                then: Yup.number()
-                    .typeError('ضمانت اجرا باید عدد باشد')
-                    .min(0, 'ضمانت اجرا نمی‌تواند منفی باشد')
-                    .integer('ضمانت اجرا باید عدد صحیح باشد'),
-                otherwise: Yup.number().nullable().notRequired(),
-            }),
+            .typeError('پرداخت ضمانت باید عدد باشد')
+            .min(0, 'پرداخت ضمانت نمی‌تواند منفی باشد')
+            .integer('پرداخت ضمانت باید عدد صحیح باشد'),
         invoiceItems: Yup.array()
             .of(
                 Yup.object().shape({
@@ -141,6 +128,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
             .required('آیتم‌های فاکتور الزامیست')
             .min(1, 'فاکتور باید حداقل یک آیتم داشته باشد.'),
     });
+
     const salesTypeOptions = [
         {label: "فروش نقدی", value: "CASH_SALES"},
         {label: "فروش قراردادی", value: "CONTRACTUAL_SALES"},
@@ -182,16 +170,18 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         }
     };
 
+
     return (
-        <CustomModal size={"xl"} show={show}>
+        <CustomModal size={"xl"} show={show} >
             <Header>
                 <Title>
                     {"ایجاد فاکتور جدید"}
                 </Title>
             </Header>
+
             <Body>
                 <Container>
-                    <Form
+                <Form
                         defaultValues={defaultValues}
                         onSubmit={onSubmit}
                         resolver={resolver}

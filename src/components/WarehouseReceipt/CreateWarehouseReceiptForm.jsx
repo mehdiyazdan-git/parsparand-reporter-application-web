@@ -20,6 +20,8 @@ import {AppContext} from "../contexts/AppProvider";
 
 const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
+
+
     const validationSchema = Yup.object().shape({
         warehouseReceiptDate: Yup.date()
             .typeError('تاریخ رسید باید یک تاریخ معتبر باشد.')
@@ -75,7 +77,7 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
 
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const {customers} = useContext(AppContext);
+    const {customers,refreshWarehouseReceipts} = useContext(AppContext);
 
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
@@ -86,6 +88,7 @@ const CreateWarehouseReceiptForm = ({ onCreateEntity, show, onHide }) => {
             setErrorMessage(errorMessage);
         } else {
             setErrorMessage(null);
+            refreshWarehouseReceipts();
             onHide();
         }
     };

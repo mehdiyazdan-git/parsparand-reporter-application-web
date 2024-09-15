@@ -11,7 +11,7 @@ const CustomModal = styled(Modal).attrs(props => ({
           .modal-dialog {
             width: fit-content;
             min-width: 700px;
-            max-width: 90%; /* Adjust as needed */
+            max-width: 95%; /* Adjust as needed */
           }
         
           .modal-content {
@@ -32,6 +32,8 @@ export default CustomModal;
 
 export const Body = styled(Modal.Body)`
     max-height: 75vh;
+    min-height: max-content;
+    min-width: calc(var(--bs-modal-width) + 1rem);
     overflow-y: auto;
     font-family: "IRANSans", sans-serif;
     font-size: 0.8rem;

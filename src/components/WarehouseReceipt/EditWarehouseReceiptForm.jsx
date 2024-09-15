@@ -74,7 +74,7 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
 
     const [errorMessage, setErrorMessage] = React.useState(null);
 
-    const {customers} = useContext(AppContext);
+    const {customers,refreshWarehouseReceipts} = useContext(AppContext);
 
     const onSubmit = async (data) => {
         if (data.warehouseReceiptDate) {
@@ -85,6 +85,7 @@ const EditWarehouseReceiptForm = ({editingEntity, onUpdateEntity, show, onHide})
             setErrorMessage(errorMessage);
         } else {
             setErrorMessage(null);
+            refreshWarehouseReceipts()
             onHide();
         }
     };

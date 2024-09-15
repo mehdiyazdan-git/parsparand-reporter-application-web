@@ -21,6 +21,8 @@ import ClientSummary from "./components/Report/ClientSummary";
 import MonthlyReport from "./components/Report/MonthlyReport";
 import Login from "./components/auth/Login";
 import {AppProvider} from "./components/contexts/AppProvider";
+import VATRateCRUD from "./components/VATRate/VATRateCRUD";
+import VatRates from "./components/VATRate/VatRates";
 
 
 
@@ -51,6 +53,7 @@ const App = () => {
                                 <Route path="/contracts" element={<Contracts />} />
                                 <Route path="/users" element={<Users />} />
                                 <Route path="/returneds" element={<Returneds />} />
+                                <Route path="/vat-rates" element={<VatRates />} />
                                 <Route path="/years" element={<Years />} />
                                 <Route path="/login" element={<Login />} />
                             </Route>

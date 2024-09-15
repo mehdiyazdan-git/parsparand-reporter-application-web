@@ -31,7 +31,7 @@ export function Form({ defaultValues, children, onSubmit,resolver }) {
                         : child;
                 })}
             </form>
-            {Object.keys(errors).map(key => { return <p>{key} : {errors[key].message}</p>})}
+            {/*{Object.keys(errors).map(key => { return <p>{key} : {errors[key].message}</p>})}*/}
         </FormProvider>
     );
 }
