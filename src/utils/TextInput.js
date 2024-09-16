@@ -71,7 +71,7 @@ export function TextInput({ name,backgroundColor,field, label,labelStyle, type, 
                                             opacity: "1",
                                             textIndent:"0.5rem",
                                         },
-                                            "&:-webkit-autofill": {
+                                            "&:WebkitAutofill": {
                                             boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
 
                                             "&:focus": {

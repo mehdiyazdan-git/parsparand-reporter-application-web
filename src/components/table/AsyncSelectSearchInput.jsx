@@ -1,69 +1,47 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef} from 'react';
 import AsyncSelect from "react-select/async";
 import {getCustomSelectStyles} from "../../utils/customStyles";
+import {labelStyle} from "../styles/styles";
 
-const AsyncSelectSearchInput = ({fetchFunction,defaultValue,value,onChange}) => {
-    const [options, setOptions] = useState([]);
-    const [_defaultValue,_setDefaultValue] = useState(defaultValue)
+const AsyncSelectSearchInput = ({options,resetTrigger,label,name,isClearable = true,value,onChange}) => {
+    const ref = useRef();
 
-    const fetchAPI = async (inputValue) => {
-        return await fetchFunction(inputValue)
-    };
-    const promiseOptions = async (inputValue) => {
-        try {
-            const response = await fetchAPI(inputValue);
-            const data = response.data; // Make sure this is an array.
-            if (!Array.isArray(data)) {
-                throw new Error('Data is not an array');
-            }
-            const newOptions = data.map((record) => ({
-                label: record.name,
-                value: record.id,
-            }));
-            setOptions(newOptions);
-            return newOptions;
-        } catch (error) {
-            console.error('There was an error fetching the options: ', error);
-            return []; // Return an empty array if there's an error.
-        }
-    };
-
+    const promiseOptions = (inputValue) =>
+        new Promise((resolve) => {
+            resolve(options.filter((option) =>
+                option.label.includes(inputValue)
+            ));
+        });
 
     useEffect(() => {
-        async function loadOptions() {
-            try {
-                const response = await fetchAPI();
-                const data = response.data; // Make sure this is an array.
-                if (!Array.isArray(data)) {
-                    throw new Error('Data is not an array');
-                }
-                const newOptions = data.map((record) => ({
-                    label: record.name,
-                    value: record.id,
-                }));
-                setOptions(newOptions);
-                _setDefaultValue(defaultValue ? options.find((o)=> o?.value === defaultValue) : null)
-            } catch (error) {
-                console.error('There was an error in the initial options load: ', error);
-                // You might want to handle this error state appropriately.
-            }
-        }
-        loadOptions();
-    }, []);
+        if (resetTrigger) ref.current.clearValue();
+    }, [resetTrigger]);
+
     return (
-        <div>
+
+        <>
+            {label && <label style={labelStyle} htmlFor={name}>{label}</label>}
             <AsyncSelect
-                value={value ? options.find((o)=> o?.value === value) : null}
-                onChange={(option) =>
-                    onChange(option ? option.value : null)}
                 cacheOptions
+                defaultOptions={options}
                 loadOptions={promiseOptions}
-                defaultOptions
-                placeholder={"جستجو..."}
-                styles={getCustomSelectStyles()}
-                isClearable
+                ref={ref}
+                isClearable={isClearable}
+                loadingMessage={() => 'در حال بارگذاری...'}
+                noOptionsMessage={() => 'هیچ رکوردی یافت نشد.'}
+                placeholder='انتخاب...'
+                menuPortalTarget={document.body}
+                menuPosition="fixed"
+                onChange={(selectedOption) => onChange(selectedOption)}
+                value={options.find(option => option.value === value)}
+                styles={{
+                    ...getCustomSelectStyles(),
+                    border : '1px solid #ced4da',
+                    boxShadow: '0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)',
+                    menuPortal: (base) => ({...base, zIndex: 9999}),
+                }}
             />
-        </div>
+        </>
     );
 };
 

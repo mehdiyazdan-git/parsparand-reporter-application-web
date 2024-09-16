@@ -1,8 +1,7 @@
 import React from 'react';
 
-const SearchCheckboxInput = ({ width, id, name, checked, onChange }) => {
+const SearchCheckboxInput = ({ id, name, checked, onChange }) => {
     return (
-        <th width={width}>
             <label>
                 <input
                     type="checkbox"
@@ -14,7 +13,6 @@ const SearchCheckboxInput = ({ width, id, name, checked, onChange }) => {
                 />
                 بلی
             </label>
-        </th>
     );
 };
 

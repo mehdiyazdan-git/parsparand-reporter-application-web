@@ -1,5 +1,5 @@
 // src/components/Navbar.jsx
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import styled from 'styled-components';
 import TimeDisplay from "../../utils/TimeDisplay";
 
@@ -32,6 +32,9 @@ const YearWrapper = styled.div`
 `;
 
 const Navbar = () => {
+
+
+
     return (
         <NavbarContainer>
             <NavbarBrand>پارس پرند حیان</NavbarBrand>

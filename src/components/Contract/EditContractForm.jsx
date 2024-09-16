@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
@@ -14,6 +14,7 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import ContractItems from "./ContractItems";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import ErrorMessage from "../../utils/ErrorMessage";
+import {AppContext} from "../contexts/AppProvider";
 
 const EditContractForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
@@ -103,6 +104,8 @@ const EditContractForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
 
     };
 
+    const {customers} = useContext(AppContext);
+
     return (
         <CustomModal size={"xl"} show={show} >
             <Header>
@@ -160,7 +163,7 @@ const EditContractForm = ({editingEntity, onUpdateEntity, show, onHide}) => {
                                         <AsyncSelectInput
                                             name="customerId"
                                             label={"شناسه مشتری"}
-                                            url={"customers/select"}
+                                            options={customers}
                                             value={editingEntity?.customerId}
                                         />
                                     </Col>

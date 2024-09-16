@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -16,10 +16,38 @@ import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import ErrorMessage from "../../utils/ErrorMessage";
 import {AppContext} from "../contexts/AppProvider";
+import useHttp from "../contexts/useHttp";
+import {toast} from "react-toastify";
+
+
+// const invoiceSchema = {
+//     id: editingEntity.id,
+//     dueDate: editingEntity.dueDate,
+//     invoiceNumber: editingEntity.invoiceNumber,
+//     issuedDate: editingEntity.issuedDate,
+//     salesType: editingEntity.salesType,
+//     contractId: editingEntity.contractId,
+//     contractNumber: editingEntity.contractNumber,
+//     customerId: editingEntity.customerId,
+//     customerName: editingEntity.customerName,
+//     invoiceStatusId: editingEntity.invoiceStatusId,
+//     advancedPayment: editingEntity.advancedPayment,
+//     insuranceDeposit: editingEntity.insuranceDeposit,
+//     performanceBound: editingEntity.performanceBound,
+//     yearId: editingEntity.yearId,
+//     vatRateId: editingEntity.vatRateId,
+//     totalAmount: editingEntity.totalAmount,
+//     totalAmountWithVat: editingEntity.totalAmountWithVat,
+//     vatAmount: editingEntity.vatAmount,
+//     totalQuantity: editingEntity.totalQuantity,
+//     totalPrice: editingEntity.totalPrice,
+//     invoiceItems: editingEntity.invoiceItems
+// }
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 
     const [contractFieldsVisibility, setContractFieldsVisibility] = React.useState(false);
+    
 
     const validationSchema = Yup.object().shape({
         dueDate: Yup.date()
@@ -74,6 +102,19 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
         }
         return null;
     };
+    const [subscribe,setSubscribe] = React.useState(true);
+
+    const notify = () => {
+        setSubscribe(!subscribe);
+    }
+    useEffect(() => {
+        if (editingEntity.salesType === 'CONTRACTUAL_SALES') {
+            setContractFieldsVisibility(true);
+        } else {
+            setContractFieldsVisibility(false);
+        }
+
+    }, [subscribe]);
 
     return (
         <CustomModal size={"xl"} show={show}>
@@ -85,20 +126,7 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
             <Body>
                 <Container>
                     <Form
-                        defaultValues={{
-                            id: editingEntity.id,
-                            dueDate: editingEntity.dueDate,
-                            invoiceNumber: editingEntity.invoiceNumber,
-                            issuedDate: editingEntity.issuedDate,
-                            salesType: editingEntity.salesType,
-                            contractId: editingEntity.contractId,
-                            customerId: editingEntity.customerId,
-                            invoiceStatusId: editingEntity.invoiceStatusId,
-                            advancedPayment: editingEntity.advancedPayment,
-                            insuranceDeposit: editingEntity.insuranceDeposit,
-                            performanceBound: editingEntity.performanceBound,
-                            invoiceItems: editingEntity.invoiceItems,
-                        }}
+                        defaultValues={editingEntity}
                         onSubmit={onSubmit}
                         resolver={resolver}
                     >
@@ -164,16 +192,18 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col>
-                                            <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
+                                        <Col className={"col-6"}>
+                                            <NumberInput name="performanceBond" label={"ضمانت اجرا"} />
                                         </Col>
+
                                         <Col>
                                             <NumberInput name="insuranceDeposit" label={"ودیعه بیمه"} />
                                         </Col>
                                     </Row>
                                     <Row>
-                                        <Col className={"col-6"}>
-                                            <NumberInput name="performanceBound" label={"ضمانت اجرا"} />
+
+                                        <Col>
+                                            <NumberInput name="advancedPayment" label={"پیش پرداخت"} />
                                         </Col>
                                     </Row>
                                 </ContractFields>
@@ -196,3 +226,37 @@ const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 };
 
 export default EditInvoiceForm;
+
+// get editingEntity from props
+
+const defaultValues = {
+    "id": 472, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "dueDate": "2024-04-30", // input type = import DatePicker from 'react-multi-date-picker', locales = persian_fa, calendar = persian
+    "invoiceNumber": 41,
+    "issuedDate": "2024-04-30", // input type = import DatePicker from 'react-multi-date-picker', locales = persian_fa, calendar = persian
+    "salesType": "CONTRACTUAL_SALES",
+    "contractId": 1, // input type = async/react-select, options = contracts
+    "contractNumber": "1402-46",
+    "customerId": 73, // input type = async/react-select, options = customers
+    "customerName": "پتروشیمی کارون",
+    "invoiceStatusId": 1, // input type = async/react-select, options = contracts
+    "advancedPayment": 0, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "insuranceDeposit": 596000000, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "performanceBound": 1192000000, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "vatRateId": 1, // input type = async/react-select, options = VatRates
+    "totalAmount": 1.51056E9, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "totalAmountWithVat": 1.51207056E9, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "vatAmount": 1510560.0, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "totalQuantity": null, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "totalPrice": null, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+    "invoiceItems": [
+        {
+            "id": 1706,
+            "quantity": 400, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+            "unitPrice": 1.049E7, // input type = import { NumericFormat } from 'react-number-format', 3 digits group format, separator = ,
+            "productId": 318,
+            "warehouseReceiptId": 1830,
+            "totalPrice": 4.196E9
+        },
+    ]
+}

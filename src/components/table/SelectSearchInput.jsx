@@ -1,9 +1,8 @@
-import React, { memo } from 'react';
+import React from 'react';
 import Select from "react-select";
 import { getCustomSelectStyles } from "../../utils/customStyles";
-import PropTypes from "prop-types";
 
-const SelectSearchInput = memo(({ options, value, onChange, name }) => {
+const SelectSearchInput = ({ options, value, onChange, name }) => {
     return (
         <Select
             options={options}
@@ -17,16 +16,5 @@ const SelectSearchInput = memo(({ options, value, onChange, name }) => {
             isClearable={true}
         />
     );
-});
-SelectSearchInput.propTypes = {
-    options: PropTypes.arrayOf(
-        PropTypes.shape({
-            value: PropTypes.string.isRequired,
-            label: PropTypes.string.isRequired,
-        }).isRequired
-    ).isRequired,
-    value: PropTypes.string,
-    onChange: PropTypes.func.isRequired,
-    name: PropTypes.string.isRequired,
 };
 export default SelectSearchInput;

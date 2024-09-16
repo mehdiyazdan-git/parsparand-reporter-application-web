@@ -1,17 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React, {useEffect, useState} from 'react';
 
 const TimeDisplay = () => {
+
     const [currentTime, setCurrentTime] = useState(new Date());
 
-    useEffect(()  => {
-        // Refresh the time every second
+    useEffect(() => {
         const intervalId = setInterval(() => {
             setCurrentTime(new Date());
-        }, 1000);
+        }, 1000); // Update every second
 
-        // Clean up the interval when the component unmounts
-        return () => clearInterval(intervalId);
-    }, []);
+        return () => clearInterval(intervalId); // Cleanup on unmount
+    }, [currentTime]);
 
     // Parse the datetime
     const parsedDate = new Date(currentTime);

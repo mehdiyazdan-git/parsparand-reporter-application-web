@@ -7,6 +7,7 @@ import SearchDateInput from './SearchDateInput';
 import IconBxRefresh from "../assets/icons/IconBxRefresh";
 import {AppContext} from "../contexts/AppProvider";
 import AsyncSelectComponent from "../templates/AsyncSelectComponent";
+import AsyncSelectSearchInput from "./AsyncSelectSearchInput";
 
 
 const TableSearch = function ({columns, updateSearchParams, filters, resetFilter}) {
@@ -35,75 +36,99 @@ const TableSearch = function ({columns, updateSearchParams, filters, resetFilter
     };
     return (
         <tr className="table-header-row">
-            {columns.map((column) =>
+            {columns.map((column,index) =>
                 column.searchable ? (
                     column.type === 'date' ? (
-                        <SearchDateInput
-                            key={column.key}
-                            width={column.width}
-                            name={column.key || ''}
-                            value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
-                            onChange={(date) => handleSearchChange(column.key, date)}
-                        />
+                        <th key={index} width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                            <SearchDateInput
+                                key={column.key}
+                                width={column.width}
+                                name={column.key || ''}
+                                value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
+                                onChange={(date) => handleSearchChange(column.key, date)}
+                            />
+                        </th>
                     ) : column.type === 'select' ? (
-                        <SelectSearchInput
-                            key={column.key}
-                            width={column.width}
-                            name={column?.key || ''}
-                            options={column.options}
-                            fetchAPI={column.fetchAPI}
-                            value={filters?.search ? filters.search[column.key] : null}
-                            onChange={(value) => handleSearchChange(column.key, value)}
-                        />
+                        <th key={index}  width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                            <SelectSearchInput
+                                key={column.key}
+                                width={column.width}
+                                name={column?.key || ''}
+                                options={column.options}
+                                fetchAPI={column.fetchAPI}
+                                value={filters?.search ? filters.search[column.key] : null}
+                                onChange={(value) => handleSearchChange(column.key, value)}
+                            />
+                        </th>
                     ) : column.type === 'async-select' ? (
-                        <AsyncSelectComponent
-                            width={column.width}
-                            options={getOptions(column)}
-                            name={column?.searchKey || ''}
-                            value={getOptions(column)?.find((option) => option.value === filters.search[column.searchKey])}
-                            onChange={(value) => handleSearchChange(column.searchKey, value?.value)}
-                            resetTrigger={resetAsyncSearchSelectTrigger} // Pass the reset function to AsyncSelectSearch
-                        />
+                        <th key={index}  width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                            <AsyncSelectSearchInput
+                                key={column.key}
+                                width={column.width}
+                                options={getOptions(column)}
+                                name={column?.searchKey || ''}
+                                value={getOptions(column)?.find((option) => option.value === filters.search[column.searchKey])}
+                                onChange={(value) => handleSearchChange(column.searchKey, value?.value)}
+                                resetTrigger={resetAsyncSearchSelectTrigger} // Pass the reset function to AsyncSelectSearch
+                            />
+                        </th>
                     ) : column.type === 'text' ? (
-                        <SearchInput
-                            key={column.key}
-                            width={column.width}
-                            id={column.key}
-                            name={column?.key || ''}
-                            value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
-                            onChange={(value) => handleSearchChange([column.searchKey], value)}
-                        />
+                        <th key={index}  width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                            <SearchInput
+                                key={column.key}
+                                width={column.width}
+                                id={column.key}
+                                name={column?.key || ''}
+                                value={filters.search[column.key] ? (column.render ? column.render(filters.search[column.key]) : filters.search[column.key]) : ''}
+                                onChange={(value) => handleSearchChange([column.searchKey], value)}
+                            />
+                        </th>
                     ) : column.type === 'checkbox' ? (
-                        <SearchCheckboxInput
-                            key={column.key}
-                            width={column.width}
-                            id={column.key}
-                            name={column?.key || ''}
-                            checked={filters.search?.[column.key]}
-                            onChange={(event) => handleSearchChange(column.key, event.target.checked)}
-                            label={column.title}
-                        />
+                        <th  key={index} width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                            <SearchCheckboxInput
+                                key={column.key}
+                                width={column.width}
+                                id={column.key}
+                                name={column?.key || ''}
+                                checked={filters.search?.[column.key]}
+                                onChange={(event) => handleSearchChange(column.key, event.target.checked)}
+                                label={column.title}
+                            />
+                        </th>
                     ) : column.type === 'number' ? (
-                        <SearchNumberInput
-                            key={column.key}
-                            width={column.width}
-                            id={column.key}
-                            name={column.key}
-                            value={filters.search[column.key]}
-                            onChange={(value) => handleSearchChange(column.key, value)}
-                        />
+                       <th key={index}  width={column.width} style={{
+                           backgroundColor: 'rgba(255, 255, 255, 1)',
+                           borderBottom: 'none',
+                           boxSizing: 'border-box',
+                           width: column.width,
+                           margin: "0",
+                           padding: "0.1rem 0.1rem",
+                           borderRadius: "0.25rem",
+                           boxShadow: "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)"
+                       }}>
+                           <SearchNumberInput
+                               key={column.key}
+                               width={column.width}
+                               id={column.key}
+                               name={column.key}
+                               value={filters.search[column.key]}
+                               onChange={(value) => handleSearchChange(column.key, value)}
+                           />
+                       </th>
                     ) : (
-                        <SearchInput
-                            key={column.key}
-                            width={column.width}
-                            id={column.key}
-                            name={column?.key || ''}
-                            value={filters.search?.[column.key]}
-                            onChange={(event) => handleSearchChange(column.key, event.target.value)}
-                        />
+                       <th key={index}  width={column.width} style={{padding: '0px 0px', textAlign: 'center', margin: '0'}}>
+                           <SearchInput
+                               key={column.key}
+                               width={column.width}
+                               id={column.key}
+                               name={column?.key || ''}
+                               value={filters.search?.[column.key]}
+                               onChange={(event) => handleSearchChange(column.key, event.target.value)}
+                           />
+                       </th>
                     )
                 ) : (
-                    <th key={column.key} style={{width: `${column.width}`}}>
+                    <th key={index} style={{width: `${column.width}`}}>
 
                     </th>
                 )

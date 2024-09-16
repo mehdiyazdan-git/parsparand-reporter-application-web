@@ -14,7 +14,7 @@
 import React, {useState, useEffect} from 'react';
 import AsyncSelect from 'react-select/async';
 import axios from 'axios';
-import PropTypes from "prop-types";
+
 
 function AsyncSelectComponent({
                                   onChange,
@@ -77,14 +77,6 @@ function AsyncSelectComponent({
         />
     );
 }
-AsyncSelectComponent.propTypes = {
-    onChange: PropTypes.func,
-    filter: PropTypes.object,
-    selectApiUrl: PropTypes.string.isRequired, // API url of the select endpoint
-    labelKey: PropTypes.string.isRequired,
-    valueKey: PropTypes.string.isRequired,
-    placeholder: PropTypes.string,
-};
 export default AsyncSelectComponent;
 
 const getCustomSelectStyles = (error) => {

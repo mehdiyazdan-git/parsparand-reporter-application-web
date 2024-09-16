@@ -45,7 +45,13 @@ const AppProvider = ({children}) => {
     const fetchProducts = async () => {
         try {
             const response = await api.get('/products/select', {params: {searchQuery: ""}});
-            const formattedData = formatArray(response.data);
+            const formattedData = response.data.map(option => ({
+                value: option.id,
+                label: option.name,
+                advancePayment : option.advancePayment,
+                insuranceDeposit: option.insuranceDeposit,
+                performanceBond: option.performanceBond
+            }))
             setProducts(formattedData);
             persistInSessionStorage('products', formattedData);
         } catch (error) {

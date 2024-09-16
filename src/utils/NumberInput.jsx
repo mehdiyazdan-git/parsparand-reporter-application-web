@@ -20,7 +20,7 @@ const NumberInput = ({ name, label, style, field, ...rest }) => {
                 {label}
             </label>
             <ConnectForm>
-                {({ control, setValue, values }) => (
+                {({ control, setValue }) => (
                     <Controller
                         control={control}
                         name={name}

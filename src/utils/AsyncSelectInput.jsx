@@ -30,12 +30,12 @@ const AsyncSelectInput = ({ name, options = [], isClearable = true, resetTrigger
     }, [resetTrigger]);
 
     return (
-        <SelectContainer>
+
             <Controller
                 name={name}
                 control={control}
                 render={({ field,fieldState: {error} }) => (
-                   <>
+                   <SelectContainer>
                        {label && <label style={labelStyle} htmlFor={name}>{label}</label>}
                        <AsyncSelect
                            {...field}
@@ -59,10 +59,9 @@ const AsyncSelectInput = ({ name, options = [], isClearable = true, resetTrigger
                                menuPortal: (base) => ({...base, zIndex: 9999}),
                            }}
                        />
-                   </>
+                   </SelectContainer>
                 )}
             />
-        </SelectContainer>
     );
 };
 

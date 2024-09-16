@@ -22,7 +22,7 @@ const style = {
         opacity: "1",
         textIndent:"0.5rem",
     },
-    "&:-webkit-autofill": {
+    "&:WebkitAutofill": {
         boxShadow: "0 0 0 1000px rgba(255, 255, 255, 0.5) inset",
 
         "&:focus": {
@@ -55,7 +55,6 @@ function AmountNumber({value, name, onChange, id,error,isDisable=false}) {
     };
 
     return (
-        <div>
             <input
                 id={id}
                 type="text"
@@ -65,7 +64,6 @@ function AmountNumber({value, name, onChange, id,error,isDisable=false}) {
                 style={style}
                 disabled={isDisable}
             />
-        </div>
     );
 }
 

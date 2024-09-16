@@ -15,6 +15,17 @@ const useHttp = () => {
             params
         });
     };
+
+    const get = async (endpoint,id) => {
+        return await axios.get(`${baseURL}/${endpoint}/${id}`, {
+            headers: {
+                Authorization: `Bearer ${token}`
+            },
+        });
+    }
+
+
+
     const post = async (endpoint, data) => {
         return await axios.post(`${baseURL}/${endpoint}`, data, {
             headers: {
@@ -73,7 +84,7 @@ const useHttp = () => {
         });
     }
 
-    return {getAll, post, put, del, upload, download};
+    return {getAll,get, post, put, del, upload, download};
 
 }
 export default useHttp;

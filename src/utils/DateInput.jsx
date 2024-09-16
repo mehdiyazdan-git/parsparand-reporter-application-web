@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, {useEffect} from 'react';
 import { Controller } from 'react-hook-form';
 import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
@@ -7,9 +7,12 @@ import { ConnectForm } from "./ConnectForm";
 import "../App.css"
 
 const DateInput = ({ name, label, field, ...rest }) => {
-    const isInFieldArray = useMemo(() => (
-        field?.name?.includes('[') && field?.name?.includes(']')
-    ), [field?.name]);
+    const [isInFieldArray, setIsInFieldArray] = React.useState(false);
+
+
+    useEffect(() => {
+        setIsInFieldArray(() => (field?.name?.includes('[') && field?.name?.includes(']')));
+    }, [field?.name]);
 
     return (
         <div className={"container-fluid p-0 m-0"}>

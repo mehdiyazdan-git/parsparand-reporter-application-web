@@ -32,7 +32,7 @@ export const getCustomSelectStyles = (error) => ({
             overflow: 'hidden', // Hides any overflowing content
         },
 
-        "&:-webkit-autofill": {
+        "&:WebkitAutofill": {
             boxShadow: '0 0 0 1000px rgba(255, 255, 255, 0.5) inset', // Styles for autofill
 
             '&:focus': {

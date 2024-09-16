@@ -30,11 +30,10 @@ const Table = ({
                }) => {
     /* option schema = {value: 3, label: 1402} */
     const handleYearChange = useCallback((option) => {
-        updateSearchParams({ ['jalaliYear']: option?.label });
+        updateSearchParams({['jalaliYear']: option?.label});
     }, [updateSearchParams]);
 
     const {years} = useContext(AppContext);
-
 
 
     const tableData = data?.content || [];
@@ -56,6 +55,7 @@ const Table = ({
             )}
 
             <table className="recipient-table table-fixed-height mt-3">
+                <thead>
                 <TableHeader columns={columns} filter={filters} updateSorting={updateSorting}/>
                 <TableSearch
                     columns={columns}
@@ -65,6 +65,7 @@ const Table = ({
                     filters={filters}
                     resetFilter={resetFilter}
                 />
+                </thead>
                 <TableBody
                     data={tableData}
                     columns={columns}
@@ -110,10 +111,6 @@ Table.propTypes = {
     hasSubTotal: PropTypes.bool,
     hasYearSelect: PropTypes.bool,
     refreshTrigger: PropTypes.any
-};
-
-Table.defaultProps = {
-    initialFilter: {page: 0, size: 10}
 };
 
 export default Table;

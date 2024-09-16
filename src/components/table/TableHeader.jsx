@@ -16,7 +16,6 @@ const TableHeader = ({ columns, filter, updateSorting }) => {
     };
 
     return (
-        <thead>
         <tr>
             {columns.map((column) => (
                 <th
@@ -31,7 +30,6 @@ const TableHeader = ({ columns, filter, updateSorting }) => {
             ))}
             <th width="7%">ویرایش|حذف</th>
         </tr>
-        </thead>
     );
 };
 

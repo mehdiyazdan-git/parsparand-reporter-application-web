@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import { useFieldArray, useFormContext, useWatch } from 'react-hook-form';
 import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
@@ -6,6 +6,7 @@ import AmountNumber from "../../utils/AmountNumber";
 import IconDeleteOutline from "../assets/icons/IconDeleteOutline";
 import IconAddCircleLine from "../assets/icons/IconAddCircleLine";
 import {tableStyle, tdStyle, thStyle} from "../styles/styles";
+import {AppContext} from "../contexts/AppProvider";
 
 const ContractItems = () => {
     const [subtotal, setSubtotal] = useState(0);
@@ -20,6 +21,7 @@ const ContractItems = () => {
         name: 'contractItems',
         control
     });
+    const {products} = useContext(AppContext);
 
     useEffect(() => {
         const newSubtotal = watchedFields.reduce((acc, item) => {
@@ -65,7 +67,7 @@ const ContractItems = () => {
                     <tr key={field.id}>
                         <td className="m-0 p-0" style={{ width: '50%',...tdStyle }}>
                             <AsyncSelectInput
-                                url={"products/select"}
+                                options={products}
                                 name={`contractItems[${index}].productId`}
                                 value={fields[index]['productId']}
                             />

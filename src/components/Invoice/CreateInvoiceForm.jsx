@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import {Col, Row} from "react-bootstrap";
 import * as Yup from "yup";
@@ -15,6 +15,7 @@ import ContractFields from "./ContractFields";
 import CustomModal, {Body, Container, Header, Title} from "../../utils/CustomModal";
 import {AppContext} from "../contexts/AppProvider";
 import ErrorMessage from "../../utils/ErrorMessage";
+import useHttp from "../contexts/useHttp";
 
 const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
 
@@ -32,6 +33,10 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
         insuranceDeposit: '', // positive rounded integer number
         performanceBound: '', // positive rounded integer number
         yearId: '', // not required, but if provided, it should be a valid year id
+        vatRateId: '', // if vatRateId === null || vatRateId === undefined => vatRateId = VATRates.find(rate => new Date(rate.effectiveFrom) <= issuedDateObj)?.id || VATRates[0]?.id
+        totalAmount: '',
+        totalAmountWithVat: '',
+        vatAmount: '',
         invoiceItems: [
             {
                 productId: '', // not required, but if provided, it should be a valid product id
@@ -169,6 +174,7 @@ const CreateInvoiceForm = ({onCreateEntity, show, onHide}) => {
             onHide();
         }
     };
+
 
 
     return (

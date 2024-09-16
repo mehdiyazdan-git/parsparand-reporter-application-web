@@ -12,7 +12,7 @@ const SelectInput = ({ name, options, label, field, ...rest }) => {
             <Controller
                 name={name}
                 control={control}
-                defaultValue={field?.value || options[0].value}
+                defaultValue={field?.value}
                 rules={{ required: field?.required }}
                 render={({ field: { onChange, value },
                              fieldState : {error} }) => (
