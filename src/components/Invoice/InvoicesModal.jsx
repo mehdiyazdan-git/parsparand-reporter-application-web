@@ -78,9 +78,18 @@ const InvoicesModal = ({ contractNumber }) => {
                 aria-labelledby="invoices-modal-title" // Add aria-labelledby for accessibility
                 aria-modal="true"
             >
-                <Modal.Header closeButton>
-                    <Modal.Title id="invoices-modal-title">Invoices</Modal.Title>
-                </Modal.Header> {/* Add Modal.Header */}
+                <Modal.Header>
+                    <Modal.Title
+                        id="invoices-modal-title"
+                        style={{
+                            fontFamily : 'IRANSansBold',
+                            fontSize : '0.85rem'
+
+                        }}
+                    >
+                        {`فاکتور های قرارداد ${contractNumber}`}
+                    </Modal.Title>
+                </Modal.Header>
                 <ModalBody>
                     <Invoices
                         filterOptions={filterOptions}

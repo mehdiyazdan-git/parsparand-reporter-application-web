@@ -1,13 +1,15 @@
-import React, {useEffect} from 'react';
-import { Controller } from 'react-hook-form';
+import React, {useEffect, useRef} from 'react';
+import {Controller} from 'react-hook-form';
 import DatePicker from 'react-multi-date-picker';
 import persian from 'react-date-object/calendars/persian';
 import persian_fa from 'react-date-object/locales/persian_fa';
-import { ConnectForm } from "./ConnectForm";
+import {ConnectForm} from "./ConnectForm";
 import "../App.css"
 
-const DateInput = ({ name, label, field, ...rest }) => {
+const DateInput = ({name, label, field, ...rest}) => {
     const [isInFieldArray, setIsInFieldArray] = React.useState(false);
+
+    const portalTarget = useRef(document.getElementById('portal-root'));
 
 
     useEffect(() => {
@@ -16,15 +18,15 @@ const DateInput = ({ name, label, field, ...rest }) => {
 
     return (
         <div className={"container-fluid p-0 m-0"}>
-            <label className="label" style={{ fontFamily: "IRANSansBold", fontSize: "0.75rem" }}>{label}</label>
+            <label className="label" style={{fontFamily: "IRANSansBold", fontSize: "0.75rem"}}>{label}</label>
             <ConnectForm>
-                {({ control, setValue }) => (
+                {({control, setValue}) => (
                     <Controller
                         control={control}
                         name={name}
                         render={({
                                      field: controlledField, // Rename to avoid shadowing
-                                     fieldState: { invalid, error }
+                                     fieldState: {invalid, error}
                                  }) => (
                             <div>
                                 <DatePicker
@@ -34,7 +36,7 @@ const DateInput = ({ name, label, field, ...rest }) => {
                                     type={"search"}
                                     calendar={persian}
                                     locale={persian_fa}
-                                    onChange={(date, { input, isTyping }) => {
+                                    onChange={(date, {input, isTyping}) => {
                                         const newValue = date?.isValid ? date.toDate() : "";
                                         if (!isInFieldArray) {
                                             setValue(name, newValue);
@@ -49,10 +51,16 @@ const DateInput = ({ name, label, field, ...rest }) => {
                                         boxSizing: 'border-box',
                                         minHeight: '40px',
                                         backgroundColor: 'rgba(255, 255, 255, 0.5)'
+
                                     }}
                                     containerStyle={{
                                         width: '100%',
                                     }}
+                                    // Enable portal and specify the portal target
+                                    portal={true}
+                                    portalTarget={portalTarget.current}
+                                    // Optional: Adjust z-index via className or inline styles
+                                    zIndex={2000} // Ensure it's above the modal
                                     {...rest}
                                 />
                                 {invalid && error && (

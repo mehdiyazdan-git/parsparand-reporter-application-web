@@ -25,18 +25,7 @@ const EditInvoiceForm = ({ defaultValues, loadContracts, loadCustomers, loadVatR
             {/* Invoice ID */}
             <div>
                 <label>Invoice ID</label>
-                <Controller
-                    name="id"
-                    control={control}
-                    render={({ field }) => (
-                        <NumericFormat
-                            {...field}
-                            thousandSeparator=","
-                            displayType="input"
-                            className="form-control"
-                        />
-                    )}
-                />
+                <input {...register('id')} className="form-control"/>
             </div>
 
             {/* Due Date */}
@@ -156,7 +145,7 @@ const EditInvoiceForm = ({ defaultValues, loadContracts, loadCustomers, loadVatR
             {/* Invoice Items Table */}
             <div>
                 <label>Invoice Items</label>
-                <table>
+                <table className="table table-bordered table-responsive">
                     <thead>
                     <tr>
                         <th>Quantity</th>

@@ -7,9 +7,6 @@ import {useFormContext, useWatch} from "react-hook-form";
  ***/
 const ContractFields = ({ children,onSalesTypeChange }) => {
 
-
-
-
     const {control} = useFormContext();
     const salesType = useWatch({ control, name: "salesType" });
 

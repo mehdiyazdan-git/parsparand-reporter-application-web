@@ -35,7 +35,9 @@ const YearComparisonReport = () => {
                 ...prevFilter,
                 ...newFilter,
             };
-            sessionStorage.setItem("filter_year_comparison_report", JSON.stringify(updatedFilter)); // Save to session storage
+            sessionStorage.setItem(
+                "filter_year_comparison_report",
+                JSON.stringify(updatedFilter)); // Save to session storage
             return updatedFilter;
         });
     }, []);

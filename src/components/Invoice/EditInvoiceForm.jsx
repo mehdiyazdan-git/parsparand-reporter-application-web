@@ -1,4 +1,4 @@
-import React, {useCallback, useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -16,33 +16,9 @@ import SelectInput from "../../utils/SelectInput";
 import ContractFields from "./ContractFields";
 import ErrorMessage from "../../utils/ErrorMessage";
 import {AppContext} from "../contexts/AppProvider";
-import useHttp from "../contexts/useHttp";
-import {toast} from "react-toastify";
 
 
-// const invoiceSchema = {
-//     id: editingEntity.id,
-//     dueDate: editingEntity.dueDate,
-//     invoiceNumber: editingEntity.invoiceNumber,
-//     issuedDate: editingEntity.issuedDate,
-//     salesType: editingEntity.salesType,
-//     contractId: editingEntity.contractId,
-//     contractNumber: editingEntity.contractNumber,
-//     customerId: editingEntity.customerId,
-//     customerName: editingEntity.customerName,
-//     invoiceStatusId: editingEntity.invoiceStatusId,
-//     advancedPayment: editingEntity.advancedPayment,
-//     insuranceDeposit: editingEntity.insuranceDeposit,
-//     performanceBound: editingEntity.performanceBound,
-//     yearId: editingEntity.yearId,
-//     vatRateId: editingEntity.vatRateId,
-//     totalAmount: editingEntity.totalAmount,
-//     totalAmountWithVat: editingEntity.totalAmountWithVat,
-//     vatAmount: editingEntity.vatAmount,
-//     totalQuantity: editingEntity.totalQuantity,
-//     totalPrice: editingEntity.totalPrice,
-//     invoiceItems: editingEntity.invoiceItems
-// }
+
 
 const EditInvoiceForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
 

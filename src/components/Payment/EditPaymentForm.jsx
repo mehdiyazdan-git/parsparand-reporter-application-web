@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Col, Row } from "react-bootstrap";
 import * as Yup from "yup";
@@ -13,10 +13,12 @@ import AsyncSelectInput from "../../utils/AsyncSelectInput";
 import NumberInput from "../../utils/NumberInput";
 import SelectInput from "../../utils/SelectInput";
 import ErrorMessage from "../../utils/ErrorMessage";
+import {AppContext} from "../contexts/AppProvider";
 
-const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
+const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide, className }) => {
 
     const [errorMessage, setErrorMessage] = React.useState(null);
+    const {customers} = useContext(AppContext);
 
 
     const validationSchema = Yup.object().shape({
@@ -66,7 +68,12 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
     };
 
     return (
-        <CustomModal size={"xl"} show={show} onHide={onHide}>
+        <CustomModal
+            size={"xl"}
+            show={show}
+            onHide={onHide}
+            className={`custom-modal ${className || ''}`}
+        >
             <Header>
                 <Title>{"فرم ویرایش پرداخت"}</Title>
             </Header>
@@ -98,8 +105,8 @@ const EditPaymentForm = ({ editingEntity, onUpdateEntity, show, onHide }) => {
                                     <Col>
                                         <AsyncSelectInput
                                             name="customerId"
-                                            label={"شناسه مشتری"}
-                                            url={"customers/select"}
+                                            label={"مشتری"}
+                                            options={customers}
                                             value={editingEntity?.customerId}
                                         />
                                     </Col>
